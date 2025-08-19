@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three-Column Accounting Story Simulator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            font-size: 15px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 0.9fr 0.9fr;
+            grid-template-rows: auto 1fr;
+            gap: 15px;
+        }
+        
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 15px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .story-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .story-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+        
+        .story-content {
+            line-height: 1.7;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 5px;
+            font-size: 15px;
+            text-align: justify;
+        }
+        
+        .highlighted {
+            background-color: #e3f2fd;
+            font-weight: 500;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .financial-panels {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            grid-column: 2 / 4;
+        }
+        
+        .financial-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .balance-sheet, .income-statement {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+        
+        .panel-title {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 13.5px;
+        }
+        
+        th, td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .positive {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+        
+        .negative {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 15px;
+            grid-column: 1 / -1;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .play-btn {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .play-btn:hover {
+            background: #27ae60;
+        }
+        
+        .reset-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            background: #c0392b;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #ecf0f1;
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: #3498db;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .transaction-details {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #3498db;
+            font-size: 13px;
+        }
+        
+        .transaction-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #2c3e50;
+        }
+        
+        .compact-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .financial-panels {
+                grid-column: 1;
+            }
+            
+            .financial-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Three-Column Accounting Story Simulator</h1>
+            <div class="subtitle">Follow the business journey with financial statements side by side</div>
+        </header>
+        
+        <div class="story-panel">
+            <h2 class="story-title">Business Story: TechGadgets Inc.</h2>
+            <div class="story-content">
+                <p id="story-text">
+                    <span id="s1">John started TechGadgets Inc. with a $50,000 investment.</span>
+                    <span id="s2"> The business secured a $30,000 bank loan.</span>
+                    <span id="s3"> They purchased $20,000 of equipment.</span>
+                    <span id="s4"> Acquired $15,000 inventory on credit.</span>
+                    <span id="s5"> Paid $5,000 for six months of rent.</span>
+                    <span id="s6"> Made $8,000 in cash sales.</span>
+                    <span id="s7"> Sold $12,000 worth of goods on credit.</span>
+                    <span id="s8"> Purchased additional $10,000 inventory with cash.</span>
+                    <span id="s9"> Paid $7,000 to suppliers.</span>
+                    <span id="s10"> Collected $9,000 from credit customers.</span>
+                    <span id="s11"> Paid $4,000 in employee salaries.</span>
+                    <span id="s12"> Paid $1,200 for utilities.</span>
+                    <span id="s13"> Bought an $18,000 vehicle with $5,000 cash and a loan.</span>
+                    <span id="s14"> Made $15,000 in cash sales during a holiday promotion.</span>
+                    <span id="s15"> Recorded $800 in depreciation.</span>
+                    <span id="s16"> Paid $300 in loan interest.</span>
+                    <span id="s17"> Prepaid $1,800 for insurance.</span>
+                    <span id="s18"> Received a $3,000 customer advance.</span>
+                    <span id="s19"> Wrote off $500 of damaged inventory.</span>
+                    <span id="s20"> Calculated $22,000 cost of goods sold.</span>
+                </p>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
+        
+        <div class="financial-panels">
+            <div class="financial-row">
+                <div class="balance-sheet">
+                    <h2 class="panel-title">
+                        Balance Sheet
+                        <span>As of Month End</span>
+                    </h2>
+                    
+                    <div class="compact-row">
+                        <div><strong>Assets</strong></div>
+                        <div><strong>Amount</strong></div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Cash</div>
+                        <div id="cash">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Accounts Receivable</div>
+                        <div id="receivable">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Inventory</div>
+                        <div id="inventory">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Prepaid Expenses</div>
+                        <div id="prepaid">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Equipment</div>
+                        <div id="equipment">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Vehicle</div>
+                        <div id="vehicle">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Accumulated Depreciation</div>
+                        <div id="accumulatedDep">$0</div>
+                    </div>
+                    <div class="compact-row" style="margin-top: 8px; border-top: 1px solid #ddd; padding-top: 5px;">
+                        <div><strong>Total Assets</strong></div>
+                        <div><strong id="totalAssets">$0</strong></div>
+                    </div>
+                    
+                    <div class="compact-row" style="margin-top: 12px;">
+                        <div><strong>Liabilities & Equity</strong></div>
+                        <div><strong>Amount</strong></div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Accounts Payable</div>
+                        <div id="payable">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Bank Loans</div>
+                        <div id="loans">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Unearned Revenue</div>
+                        <div id="unearned">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Owner's Capital</div>
+                        <div id="capital">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Retained Earnings</div>
+                        <div id="earnings">$0</div>
+                    </div>
+                    <div class="compact-row" style="margin-top: 8px; border-top: 1px solid #ddd; padding-top: 5px;">
+                        <div><strong>Total Liabilities & Equity</strong></div>
+                        <div><strong id="totalLiabilities">$0</strong></div>
+                    </div>
+                    
+                    <div class="transaction-details" id="balance-details">
+                        <div class="transaction-title">Transaction Impact:</div>
+                        <p id="balance-impact">No transactions yet. Click Next to start.</p>
+                    </div>
+                </div>
+                
+                <div class="income-statement">
+                    <h2 class="panel-title">
+                        Income Statement
+                        <span>For the Month</span>
+                    </h2>
+                    
+                    <div class="compact-row">
+                        <div><strong>Revenues</strong></div>
+                        <div><strong>Amount</strong></div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Sales Revenue</div>
+                        <div id="revenue">$0</div>
+                    </div>
+                    
+                    <div class="compact-row" style="margin-top: 8px;">
+                        <div><strong>Expenses</strong></div>
+                        <div><strong>Amount</strong></div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Cost of Goods Sold</div>
+                        <div id="cogs">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Salaries Expense</div>
+                        <div id="salaries">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Rent Expense</div>
+                        <div id="rent">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Utilities Expense</div>
+                        <div id="utilities">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Depreciation Expense</div>
+                        <div id="depreciation">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Interest Expense</div>
+                        <div id="interest">$0</div>
+                    </div>
+                    <div class="compact-row">
+                        <div>Inventory Write-off</div>
+                        <div id="writeoff">$0</div>
+                    </div>
+                    <div class="compact-row" style="margin-top: 8px; border-top: 1px solid #ddd; padding-top: 5px;">
+                        <div><strong>Total Expenses</strong></div>
+                        <div><strong id="totalExpenses">$0</strong></div>
+                    </div>
+                    
+                    <div class="compact-row" style="margin-top: 8px; border-top: 1px solid #ddd; padding-top: 5px;">
+                        <div><strong>Net Income</strong></div>
+                        <div><strong id="netIncome">$0</strong></div>
+                    </div>
+                    
+                    <div class="transaction-details" id="income-details">
+                        <div class="transaction-title">Transaction Impact:</div>
+                        <p id="income-impact">No transactions yet. Click Next to start.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="play-btn" id="playBtn">
+                <i class="fas fa-play"></i> Next Transaction
+            </button>
+            <button class="reset-btn" id="resetBtn">
+                <i class="fas fa-redo"></i> Reset
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Accounting data model
+        const accountingData = {
+            currentStep: 0,
+            totalSteps: 20,
+            
+            // Balance Sheet Items
+            cash: 0,
+            receivable: 0,
+            inventory: 0,
+            prepaid: 0,
+            equipment: 0,
+            vehicle: 0,
+            accumulatedDep: 0,
+            
+            payable: 0,
+            loans: 0,
+            unearned: 0,
+            capital: 0,
+            earnings: 0,
+            
+            // Income Statement Items
+            revenue: 0,
+            cogs: 0,
+            salaries: 0,
+            rent: 0,
+            utilities: 0,
+            depreciation: 0,
+            interest: 0,
+            writeoff: 0,
+            
+            // Transaction details
+            transactions: [
+                {
+                    balance: "Cash +$50,000, Owner's Capital +$50,000",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.cash += 50000;
+                        accountingData.capital += 50000;
+                    }
+                },
+                {
+                    balance: "Cash +$30,000, Bank Loans +$30,000",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.cash += 30000;
+                        accountingData.loans += 30000;
+                    }
+                },
+                {
+                    balance: "Equipment +$20,000, Cash -$20,000",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.equipment += 20000;
+                        accountingData.cash -= 20000;
+                    }
+                },
+                {
+                    balance: "Inventory +$15,000, Accounts Payable +$15,000",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.inventory += 15000;
+                        accountingData.payable += 15000;
+                    }
+                },
+                {
+                    balance: "Prepaid Expenses +$5,000, Cash -$5,000",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.prepaid += 5000;
+                        accountingData.cash -= 5000;
+                    }
+                },
+                {
+                    balance: "Cash +$8,000",
+                    income: "Sales Revenue +$8,000",
+                    update: function() {
+                        accountingData.cash += 8000;
+                        accountingData.revenue += 8000;
+                    }
+                },
+                {
+                    balance: "Accounts Receivable +$12,000",
+                    income: "Sales Revenue +$12,000",
+                    update: function() {
+                        accountingData.receivable += 12000;
+                        accountingData.revenue += 12000;
+                    }
+                },
+                {
+                    balance: "Inventory +$10,000, Cash -$10,000",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.inventory += 10000;
+                        accountingData.cash -= 10000;
+                    }
+                },
+                {
+                    balance: "Accounts Payable -$7,000, Cash -$7,000",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.payable -= 7000;
+                        accountingData.cash -= 7000;
+                    }
+                },
+                {
+                    balance: "Accounts Receivable -$9,000, Cash +$9,000",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.receivable -= 9000;
+                        accountingData.cash += 9000;
+                    }
+                },
+                {
+                    balance: "Cash -$4,000",
+                    income: "Salaries Expense +$4,000",
+                    update: function() {
+                        accountingData.cash -= 4000;
+                        accountingData.salaries += 4000;
+                    }
+                },
+                {
+                    balance: "Cash -$1,200",
+                    income: "Utilities Expense +$1,200",
+                    update: function() {
+                        accountingData.cash -= 1200;
+                        accountingData.utilities += 1200;
+                    }
+                },
+                {
+                    balance: "Vehicle +$18,000, Cash -$5,000, Bank Loans +$13,000",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.vehicle += 18000;
+                        accountingData.cash -= 5000;
+                        accountingData.loans += 13000;
+                    }
+                },
+                {
+                    balance: "Cash +$15,000",
+                    income: "Sales Revenue +$15,000",
+                    update: function() {
+                        accountingData.cash += 15000;
+                        accountingData.revenue += 15000;
+                    }
+                },
+                {
+                    balance: "Accumulated Depreciation +$800",
+                    income: "Depreciation Expense +$800",
+                    update: function() {
+                        accountingData.accumulatedDep += 800;
+                        accountingData.depreciation += 800;
+                    }
+                },
+                {
+                    balance: "Cash -$300",
+                    income: "Interest Expense +$300",
+                    update: function() {
+                        accountingData.cash -= 300;
+                        accountingData.interest += 300;
+                    }
+                },
+                {
+                    balance: "Prepaid Expenses +$1,800, Cash -$1,800",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.prepaid += 1800;
+                        accountingData.cash -= 1800;
+                    }
+                },
+                {
+                    balance: "Cash +$3,000, Unearned Revenue +$3,000",
+                    income: "No income impact",
+                    update: function() {
+                        accountingData.cash += 3000;
+                        accountingData.unearned += 3000;
+                    }
+                },
+                {
+                    balance: "Inventory -$500",
+                    income: "Inventory Write-off +$500",
+                    update: function() {
+                        accountingData.inventory -= 500;
+                        accountingData.writeoff += 500;
+                    }
+                },
+                {
+                    balance: "Inventory -$22,000",
+                    income: "Cost of Goods Sold +$22,000",
+                    update: function() {
+                        accountingData.inventory -= 22000;
+                        accountingData.cogs += 22000;
+                        
+                        // Update retained earnings with net income
+                        const totalExpenses = accountingData.cogs + accountingData.salaries + 
+                                            accountingData.rent + accountingData.utilities + 
+                                            accountingData.depreciation + accountingData.interest + 
+                                            accountingData.writeoff;
+                        const netIncome = accountingData.revenue - totalExpenses;
+                        accountingData.earnings = netIncome;
+                    }
+                }
+            ]
+        };
+
+        // DOM elements
+        const playBtn = document.getElementById('playBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const progressBar = document.getElementById('progress');
+        
+        // Initialize the application
+        function init() {
+            updateFinancialStatements();
+            playBtn.addEventListener('click', playTransaction);
+            resetBtn.addEventListener('click', resetSimulation);
+        }
+        
+        // Play the next transaction
+        function playTransaction() {
+            if (accountingData.currentStep >= accountingData.totalSteps) {
+                alert('All transactions have been completed. Click Reset to start over.');
+                return;
+            }
+            
+            // Highlight the current sentence
+            const currentSentence = document.getElementById('s' + (accountingData.currentStep + 1));
+            currentSentence.classList.add('highlighted');
+            
+            // Update accounting data
+            accountingData.transactions[accountingData.currentStep].update();
+            
+            // Update financial statements
+            updateFinancialStatements();
+            
+            // Show transaction impact
+            document.getElementById('balance-impact').textContent = 
+                accountingData.transactions[accountingData.currentStep].balance;
+            document.getElementById('income-impact').textContent = 
+                accountingData.transactions[accountingData.currentStep].income;
+            
+            // Update progress
+            accountingData.currentStep++;
+            progressBar.style.width = (accountingData.currentStep / accountingData.totalSteps * 100) + '%';
+            
+            // Change button text if we've reached the end
+            if (accountingData.currentStep === accountingData.totalSteps) {
+                playBtn.innerHTML = '<i class="fas fa-check"></i> Complete';
+            }
+        }
+        
+        // Reset the simulation
+        function resetSimulation() {
+            // Reset accounting data
+            for (let key in accountingData) {
+                if (typeof accountingData[key] === 'number') {
+                    accountingData[key] = 0;
+                }
+            }
+            accountingData.currentStep = 0;
+            
+            // Remove highlights from sentences
+            for (let i = 1; i <= 20; i++) {
+                const sentence = document.getElementById('s' + i);
+                sentence.classList.remove('highlighted');
+            }
+            
+            // Reset progress bar
+            progressBar.style.width = '0%';
+            
+            // Reset transaction impact text
+            document.getElementById('balance-impact').textContent = 'No transactions yet. Click Next to start.';
+            document.getElementById('income-impact').textContent = 'No transactions yet. Click Next to start.';
+            
+            // Update financial statements
+            updateFinancialStatements();
+            
+            // Reset button text
+            playBtn.innerHTML = '<i class="fas fa-play"></i> Next Transaction';
+        }
+        
+        // Update financial statements display
+        function updateFinancialStatements() {
+            // Update Balance Sheet
+            document.getElementById('cash').textContent = formatCurrency(accountingData.cash);
+            document.getElementById('receivable').textContent = formatCurrency(accountingData.receivable);
+            document.getElementById('inventory').textContent = formatCurrency(accountingData.inventory);
+            document.getElementById('prepaid').textContent = formatCurrency(accountingData.prepaid);
+            document.getElementById('equipment').textContent = formatCurrency(accountingData.equipment);
+            document.getElementById('vehicle').textContent = formatCurrency(accountingData.vehicle);
+            document.getElementById('accumulatedDep').textContent = formatCurrency(-accountingData.accumulatedDep);
+            
+            const totalAssets = accountingData.cash + accountingData.receivable + accountingData.inventory + 
+                               accountingData.prepaid + accountingData.equipment + accountingData.vehicle - 
+                               accountingData.accumulatedDep;
+            document.getElementById('totalAssets').textContent = formatCurrency(totalAssets);
+            
+            document.getElementById('payable').textContent = formatCurrency(accountingData.payable);
+            document.getElementById('loans').textContent = formatCurrency(accountingData.loans);
+            document.getElementById('unearned').textContent = formatCurrency(accountingData.unearned);
+            document.getElementById('capital').textContent = formatCurrency(accountingData.capital);
+            document.getElementById('earnings').textContent = formatCurrency(accountingData.earnings);
+            
+            const totalLiabilities = accountingData.payable + accountingData.loans + accountingData.unearned + 
+                                   accountingData.capital + accountingData.earnings;
+            document.getElementById('totalLiabilities').textContent = formatCurrency(totalLiabilities);
+            
+            // Update Income Statement
+            document.getElementById('revenue').textContent = formatCurrency(accountingData.revenue);
+            document.getElementById('cogs').textContent = formatCurrency(accountingData.cogs);
+            document.getElementById('salaries').textContent = formatCurrency(accountingData.salaries);
+            document.getElementById('rent').textContent = formatCurrency(accountingData.rent);
+            document.getElementById('utilities').textContent = formatCurrency(accountingData.utilities);
+            document.getElementById('depreciation').textContent = formatCurrency(accountingData.depreciation);
+            document.getElementById('interest').textContent = formatCurrency(accountingData.interest);
+            document.getElementById('writeoff').textContent = formatCurrency(accountingData.writeoff);
+            
+            const totalExpenses = accountingData.cogs + accountingData.salaries + accountingData.rent + 
+                                 accountingData.utilities + accountingData.depreciation + 
+                                 accountingData.interest + accountingData.writeoff;
+            document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
+            
+            const netIncome = accountingData.revenue - totalExpenses;
+            document.getElementById('netIncome').textContent = formatCurrency(netIncome);
+            
+            // Color code net income
+            const netIncomeElement = document.getElementById('netIncome');
+            if (netIncome > 0) {
+                netIncomeElement.className = 'positive';
+            } else if (netIncome < 0) {
+                netIncomeElement.className = 'negative';
+            } else {
+                netIncomeElement.className = '';
+            }
+        }
+        
+        // Format number as currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+        }
+        
+        // Initialize the application when the page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
