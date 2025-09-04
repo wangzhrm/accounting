@@ -37,10 +37,7 @@
     {"word": "Write off", "chinese_meaning": "注销"},
     {"word": "Damaged inventory", "chinese_meaning": "损坏库存"},
     {"word": "CO2 emissions", "chinese_meaning": "二氧化碳排放"},
-    {"word": "Water usage", "chinese_meaning": "水使用量"},
     {"word": "Environmental compliance", "chinese_meaning": "环境合规"},
-    {"word": "Training", "chinese_meaning": "培训"},
-    {"word": "Workplace injuries", "chinese_meaning": "工作场所伤害"}
   ],
   "Lecture2": [
     {"word": "Financial accounting", "chinese_meaning": "财务会计"},
