@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qualitative Characteristics Evaluation</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7f9;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin: 25px 0 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #4a6491;
+            padding-bottom: 8px;
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            margin: 20px 0 10px;
+            color: #3498db;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .scenario {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #3498db;
+        }
+        
+        .evaluation {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        
+        .evaluation-question {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .answer-area {
+            margin-top: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            min-height: 100px;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .answer {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 6px;
+            display: none;
+            background: #e8f4fc;
+            border-left: 4px solid #3498db;
+        }
+        
+        .answer h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .summary {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
+        
+        .summary ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .summary li {
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .scenario {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Qualitative Characteristics of Accounting Information</h1>
+            <p>Evaluate how well accounting information demonstrates fundamental qualitative characteristics</p>
+        </header>
+        
+        <section>
+            <h2>Evaluation Scenarios</h2>
+            <p>For each scenario below, evaluate which qualitative characteristics are involved and whether they are present or absent.</p>
+            
+            <!-- Scenario 1 -->
+            <div class="scenario">
+                <div class="scenario-content">
+                    <h3>Scenario 1: Obsolete Inventory Reporting</h3>
+                    <p>A company continues to report inventory at cost despite knowing that 40% of it is obsolete and has negligible market value.</p>
+                </div>
+                
+                <div class="evaluation">
+                    <div class="evaluation-question">
+                        Which qualitative characteristic is primarily affected? Is it present or absent? Explain your reasoning.
+                    </div>
+                    
+                    <div class="answer-area">
+                        <textarea placeholder="Type your evaluation here..."></textarea>
+                        <button class="btn" onclick="showAnswer(1)">Reveal Answer</button>
+                        
+                        <div class="answer" id="answer1">
+                            <h4>Evaluation:</h4>
+                            <p><strong>Characteristic:</strong> Faithful Representation</p>
+                            <p><strong>Status:</strong> Absent</p>
+                            <p><strong>Reasoning:</strong> The information is not complete or free from error as it fails to reflect the true economic value of the inventory, thereby not faithfully representing the company's financial position.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scenario 2 -->
+            <div class="scenario">
+                <div class="scenario-content">
+                    <h3>Scenario 2: Predictive Segment Reporting</h3>
+                    <p>A company provides detailed segment reporting that helps investors forecast future performance of different business units.</p>
+                </div>
+                
+                <div class="evaluation">
+                    <div class="evaluation-question">
+                        Which qualitative characteristic is primarily demonstrated? Explain your reasoning.
+                    </div>
+                    
+                    <div class="answer-area">
+                        <textarea placeholder="Type your evaluation here..."></textarea>
+                        <button class="btn" onclick="showAnswer(2)">Reveal Answer</button>
+                        
+                        <div class="answer" id="answer2">
+                            <h4>Evaluation:</h4>
+                            <p><strong>Characteristic:</strong> Relevance</p>
+                            <p><strong>Status:</strong> Present</p>
+                            <p><strong>Reasoning:</strong> The information has predictive value, helping users forecast future performance, which makes it relevant to their economic decision-making.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scenario 3 -->
+            <div class="scenario">
+                <div class="scenario-content">
+                    <h3>Scenario 3: Inventory Method Change</h3>
+                    <p>A company changes its inventory valuation method from FIFO to weighted average without restating prior years' figures.</p>
+                </div>
+                
+                <div class="evaluation">
+                    <div class="evaluation-question">
+                        Which qualitative characteristic is primarily affected? Is it present or absent? Explain your reasoning.
+                    </div>
+                    
+                    <div class="answer-area">
+                        <textarea placeholder="Type your evaluation here..."></textarea>
+                        <button class="btn" onclick="showAnswer(3)">Reveal Answer</button>
+                        
+                        <div class="answer" id="answer3">
+                            <h4>Evaluation:</h4>
+                            <p><strong>Characteristic:</strong> Comparability</p>
+                            <p><strong>Status:</strong> Absent</p>
+                            <p><strong>Reasoning:</strong> Changing methods without restating prior periods makes it difficult to compare financial information across accounting periods, reducing comparability.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scenario 4 -->
+            <div class="scenario">
+                <div class="scenario-content">
+                    <h3>Scenario 4: Unsupported Estimates</h3>
+                    <p>A company records a significant restructuring provision without documentation to support the estimated amounts.</p>
+                </div>
+                
+                <div class="evaluation">
+                    <div class="evaluation-question">
+                        Which qualitative characteristic is primarily affected? Is it present or absent? Explain your reasoning.
+                    </div>
+                    
+                    <div class="answer-area">
+                        <textarea placeholder="Type your evaluation here..."></textarea>
+                        <button class="btn" onclick="showAnswer(4)">Reveal Answer</button>
+                        
+                        <div class="answer" id="answer4">
+                            <h4>Evaluation:</h4>
+                            <p><strong>Characteristic:</strong> Verifiability</p>
+                            <p><strong>Status:</strong> Absent</p>
+                            <p><strong>Reasoning:</strong> Without supporting documentation, independent observers cannot verify that the information faithfully represents the economic phenomena, reducing verifiability.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scenario 5 -->
+            <div class="scenario">
+                <div class="scenario-content">
+                    <h3>Scenario 5: Delayed Quarterly Reporting</h3>
+                    <p>A company releases its quarterly financial statements two months after the quarter-end, missing analysts' expectations for timing.</p>
+                </div>
+                
+                <div class="evaluation">
+                    <div class="evaluation-question">
+                        Which qualitative characteristic is primarily affected? Is it present or absent? Explain your reasoning.
+                    </div>
+                    
+                    <div class="answer-area">
+                        <textarea placeholder="Type your evaluation here..."></textarea>
+                        <button class="btn" onclick="showAnswer(5)">Reveal Answer</button>
+                        
+                        <div class="answer" id="answer5">
+                            <h4>Evaluation:</h4>
+                            <p><strong>Characteristic:</strong> Timeliness</p>
+                            <p><strong>Status:</strong> Absent</p>
+                            <p><strong>Reasoning:</strong> The information is not available to decision-makers in time to influence their decisions, reducing its usefulness and compromising timeliness.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scenario 6 -->
+            <div class="scenario">
+                <div class="scenario-content">
+                    <h3>Scenario 6: Technical Jargon in Footnotes</h3>
+                    <p>A financial statement footnote explains derivative instruments using highly technical language without plain English explanation.</p>
+                </div>
+                
+                <div class="evaluation">
+                    <div class="evaluation-question">
+                        Which qualitative characteristic is primarily affected? Is it present or absent? Explain your reasoning.
+                    </div>
+                    
+                    <div class="answer-area">
+                        <textarea placeholder="Type your evaluation here..."></textarea>
+                        <button class="btn" onclick="showAnswer(6)">Reveal Answer</button>
+                        
+                        <div class="answer" id="answer6">
+                            <h4>Evaluation:</h4>
+                            <p><strong>Characteristic:</strong> Understandability</p>
+                            <p><strong>Status:</strong> Absent</p>
+                            <p><strong>Reasoning:</strong> The use of technical jargon without clear explanation makes the information difficult to comprehend for users with reasonable business knowledge, reducing understandability.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scenario 7 -->
+            <div class="scenario">
+                <div class="scenario-content">
+                    <h3>Scenario 7: Complete Related Party Disclosure</h3>
+                    <p>A company provides full details of its related party transactions, including the nature of relationships and transaction amounts.</p>
+                </div>
+                
+                <div class="evaluation">
+                    <div class="evaluation-question">
+                        Which qualitative characteristic is primarily demonstrated? Explain your reasoning.
+                    </div>
+                    
+                    <div class="answer-area">
+                        <textarea placeholder="Type your evaluation here..."></textarea>
+                        <button class="btn" onclick="showAnswer(7)">Reveal Answer</button>
+                        
+                        <div class="answer" id="answer7">
+                            <h4>Evaluation:</h4>
+                            <p><strong>Characteristic:</strong> Faithful Representation</p>
+                            <p><strong>Status:</strong> Present</p>
+                            <p><strong>Reasoning:</strong> The complete disclosure of all relevant information about related party transactions ensures that the financial statements faithfully represent the economic reality.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scenario 8 -->
+            <div class="scenario">
+                <div class="scenario-content">
+                    <h3>Scenario 8: Industry Standard Application</h3>
+                    <p>A company adopts the same revenue recognition policy as others in its industry, facilitating cross-company analysis.</p>
+                </div>
+                
+                <div class="evaluation">
+                    <div class="evaluation-question">
+                        Which qualitative characteristic is primarily demonstrated? Explain your reasoning.
+                    </div>
+                    
+                    <div class="answer-area">
+                        <textarea placeholder="Type your evaluation here..."></textarea>
+                        <button class="btn" onclick="showAnswer(8)">Reveal Answer</button>
+                        
+                        <div class="answer" id="answer8">
+                            <h4>Evaluation:</h4>
+                            <p><strong>Characteristic:</strong> Comparability</p>
+                            <p><strong>Status:</strong> Present</p>
+                            <p><strong>Reasoning:</strong> Using industry-standard accounting policies enhances the ability to compare financial information across different companies, improving comparability.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="summary">
+            <h2>Qualitative Characteristics Overview</h2>
+            <p>The fundamental qualitative characteristics of useful financial information are:</p>
+            <ul>
+                <li><strong>Relevance:</strong> Information that can influence decisions by helping users evaluate past, present or future events</li>
+                <li><strong>Faithful Representation:</strong> Information that is complete, neutral, and free from error</li>
+            </ul>
+            <p>Enhancing qualitative characteristics include:</p>
+            <ul>
+                <li><strong>Comparability:</strong> Ability to compare information across entities and time periods</li>
+                <li><strong>Verifiability:</strong> Different knowledgeable observers could reach consensus</li>
+                <li><strong>Timeliness:</strong> Information available in time to influence decisions</li>
+                <li><strong>Understandability:</strong> Clear presentation for users with reasonable knowledge</li>
+            </ul>
+            <p>When evaluating accounting information, consider which characteristics are present or absent and how they affect the usefulness of the information.</p>
+        </section>
+        
+        <footer>
+            <p>Educational Tool for Accounting Students | Qualitative Characteristics Evaluation</p>
+        </footer>
+    </div>
+
+    <script>
+        function showAnswer(scenarioNumber) {
+            const answerDiv = document.getElementById('answer' + scenarioNumber);
+            if (answerDiv.style.display === 'block') {
+                answerDiv.style.display = 'none';
+            } else {
+                answerDiv.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
