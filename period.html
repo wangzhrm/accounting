@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Period Convention</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        p.intro {
+            text-align: center;
+            font-style: italic;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        .scenario {
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+        .question {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #34495e;
+            margin-top: 10px;
+        }
+        .answer {
+            margin-top: 15px;
+            padding: 15px;
+            border-left: 5px solid;
+            display: none;
+            border-radius: 6px;
+        }
+        .answer.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+        .answer.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+        .button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>The Accounting Period Convention</h1>
+    <p class="intro">Accountants divide a business's life into specific time periods (e.g., months, quarters, years) to measure performance. See if these scenarios follow this principle.</p>
+
+    <!-- Scenario 1: Violates -->
+    <div class="scenario">
+        <p><strong>Scenario 1:</strong> A business receives a bill for electricity used in December. To make its December profit look higher, it doesn't record the expense until it pays the bill in January.</p>
+        <p class="question">Does this scenario observe or violate the accounting period convention?</p>
+        <button class="button" onclick="toggleAnswer(1, 'incorrect')">Show Answer</button>
+        <div id="answer1" class="answer incorrect">
+            <strong>❌ Violates.</strong> The expense was incurred in December, so it should be recognized in December to accurately reflect the profit for that period, regardless of when the cash is paid.
+        </div>
+    </div>
+
+    <!-- Scenario 2: Observes -->
+    <div class="scenario">
+        <p><strong>Scenario 2:</strong> A company pays a lump sum of $12,000 on December 1st for a 12-month insurance policy. The accountant records a prepaid expense of $11,000 and an insurance expense of $1,000 for December.</p>
+        <p class="question">Does this scenario observe or violate the accounting period convention?</p>
+        <button class="button" onclick="toggleAnswer(2, 'correct')">Show Answer</button>
+        <div id="answer2" class="answer correct">
+            <strong>✅ Observes.</strong> The accountant correctly allocated the expense to the period it was used ($1,000 for December), while the remaining benefit ($11,000) is held as an asset to be expensed in future periods.
+        </div>
+    </div>
+
+    <!-- Scenario 3: Violates -->
+    <div class="scenario">
+        <p><strong>Scenario 3:</strong> A car dealership sells a car to a customer on credit on December 30th. The customer does not sign the final paperwork and take possession until January 2nd. The dealership records the sale in December to meet its year-end sales target.</p>
+        <p class="question">Does this scenario observe or violate the accounting period convention?</p>
+        <button class="button" onclick="toggleAnswer(3, 'incorrect')">Show Answer</button>
+        <div id="answer3" class="answer incorrect">
+            <strong>❌ Violates.</strong> The revenue was not earned until the final sale was completed and the car was handed over to the customer in January. Recording it in December misrepresents the performance of the business in that period.
+        </div>
+    </div>
+
+    <!-- Scenario 4: Observes -->
+    <div class="scenario">
+        <p><strong>Scenario 4:</strong> A consulting firm completes a project for a client on March 25th. The invoice is sent and paid on April 5th. The accountant records the revenue on March 25th.</p>
+        <p class="question">Does this scenario observe or violate the accounting period convention?</p>
+        <button class="button" onclick="toggleAnswer(4, 'correct')">Show Answer</button>
+        <div id="answer4" class="answer correct">
+            <strong>✅ Observes.</strong> The revenue was earned in March when the work was completed. The accountant correctly recognizes the revenue in the period it was earned, regardless of when the cash was received.
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function toggleAnswer(scenarioNumber, type) {
+        const answerId = "answer" + scenarioNumber;
+        const answerDiv = document.getElementById(answerId);
+        if (answerDiv.style.display === "block") {
+            answerDiv.style.display = "none";
+        } else {
+            answerDiv.style.display = "block";
+        }
+    }
+</script>
+
+</body>
+</html>
