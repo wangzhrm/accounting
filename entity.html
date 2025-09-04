@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Separate Entity Principle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        p.intro {
+            text-align: center;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .scenario {
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 6px;
+        }
+        .question {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #34495e;
+            margin-top: 10px;
+        }
+        .answer {
+            margin-top: 15px;
+            padding: 15px;
+            border-left: 5px solid;
+            display: none;
+            border-radius: 4px;
+        }
+        .answer.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+        .answer.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+        .button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>The Separate Entity Principle 🏢</h1>
+    <p class="intro">Accountants must follow the principle that a business is a separate entity from its owner(s). Let's see if these scenarios **observe** or **violate** this key rule.</p>
+
+    <div class="scenario">
+        <p><strong>Scenario 1:</strong> Sarah, the owner of a small graphic design firm, uses the business's debit card to pay for her daughter's university tuition fee.</p>
+        <p class="question">Does this transaction observe or violate the separate entity principle?</p>
+        <button class="button" onclick="showAnswer(1, 'incorrect')">Show Answer</button>
+        <div id="answer1" class="answer incorrect">
+            <strong>❌ Violates.</strong> The tuition fee is a personal expense of the owner. Using the business's funds for a personal transaction **violates** the principle by mixing personal and business finances.
+        </div>
+    </div>
+
+    <div class="scenario">
+        <p><strong>Scenario 2:</strong> John, a sole proprietor, uses his personal credit card to buy a new computer for his home. He does not record this purchase in his business's accounting system.</p>
+        <p class="question">Does this transaction observe or violate the separate entity principle?</p>
+        <button class="button" onclick="showAnswer(2, 'correct')">Show Answer</button>
+        <div id="answer2" class="answer correct">
+            <strong>✅ Observes.</strong> John correctly kept his personal transaction separate from his business's records. By not recording it, he is adhering to the principle that his business is a distinct entity.
+        </div>
+    </div>
+
+    <div class="scenario">
+        <p><strong>Scenario 3:</strong> The owner of "SmartTech Solutions" buys a car for the business. She records the purchase in the business's books but titles the car in her personal name.</p>
+        <p class="question">Does this transaction observe or violate the separate entity principle?</p>
+        <button class="button" onclick="showAnswer(3, 'incorrect')">Show Answer</button>
+        <div id="answer3" class="answer incorrect">
+            <strong>❌ Violates.</strong> While the owner intended the car for the business, titling it in her personal name blurs the line between business assets and personal assets, thereby **violating** the separate entity principle. The car's legal ownership should align with its intended use and accounting recognition.
+        </div>
+    </div>
+
+    <div class="scenario">
+        <p><strong>Scenario 4:</strong> The business, "Global Imports Inc.," sells a product on credit to the owner's friend. The business records an account receivable and expects to be paid in 30 days.</p>
+        <p class="question">Does this transaction observe or violate the separate entity principle?</p>
+        <button class="button" onclick="showAnswer(4, 'correct')">Show Answer</button>
+        <div id="answer4" class="answer correct">
+            <strong>✅ Observes.</strong> The business correctly recorded the sale and the resulting financial obligation (the account receivable). The fact that the customer is the owner's friend is irrelevant; the transaction is a legitimate business event and is recorded as such.
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function showAnswer(scenarioNumber, type) {
+        const answerId = "answer" + scenarioNumber;
+        const answerDiv = document.getElementById(answerId);
+        if (answerDiv.style.display === "block") {
+            answerDiv.style.display = "none";
+        } else {
+            answerDiv.style.display = "block";
+        }
+    }
+</script>
+
+</body>
+</html>
