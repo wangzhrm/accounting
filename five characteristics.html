@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Principles Scenarios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-gray-800 mb-2">Accounting Principles in Practice</h1>
+            <p class="text-lg text-gray-600">Analyze the following scenarios and determine which principle is at play.</p>
+        </header>
+
+        <div class="space-y-6">
+            <!-- Scenario 1: Entity Principle -->
+            <div class="bg-blue-50 p-6 rounded-lg shadow-sm">
+                <p class="text-gray-800 text-lg font-semibold">
+                    <span class="font-bold text-blue-600 mr-2">1.</span> Sarah, the owner of a small bakery, uses the business's bank account to pay for her personal car repair.
+                </p>
+                <div id="answer-1" class="hidden mt-4 bg-white p-4 rounded-md border border-gray-200">
+                    <p class="text-gray-800 font-medium">This is a <span class="text-red-600 font-bold">violation</span> of the Entity Principle.</p>
+                    <p class="text-sm text-gray-600 mt-1">The Entity Principle requires that a business's financial activities are kept separate from its owner's personal activities. Mixing funds blurs this distinction.</p>
+                </div>
+                <button onclick="toggleAnswer('answer-1')" class="mt-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    Show Answer
+                </button>
+            </div>
+
+            <!-- Scenario 2: Accrual Basis Accounting -->
+            <div class="bg-green-50 p-6 rounded-lg shadow-sm">
+                <p class="text-gray-800 text-lg font-semibold">
+                    <span class="font-bold text-green-600 mr-2">2.</span> A consulting firm completes a project for a client in December but receives the payment in January of the next year. It records the revenue in December.
+                </p>
+                <div id="answer-2" class="hidden mt-4 bg-white p-4 rounded-md border border-gray-200">
+                    <p class="text-gray-800 font-medium">This is an <span class="text-green-600 font-bold">observation</span> of the Accrual Basis Accounting principle.</p>
+                    <p class="text-sm text-gray-600 mt-1">Accrual accounting requires that revenues are recognized when earned and expenses when incurred, regardless of when the cash is received or paid.</p>
+                </div>
+                <button onclick="toggleAnswer('answer-2')" class="mt-4 px-4 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                    Show Answer
+                </button>
+            </div>
+
+            <!-- Scenario 3: Going Concern Assumption -->
+            <div class="bg-purple-50 p-6 rounded-lg shadow-sm">
+                <p class="text-gray-800 text-lg font-semibold">
+                    <span class="font-bold text-purple-600 mr-2">3.</span> A company's management is facing bankruptcy and is planning to sell its assets. It values these assets at their liquidation value rather than their historical cost.
+                </p>
+                <div id="answer-3" class="hidden mt-4 bg-white p-4 rounded-md border border-gray-200">
+                    <p class="text-gray-800 font-medium">This is a valid <span class="text-green-600 font-bold">exception</span> to the Going Concern Assumption.</p>
+                    <p class="text-sm text-gray-600 mt-1">The Going Concern Assumption assumes a business will continue operating indefinitely. When this is not the case, such as in bankruptcy, assets must be valued based on their expected sale price, not their historical cost.</p>
+                </div>
+                <button onclick="toggleAnswer('answer-3')" class="mt-4 px-4 py-2 bg-purple-500 text-white font-semibold rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
+                    Show Answer
+                </button>
+            </div>
+
+            <!-- Scenario 4: Monetary Unit Convention -->
+            <div class="bg-yellow-50 p-6 rounded-lg shadow-sm">
+                <p class="text-gray-800 text-lg font-semibold">
+                    <span class="font-bold text-yellow-600 mr-2">4.</span> A business includes the high morale and work ethic of its employees on its balance sheet as an asset valued at $50,000.
+                </p>
+                <div id="answer-4" class="hidden mt-4 bg-white p-4 rounded-md border border-gray-200">
+                    <p class="text-gray-800 font-medium">This is a <span class="text-red-600 font-bold">violation</span> of the Monetary Unit Convention.</p>
+                    <p class="text-sm text-gray-600 mt-1">The Monetary Unit Convention states that only items that can be expressed in terms of money can be included in financial statements. Qualitative factors like employee morale cannot be objectively measured in monetary terms.</p>
+                </div>
+                <button onclick="toggleAnswer('answer-4')" class="mt-4 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors">
+                    Show Answer
+                </button>
+            </div>
+
+            <!-- Scenario 5: Accounting Period Convention -->
+            <div class="bg-red-50 p-6 rounded-lg shadow-sm">
+                <p class="text-gray-800 text-lg font-semibold">
+                    <span class="font-bold text-red-600 mr-2">5.</span> A large construction company begins a three-year project but waits until the project is completed to prepare its financial statements.
+                </p>
+                <div id="answer-5" class="hidden mt-4 bg-white p-4 rounded-md border border-gray-200">
+                    <p class="text-gray-800 font-medium">This is a <span class="text-red-600 font-bold">violation</span> of the Accounting Period Convention.</p>
+                    <p class="text-sm text-gray-600 mt-1">The Accounting Period Convention requires a business to divide its life into distinct time periods (like quarters or years) to prepare financial reports. Waiting until the end of a multi-year project prevents timely reporting.</p>
+                </div>
+                <button onclick="toggleAnswer('answer-5')" class="mt-4 px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+                    Show Answer
+                </button>
+            </div>
+
+            <!-- Scenario 6: Entity Principle -->
+            <div class="bg-blue-50 p-6 rounded-lg shadow-sm">
+                <p class="text-gray-800 text-lg font-semibold">
+                    <span class="font-bold text-blue-600 mr-2">6.</span> Jane, the owner of a graphic design business, maintains a separate bank account for all business expenses and revenue.
+                </p>
+                <div id="answer-6" class="hidden mt-4 bg-white p-4 rounded-md border border-gray-200">
+                    <p class="text-gray-800 font-medium">This is an <span class="text-green-600 font-bold">observation</span> of the Entity Principle.</p>
+                    <p class="text-sm text-gray-600 mt-1">By keeping her personal and business finances separate, Jane correctly applies the Entity Principle, which views the business as a distinct entity from its owner.</p>
+                </div>
+                <button onclick="toggleAnswer('answer-6')" class="mt-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    Show Answer
+                </button>
+            </div>
+
+            <!-- Scenario 7: Monetary Unit Convention -->
+            <div class="bg-yellow-50 p-6 rounded-lg shadow-sm">
+                <p class="text-gray-800 text-lg font-semibold">
+                    <span class="font-bold text-yellow-600 mr-2">7.</span> A multinational company prepares all of its financial statements using U.S. dollars, despite having operations in multiple countries with different currencies.
+                </p>
+                <div id="answer-7" class="hidden mt-4 bg-white p-4 rounded-md border border-gray-200">
+                    <p class="text-gray-800 font-medium">This is an <span class="text-green-600 font-bold">observation</span> of the Monetary Unit Convention.</p>
+                    <p class="text-sm text-gray-600 mt-1">The Monetary Unit Convention requires that all financial transactions be recorded in a single, stable currency, allowing for comparability and consistency in financial reports.</p>
+                </div>
+                <button onclick="toggleAnswer('answer-7')" class="mt-4 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors">
+                    Show Answer
+                </button>
+            </div>
+
+            <!-- Scenario 8: Accrual Basis Accounting -->
+            <div class="bg-green-50 p-6 rounded-lg shadow-sm">
+                <p class="text-gray-800 text-lg font-semibold">
+                    <span class="font-bold text-green-600 mr-2">8.</span> A small business sells $500 worth of goods on credit. It records the sale as revenue only after the customer pays the invoice two weeks later.
+                </p>
+                <div id="answer-8" class="hidden mt-4 bg-white p-4 rounded-md border border-gray-200">
+                    <p class="text-gray-800 font-medium">This is a <span class="text-red-600 font-bold">violation</span> of the Accrual Basis Accounting principle.</p>
+                    <p class="text-sm text-gray-600 mt-1">The sale should be recorded when the goods are delivered and the revenue is earned, regardless of when the cash is received. This is a characteristic of cash basis, not accrual basis accounting.</p>
+                </div>
+                <button onclick="toggleAnswer('answer-8')" class="mt-4 px-4 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                    Show Answer
+                </button>
+            </div>
+
+            <!-- Scenario 9: Accounting Period Convention -->
+            <div class="bg-red-50 p-6 rounded-lg shadow-sm">
+                <p class="text-gray-800 text-lg font-semibold">
+                    <span class="font-bold text-red-600 mr-2">9.</span> A publicly traded company prepares a quarterly report showing its financial performance for the past three months.
+                </p>
+                <div id="answer-9" class="hidden mt-4 bg-white p-4 rounded-md border border-gray-200">
+                    <p class="text-gray-800 font-medium">This is an <span class="text-green-600 font-bold">observation</span> of the Accounting Period Convention.</p>
+                    <p class="text-sm text-gray-600 mt-1">By dividing its operations into specific time periods and reporting on them regularly, the company is following this principle, which provides timely information to stakeholders.</p>
+                </div>
+                <button onclick="toggleAnswer('answer-9')" class="mt-4 px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+                    Show Answer
+                </button>
+            </div>
+
+            <!-- Scenario 10: Going Concern Assumption -->
+            <div class="bg-purple-50 p-6 rounded-lg shadow-sm">
+                <p class="text-gray-800 text-lg font-semibold">
+                    <span class="font-bold text-purple-600 mr-2">10.</span> A healthy and profitable business records its office building at its historical cost, even though the market value has significantly increased.
+                </p>
+                <div id="answer-10" class="hidden mt-4 bg-white p-4 rounded-md border border-gray-200">
+                    <p class="text-gray-800 font-medium">This is an <span class="text-green-600 font-bold">observation</span> of the Going Concern Assumption.</p>
+                    <p class="text-sm text-gray-600 mt-1">Because the business is assumed to be a "going concern" (operating indefinitely), its assets are valued at their original cost rather than their current market value, as they are not intended for immediate sale.</p>
+                </div>
+                <button onclick="toggleAnswer('answer-10')" class="mt-4 px-4 py-2 bg-purple-500 text-white font-semibold rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors">
+                    Show Answer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAnswer(id) {
+            const answerDiv = document.getElementById(id);
+            answerDiv.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
