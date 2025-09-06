@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accrual Basis Accounting Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .scenario-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .scenario-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .btn-choice {
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .btn-choice:hover {
+            transform: scale(1.05);
+        }
+        .feedback {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+            opacity: 0;
+        }
+        .feedback.show {
+            max-height: 200px;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+        <!-- Header Section -->
+        <header class="text-center mb-8 bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-600">Accrual Basis Accounting Quiz</h1>
+            <p class="mt-2 text-md text-gray-600">For each scenario, determine if the accrual basis principle has been <span class="font-semibold">Observed</span> or <span class="font-semibold">Violated</span>.</p>
+        </header>
+
+        <!-- Scoreboard -->
+        <div class="sticky top-0 bg-white/80 backdrop-blur-sm z-10 p-4 rounded-lg shadow-md mb-8 flex justify-between items-center">
+             <h2 class="text-xl font-bold text-gray-700">Your Score:</h2>
+             <div class="text-2xl font-bold bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center" id="score">0 / 10</div>
+        </div>
+
+
+        <!-- Scenarios Grid -->
+        <div id="quiz-container" class="grid grid-cols-1 gap-6">
+            <!-- Scenarios will be injected here by JavaScript -->
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const scenarios = [
+                {
+                    id: 1,
+                    text: "A consulting firm provides services to a client in December. The client is invoiced but doesn't pay until January. The firm recognizes the revenue in December.",
+                    correctAnswer: "Observed",
+                    explanation: "Correct. Revenue is recognized when it is earned (services provided), not when the cash is received. This follows the revenue recognition principle."
+                },
+                {
+                    id: 2,
+                    text: "A company uses electricity in the month of March but receives and pays the utility bill in April. The company records the electricity expense in March.",
+                    correctAnswer: "Observed",
+                    explanation: "Correct. The expense was incurred in March when the electricity was consumed. This follows the matching principle, matching expenses to the period they were incurred."
+                },
+                {
+                    id: 3,
+                    text: "A software company receives full payment in May for a 12-month software license that starts in June. The company recognizes the full payment as revenue in May.",
+                    correctAnswer: "Violated",
+                    explanation: "Incorrect. The revenue has not been earned yet. The payment should be recorded as unearned revenue (a liability) in May and then recognized monthly as the service is provided."
+                },
+                {
+                    id: 4,
+                    text: "On January 1st, a business pays $12,000 for a full year of rent in advance. It immediately records the entire $12,000 as rent expense for January.",
+                    correctAnswer: "Violated",
+                    explanation: "Incorrect. This is a prepaid expense. Only one month of rent ($1,000) should be recognized as an expense in January. The remaining $11,000 is an asset (prepaid rent)."
+                },
+                {
+                    id: 5,
+                    text: "A magazine publisher receives a $60 fee for a 12-month subscription in October. The publisher records the $60 as revenue in October.",
+                    correctAnswer: "Violated",
+                    explanation: "Incorrect. Similar to scenario 3, this is unearned revenue. The company should recognize $5 of revenue each month for the next 12 months as it delivers the magazines."
+                },
+                {
+                    id: 6,
+                    text: "A construction company purchases a large quantity of lumber in March. The lumber is used for a project in May. The company records the cost of the lumber as an expense in May.",
+                    correctAnswer: "Observed",
+                    explanation: "Correct. The lumber was an asset (inventory) when purchased. The cost becomes an expense (Cost of Goods Sold) when it is consumed or used to generate revenue in May."
+                },
+                {
+                    id: 7,
+                    text: "A freelance writer completes and submits an article to a client on June 30th. The client pays for the article on August 15th. The writer records the income in June.",
+                    correctAnswer: "Observed",
+                    explanation: "Correct. The income was earned when the work was completed and delivered in June. The timing of the cash receipt is irrelevant for revenue recognition."
+                },
+                {
+                    id: 8,
+                    text: "Employees work the last week of December, but their scheduled payday is January 5th. The company accrues the salary expense for that week in its December financial statements.",
+                    correctAnswer: "Observed",
+                    explanation: "Correct. The company incurred the expense in December when the employees worked and earned their wages. This is a classic example of an accrued expense."
+                },
+                {
+                    id: 9,
+                    text: "A retail store sells a product to a customer who pays with a debit card. The store recognizes the revenue at the moment the sale is made.",
+                    correctAnswer: "Observed",
+                    explanation: "Correct. In this case, the revenue is earned and the cash is received at the same time. This is consistent with both accrual and cash basis accounting."
+                },
+                {
+                    id: 10,
+                    text: "A small business owner pays for office supplies with a company credit card in July. They don't record the expense until they pay the credit card bill in August.",
+                    correctAnswer: "Violated",
+                    explanation: "Incorrect. The expense was incurred in July when the supplies were acquired and the obligation to pay was created (to the credit card company). It should be recorded in July."
+                }
+            ];
+
+            const quizContainer = document.getElementById('quiz-container');
+            const scoreElement = document.getElementById('score');
+            let score = 0;
+
+            scenarios.forEach((scenario, index) => {
+                const card = document.createElement('div');
+                card.className = 'scenario-card bg-white p-6 rounded-lg shadow-md';
+                card.innerHTML = `
+                    <p class="text-gray-600 font-medium mb-4">Scenario ${index + 1}</p>
+                    <p class="mb-5 text-lg">${scenario.text}</p>
+                    <div class="flex space-x-4">
+                        <button data-answer="Observed" data-scenario-id="${scenario.id}" class="btn-choice w-full py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-green-200">Observed</button>
+                        <button data-answer="Violated" data-scenario-id="${scenario.id}" class="btn-choice w-full py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-red-200">Violated</button>
+                    </div>
+                    <div id="feedback-${scenario.id}" class="feedback mt-4 p-4 rounded-md text-sm">
+                        ${scenario.explanation}
+                    </div>
+                `;
+                quizContainer.appendChild(card);
+            });
+
+            quizContainer.addEventListener('click', function(e) {
+                if (e.target.matches('.btn-choice')) {
+                    const selectedAnswer = e.target.dataset.answer;
+                    const scenarioId = parseInt(e.target.dataset.scenarioId);
+                    const scenario = scenarios.find(s => s.id === scenarioId);
+                    const isCorrect = selectedAnswer === scenario.correctAnswer;
+                    
+                    const feedbackEl = document.getElementById(`feedback-${scenario.id}`);
+                    const buttons = e.target.parentElement.querySelectorAll('.btn-choice');
+
+                    // Disable buttons after selection
+                    buttons.forEach(button => {
+                        button.disabled = true;
+                        button.classList.remove('hover:bg-green-200', 'hover:bg-red-200');
+                        button.style.cursor = 'not-allowed';
+                    });
+                    
+                    if (isCorrect) {
+                        score++;
+                        e.target.classList.remove('bg-gray-200');
+                        e.target.classList.add('bg-green-500', 'text-white');
+                        feedbackEl.classList.add('bg-green-100', 'text-green-800');
+                    } else {
+                        e.target.classList.remove('bg-gray-200');
+                        e.target.classList.add('bg-red-500', 'text-white');
+                        feedbackEl.classList.add('bg-red-100', 'text-red-800');
+
+                        // Highlight the correct answer
+                        const correctButton = Array.from(buttons).find(b => b.dataset.answer === scenario.correctAnswer);
+                        correctButton.classList.remove('bg-gray-200');
+                        correctButton.classList.add('bg-green-500', 'text-white');
+                    }
+                    
+                    feedbackEl.classList.add('show');
+                    scoreElement.textContent = `${score} / 10`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
