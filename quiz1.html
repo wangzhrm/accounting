@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Quiz 1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .quiz-container {
+            background-color: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .question-container p {
+            font-weight: bold;
+            color: #555;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        label:hover {
+            color: #007BFF;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #results {
+            margin-top: 20px;
+        }
+
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+
+        .explanation-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #007BFF;
+        }
+
+        .explanation-section h2 {
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Accounting Quiz</h1>
+        <form id="quiz-form">
+            <!-- Question 1 -->
+            <div class="question-container">
+                <p>1. Which of the following is NOT part of the definition of accounting?</p>
+                <label><input type="radio" name="q1" value="A"> A. Collecting information</label>
+                <label><input type="radio" name="q1" value="B"> B. Communicating information</label>
+                <label><input type="radio" name="q1" value="C"> C. Criticizing information</label>
+                <label><input type="radio" name="q1" value="D"> D. Analysing information</label>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-container">
+                <p>2. What is the main purpose of accounting information?</p>
+                <label><input type="radio" name="q2" value="A"> A. To increase a company's profits.</label>
+                <label><input type="radio" name="q2" value="B"> B. To enable users to make informed decisions.</label>
+                <label><input type="radio" name="q2" value="C"> C. To store financial data for historical purposes.</label>
+                <label><input type="radio" name="q2" value="D"> D. To provide a legal record of transactions.</label>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question-container">
+                <p>3. A decision made with adequate information provided is called a(n):</p>
+                <label><input type="radio" name="q3" value="A"> A. Ineffective decision</label>
+                <label><input type="radio" name="q3" value="B"> B. Biased decision</label>
+                <label><input type="radio" name="q3" value="C"> C. Informed decision</label>
+                <label><input type="radio" name="q3" value="D"> D. Professional decision</label>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question-container">
+                <p>4. Which of the following is NOT a qualitative characteristic that useful accounting information should possess?</p>
+                <label><input type="radio" name="q4" value="A"> A. Verifiability</label>
+                <label><input type="radio" name="q4" value="B"> B. Timeliness</label>
+                <label><input type="radio" name="q4" value="C"> C. Profitability</label>
+                <label><input type="radio" name="q4" value="D"> D. Reliability</label>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="question-container">
+                <p>5. What does 'relevance' mean for accounting information?</p>
+                <label><input type="radio" name="q5" value="A"> A. It is free from error and bias.</label>
+                <label><input type="radio" name="q5" value="B"> B. It is capable of changing the decisions of those receiving it.</label>
+                <label><input type="radio" name="q5" value="C"> C. It can be compared with information from other companies.</label>
+                <label><input type="radio" name="q5" value="D"> D. It is provided in time for users to make decisions.</label>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question-container">
+                <p>6. If different people using the same data arrive at the same results, which qualitative characteristic is present?</p>
+                <label><input type="radio" name="q6" value="A"> A. Comparability</label>
+                <label><input type="radio" name="q6" value="B"> B. Understandability</label>
+                <label><input type="radio" name="q6" value="C"> C. Timeliness</label>
+                <label><input type="radio" name="q6" value="D"> D. Verifiability</label>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="question-container">
+                <p>7. When information is free from error, complete, and balanced, it is considered to have which qualitative characteristic?</p>
+                <label><input type="radio" name="q7" value="A"> A. Relevance</label>
+                <label><input type="radio" name="q7" value="B"> B. Reliability</label>
+                <label><input type="radio" name="q7" value="C"> C. Understandability</label>
+                <label><input type="radio" name="q7" value="D"> D. Timeliness</label>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question-container">
+                <p>8. What is 'vertical comparability'?</p>
+                <label><input type="radio" name="q8" value="A"> A. Comparison among different companies.</label>
+                <label><input type="radio" name="q8" value="B"> B. Comparison among different years within the same company.</label>
+                <label><input type="radio" name="q8" value="C"> C. Comparison of different financial statements.</label>
+                <label><input type="radio" name="q8" value="D"> D. Comparison with industry standards.</label>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="question-container">
+                <p>9. What are the three broad categories used to categorize an organization's performance?</p>
+                <label><input type="radio" name="q9" value="A"> A. Financial, social, and environmental</label>
+                <label><input type="radio" name="q9" value="B"> B. Revenue, expenses, and profit</label>
+                <label><input type="radio" name="q9" value="C"> C. Internal, external, and government</label>
+                <label><input type="radio" name="q9" value="D"> D. Assets, liabilities, and equity</label>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="question-container">
+                <p>10. Who is considered a 'stakeholder' of an organization?</p>
+                <label><input type="radio" name="q10" value="A"> A. Only the owners and managers.</label>
+                <label><input type="radio" name="q10" value="B"> B. Any group or individual who can affect or is affected by the organization's objectives.</label>
+                <label><input type="radio" name="q10" value="C"> C. Only the creditors and suppliers.</label>
+                <label><input type="radio" name="q10" value="D"> D. Only the employees and customers.</label>
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+        <div id="results"></div>
+    </div>
+    <script>
+        document.getElementById('quiz-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const correctAnswers = {
+                q1: 'C',
+                q2: 'B',
+                q3: 'C',
+                q4: 'C',
+                q5: 'B',
+                q6: 'D',
+                q7: 'B',
+                q8: 'B',
+                q9: 'A',
+                q10: 'B'
+            };
+
+            const explanations = {
+                q1: 'Accounting is a process of collecting, summarising, analysing, and communicating information. "Criticizing" is not part of this process.',
+                q2: 'The purpose of accounting is to enable users of that information to make informed decisions.',
+                q3: 'An informed decision is a decision made with adequate information provided.',
+                q4: 'The qualitative characteristics are relevance, reliability, comparability, verifiability, understandability, and timeliness. Profitability is a financial metric, not a qualitative characteristic.',
+                q5: 'Relevance is information capable of changing the decisions of those who receive it.',
+                q6: 'Verifiability means that if different people are provided with the same underlying data, they will derive the same results.',
+                q7: 'For information to be reliable, it should be free from error, complete, and balanced (neutral).',
+                q8: 'Vertical comparability is a comparison among different years within the same organization.',
+                q9: 'Performance is categorized as financial, social, and environmental.',
+                q10: 'A stakeholder is commonly defined as any group or individual who can affect, or is affected by, the achievement of an organisation’s objectives.'
+            };
+
+            let score = 0;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = ''; // Clear previous results
+
+            for (let i = 1; i <= 10; i++) {
+                const questionName = `q${i}`;
+                const selectedOption = document.querySelector(`input[name="${questionName}"]:checked`);
+                const resultItem = document.createElement('div');
+                let isCorrect = false;
+
+                if (selectedOption) {
+                    if (selectedOption.value === correctAnswers[questionName]) {
+                        isCorrect = true;
+                        score++;
+                    }
+                }
+
+                if (isCorrect) {
+                    resultItem.innerHTML = `<span class="correct">Question ${i}: Correct!</span>`;
+                } else {
+                    resultItem.innerHTML = `<span class="incorrect">Question ${i}: Incorrect.</span>`;
+                }
+                
+                resultsDiv.appendChild(resultItem);
+            }
+            
+            // Display the score as a ratio
+            const scoreDisplay = document.createElement('h3');
+            scoreDisplay.textContent = `You got ${score}/10 questions correct.`;
+            resultsDiv.prepend(scoreDisplay);
+
+            // Display explanations if the score is 9 or higher
+            if (score >= 9) {
+                const explanationsSection = document.createElement('div');
+                explanationsSection.classList.add('explanation-section');
+                explanationsSection.innerHTML = '<h2>Explanations</h2>';
+                for (let i = 1; i <= 10; i++) {
+                    const explanationItem = document.createElement('p');
+                    explanationItem.innerHTML = `<strong>Question ${i}:</strong> ${explanations[`q${i}`]}`;
+                    explanationsSection.appendChild(explanationItem);
+                }
+                resultsDiv.appendChild(explanationsSection);
+            }
+        });
+    </script>
+</body>
+</html>
