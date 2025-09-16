@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Journal Entry Quiz</title>
+    <style>
+        /* CSS for styling the quiz */
+        :root {
+            --color-correct: #28a745; /* Green */
+            --color-incorrect: #dc3545; /* Red */
+            --color-bg: #f4f7f9; /* Light Gray */
+            --color-text: #333;
+            --color-primary: #007bff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.5s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+
+        /* --- Start Screen Styles --- */
+        #start-screen h1 {
+            color: var(--color-primary);
+        }
+        #start-screen .rules {
+            text-align: left;
+            margin: 30px 0;
+            padding-left: 20px;
+        }
+        #start-screen .rules li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .start-button-container {
+            text-align: center;
+        }
+
+        /* --- Quiz Screen Styles --- */
+        #quiz-screen {
+            display: none; /* Hidden by default */
+        }
+
+        #timer-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--color-primary);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        #question-header { text-align: center; margin-bottom: 20px; }
+        #question-number { font-size: 1.2rem; font-weight: 600; color: #555; }
+        #transaction-text { font-size: 1.5rem; font-weight: 500; line-height: 1.5; margin-top: 5px; }
+
+        #options-container { display: flex; flex-direction: column; gap: 15px; }
+        .option-label {
+            display: flex; /* Use flexbox for alignment */
+            align-items: flex-start;
+            padding: 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1.6;
+        }
+        .option-label:hover { background-color: #f0f0f0; }
+        
+        .option-label input { margin-right: 15px; margin-top: 5px; flex-shrink: 0; }
+        .journal-entry { display: inline-block; }
+        .credit-line { padding-left: 20px; } /* Indents the credit line */
+
+        /* Styles for after an answer is selected */
+        #options-container.answered .option-label {
+            cursor: not-allowed;
+            pointer-events: none; /* Prevents clicking after answer */
+        }
+        .option-label.correct {
+            border-color: var(--color-correct);
+            background-color: #d4edda;
+            font-weight: bold;
+        }
+        .option-label.incorrect {
+            border-color: var(--color-incorrect);
+            background-color: #f8d7da;
+        }
+
+        .controls { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        body.correct-bg { background-color: #d4edda; }
+        body.incorrect-bg { background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="start-screen">
+            <h1>📝 Accounting Journal Quiz</h1>
+            <ul class="rules">
+                <li>A transaction will be displayed for each question.</li>
+                <li>You will have <strong>30 seconds</strong> to choose the correct journal entry.</li>
+                <li>Simply <strong>click or tap</strong> on your chosen answer.</li>
+                <li>The background will turn <strong>green for correct</strong> and <strong>red for incorrect</strong>.</li>
+                <li>After answering, click the button to proceed to the next question.</li>
+            </ul>
+            <div class="start-button-container">
+                <button id="start-btn">Start Game</button>
+            </div>
+        </div>
+
+        <div id="quiz-screen">
+            <div id="timer-display">30</div>
+            <div id="question-header">
+                <h2 id="question-number">Question 1 / 100</h2>
+                <p id="transaction-text">Loading...</p>
+            </div>
+            <div id="options-container">
+                </div>
+            <div class="controls">
+                <button id="next-btn" style="display: none;">Go to the next question</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 100 Questions, Options, and Answers Data ---
+        const questions = [
+            {
+                transaction: "Owner invests $10,000 cash into the business.",
+                options: [
+                    { debit: "Debit: Cash, $10,000", credit: "Credit: Owner's Equity, $10,000" },
+                    { debit: "Debit: Owner's Equity, $10,000", credit: "Credit: Cash, $10,000" },
+                    { debit: "Debit: Accounts Receivable, $10,000", credit: "Credit: Revenue, $10,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid $1,200 for one year of insurance in advance.",
+                options: [
+                    { debit: "Debit: Insurance Expense, $1,200", credit: "Credit: Cash, $1,200" },
+                    { debit: "Debit: Prepaid Insurance, $1,200", credit: "Credit: Cash, $1,200" },
+                    { debit: "Debit: Cash, $1,200", credit: "Credit: Prepaid Insurance, $1,200" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Purchased office supplies for $500 on account.",
+                options: [
+                    { debit: "Debit: Office Supplies, $500", credit: "Credit: Cash, $500" },
+                    { debit: "Debit: Office Supplies Expense, $500", credit: "Credit: Accounts Payable, $500" },
+                    { debit: "Debit: Office Supplies, $500", credit: "Credit: Accounts Payable, $500" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Received $4,000 cash from a client for services previously billed.",
+                options: [
+                    { debit: "Debit: Cash, $4,000", credit: "Credit: Accounts Receivable, $4,000" },
+                    { debit: "Debit: Cash, $4,000", credit: "Credit: Service Revenue, $4,000" },
+                    { debit: "Debit: Accounts Receivable, $4,000", credit: "Credit: Cash, $4,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid $1,000 cash for this month's rent.",
+                options: [
+                    { debit: "Debit: Prepaid Rent, $1,000", credit: "Credit: Cash, $1,000" },
+                    { debit: "Debit: Rent Expense, $1,000", credit: "Credit: Cash, $1,000" },
+                    { debit: "Debit: Rent Expense, $1,000", credit: "Credit: Accounts Payable, $1,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Purchased equipment for $8,000 on account.",
+                options: [
+                    { debit: "Debit: Equipment Expense, $8,000", credit: "Credit: Notes Payable, $8,000" },
+                    { debit: "Debit: Equipment, $8,000", credit: "Credit: Cash, $8,000" },
+                    { debit: "Debit: Equipment, $8,000", credit: "Credit: Accounts Payable, $8,000" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Owner withdrew $500 cash for personal use.",
+                options: [
+                    { debit: "Debit: Owner's Drawings, $500", credit: "Credit: Cash, $500" },
+                    { debit: "Debit: Salary Expense, $500", credit: "Credit: Cash, $500" },
+                    { debit: "Debit: Owner's Equity, $500", credit: "Credit: Cash, $500" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid a supplier $750 for a previous purchase on account.",
+                options: [
+                    { debit: "Debit: Supplies, $750", credit: "Credit: Cash, $750" },
+                    { debit: "Debit: Accounts Payable, $750", credit: "Credit: Cash, $750" },
+                    { debit: "Debit: Accounts Payable, $750", credit: "Credit: Accounts Receivable, $750" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Received a $300 utility bill that will be paid next month.",
+                options: [
+                    { debit: "Debit: Utilities Expense, $300", credit: "Credit: Cash, $300" },
+                    { debit: "Debit: Utilities Payable, $300", credit: "Credit: Utilities Expense, $300" },
+                    { debit: "Debit: Utilities Expense, $300", credit: "Credit: Accounts Payable, $300" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Performed services for $2,500 and received cash immediately.",
+                options: [
+                    { debit: "Debit: Cash, $2,500", credit: "Credit: Service Revenue, $2,500" },
+                    { debit: "Debit: Accounts Receivable, $2,500", credit: "Credit: Service Revenue, $2,500" },
+                    { debit: "Debit: Cash, $2,500", credit: "Credit: Accounts Receivable, $2,500" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Took out a $15,000 loan from the bank.",
+                options: [
+                    { debit: "Debit: Cash, $15,000", credit: "Credit: Revenue, $15,000" },
+                    { debit: "Debit: Cash, $15,000", credit: "Credit: Notes Payable, $15,000" },
+                    { debit: "Debit: Notes Payable, $15,000", credit: "Credit: Cash, $15,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Paid $400 for advertising that appeared in this month's newspaper.",
+                options: [
+                    { debit: "Debit: Advertising Expense, $400", credit: "Credit: Accounts Payable, $400" },
+                    { debit: "Debit: Prepaid Advertising, $400", credit: "Credit: Cash, $400" },
+                    { debit: "Debit: Advertising Expense, $400", credit: "Credit: Cash, $400" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Sold a piece of land for its book value of $50,000 cash.",
+                options: [
+                    { debit: "Debit: Cash, $50,000", credit: "Credit: Land, $50,000" },
+                    { debit: "Debit: Cash, $50,000", credit: "Credit: Gain on Sale of Land, $50,000" },
+                    { debit: "Debit: Land, $50,000", credit: "Credit: Cash, $50,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Received $3,000 cash in advance from a customer for services to be performed next month.",
+                options: [
+                    { debit: "Debit: Cash, $3,000", credit: "Credit: Service Revenue, $3,000" },
+                    { debit: "Debit: Cash, $3,000", credit: "Credit: Unearned Revenue, $3,000" },
+                    { debit: "Debit: Unearned Revenue, $3,000", credit: "Credit: Cash, $3,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Paid employee salaries of $5,000 for the current month.",
+                options: [
+                    { debit: "Debit: Salaries Expense, $5,000", credit: "Credit: Salaries Payable, $5,000" },
+                    { debit: "Debit: Salaries Payable, $5,000", credit: "Credit: Cash, $5,000" },
+                    { debit: "Debit: Salaries Expense, $5,000", credit: "Credit: Cash, $5,000" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Purchased a delivery van for $25,000 in cash.",
+                options: [
+                    { debit: "Debit: Vehicles, $25,000", credit: "Credit: Cash, $25,000" },
+                    { debit: "Debit: Delivery Expense, $25,000", credit: "Credit: Cash, $25,000" },
+                    { debit: "Debit: Vehicles, $25,000", credit: "Credit: Accounts Payable, $25,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Billed a customer $1,800 for consulting services performed.",
+                options: [
+                    { debit: "Debit: Cash, $1,800", credit: "Credit: Service Revenue, $1,800" },
+                    { debit: "Debit: Accounts Receivable, $1,800", credit: "Credit: Service Revenue, $1,800" },
+                    { debit: "Debit: Service Revenue, $1,800", credit: "Credit: Accounts Receivable, $1,800" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Paid the $300 utility bill received earlier.",
+                options: [
+                    { debit: "Debit: Utilities Expense, $300", credit: "Credit: Cash, $300" },
+                    { debit: "Debit: Accounts Receivable, $300", credit: "Credit: Cash, $300" },
+                    { debit: "Debit: Accounts Payable, $300", credit: "Credit: Cash, $300" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Owner contributed a personal computer valued at $1,500 to the business.",
+                options: [
+                    { debit: "Debit: Office Equipment, $1,500", credit: "Credit: Owner's Equity, $1,500" },
+                    { debit: "Debit: Office Equipment, $1,500", credit: "Credit: Revenue, $1,500" },
+                    { debit: "Debit: Office Expense, $1,500", credit: "Credit: Owner's Equity, $1,500" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Made a $2,000 principal payment on a bank loan.",
+                options: [
+                    { debit: "Debit: Interest Expense, $2,000", credit: "Credit: Cash, $2,000" },
+                    { debit: "Debit: Notes Payable, $2,000", credit: "Credit: Cash, $2,000" },
+                    { debit: "Debit: Loan Expense, $2,000", credit: "Credit: Cash, $2,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Purchased $200 of postage stamps for cash.",
+                options: [
+                    { debit: "Debit: Postage Expense, $200", credit: "Credit: Accounts Payable, $200" },
+                    { debit: "Debit: Office Expense, $200", credit: "Credit: Cash, $200" },
+                    { debit: "Debit: Office Supplies, $200", credit: "Credit: Cash, $200" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "A customer paid their $900 account balance in full.",
+                options: [
+                    { debit: "Debit: Cash, $900", credit: "Credit: Accounts Receivable, $900" },
+                    { debit: "Debit: Cash, $900", credit: "Credit: Sales Revenue, $900" },
+                    { debit: "Debit: Accounts Receivable, $900", credit: "Credit: Cash, $900" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid $600 for maintenance on the delivery van.",
+                options: [
+                    { debit: "Debit: Vehicles, $600", credit: "Credit: Cash, $600" },
+                    { debit: "Debit: Repairs & Maintenance Expense, $600", credit: "Credit: Cash, $600" },
+                    { debit: "Debit: Repairs & Maintenance Expense, $600", credit: "Credit: Accounts Payable, $600" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Received a refund of $150 for returned office supplies that were purchased on account.",
+                options: [
+                    { debit: "Debit: Cash, $150", credit: "Credit: Office Supplies, $150" },
+                    { debit: "Debit: Office Supplies, $150", credit: "Credit: Accounts Payable, $150" },
+                    { debit: "Debit: Accounts Payable, $150", credit: "Credit: Office Supplies, $150" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "At month-end, recorded $5,000 of depreciation on equipment.",
+                options: [
+                    { debit: "Debit: Depreciation Expense, $5,000", credit: "Credit: Accumulated Depreciation, $5,000" },
+                    { debit: "Debit: Depreciation Expense, $5,000", credit: "Credit: Equipment, $5,000" },
+                    { debit: "Debit: Accumulated Depreciation, $5,000", credit: "Credit: Depreciation Expense, $5,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "At month-end, recognized that $400 of the prepaid insurance has expired.",
+                options: [
+                    { debit: "Debit: Prepaid Insurance, $400", credit: "Credit: Insurance Expense, $400" },
+                    { debit: "Debit: Insurance Expense, $400", credit: "Credit: Prepaid Insurance, $400" },
+                    { debit: "Debit: Insurance Expense, $400", credit: "Credit: Cash, $400" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "At month-end, a count reveals $300 of office supplies remain from an initial balance of $800.",
+                options: [
+                    { debit: "Debit: Office Supplies, $500", credit: "Credit: Office Supplies Expense, $500" },
+                    { debit: "Debit: Office Supplies Expense, $300", credit: "Credit: Office Supplies, $300" },
+                    { debit: "Debit: Office Supplies Expense, $500", credit: "Credit: Office Supplies, $500" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "At month-end, recognized $1,000 of the Unearned Revenue has now been earned.",
+                options: [
+                    { debit: "Debit: Unearned Revenue, $1,000", credit: "Credit: Service Revenue, $1,000" },
+                    { debit: "Debit: Service Revenue, $1,000", credit: "Credit: Unearned Revenue, $1,000" },
+                    { debit: "Debit: Cash, $1,000", credit: "Credit: Service Revenue, $1,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "At month-end, recorded salaries of $1,500 earned by employees but not yet paid.",
+                options: [
+                    { debit: "Debit: Salaries Expense, $1,500", credit: "Credit: Cash, $1,500" },
+                    { debit: "Debit: Salaries Expense, $1,500", credit: "Credit: Salaries Payable, $1,500" },
+                    { debit: "Debit: Salaries Payable, $1,500", credit: "Credit: Salaries Expense, $1,500" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "At month-end, recorded $200 of interest accrued on a note payable.",
+                options: [
+                    { debit: "Debit: Interest Expense, $200", credit: "Credit: Cash, $200" },
+                    { debit: "Debit: Interest Expense, $200", credit: "Credit: Notes Payable, $200" },
+                    { debit: "Debit: Interest Expense, $200", credit: "Credit: Interest Payable, $200" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "At month-end, recorded $600 of services performed for a client that has not yet been billed.",
+                options: [
+                    { debit: "Debit: Accounts Receivable, $600", credit: "Credit: Service Revenue, $600" },
+                    { debit: "Debit: Service Revenue, $600", credit: "Credit: Accounts Receivable, $600" },
+                    { debit: "Debit: Cash, $600", credit: "Credit: Service Revenue, $600" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid the salaries from the previous month's adjusting entry ($1,500).",
+                options: [
+                    { debit: "Debit: Salaries Expense, $1,500", credit: "Credit: Cash, $1,500" },
+                    { debit: "Debit: Salaries Payable, $1,500", credit: "Credit: Cash, $1,500" },
+                    { debit: "Debit: Salaries Payable, $1,500", credit: "Credit: Salaries Expense, $1,500" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Billed the client for the $600 of services from the prior month's adjusting entry.",
+                options: [
+                    { debit: "Debit: Cash, $600", credit: "Credit: Accounts Receivable, $600" },
+                    { debit: "Debit: Accounts Receivable, $600", credit: "Credit: Unearned Revenue, $600" },
+                    { debit: "Debit: No entry is needed", credit: "Credit: No entry is needed" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Closed the Service Revenue account ($20,000) to Income Summary.",
+                options: [
+                    { debit: "Debit: Service Revenue, $20,000", credit: "Credit: Income Summary, $20,000" },
+                    { debit: "Debit: Income Summary, $20,000", credit: "Credit: Service Revenue, $20,000" },
+                    { debit: "Debit: Service Revenue, $20,000", credit: "Credit: Owner's Equity, $20,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Closed the total Expenses account ($12,000) to Income Summary.",
+                options: [
+                    { debit: "Debit: Total Expenses, $12,000", credit: "Credit: Income Summary, $12,000" },
+                    { debit: "Debit: Income Summary, $12,000", credit: "Credit: Total Expenses, $12,000" },
+                    { debit: "Debit: Owner's Equity, $12,000", credit: "Credit: Total Expenses, $12,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Closed the Income Summary account, which has an $8,000 credit balance (Net Income).",
+                options: [
+                    { debit: "Debit: Owner's Equity, $8,000", credit: "Credit: Income Summary, $8,000" },
+                    { debit: "Debit: Income Summary, $8,000", credit: "Credit: Cash, $8,000" },
+                    { debit: "Debit: Income Summary, $8,000", credit: "Credit: Owner's Equity, $8,000" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Closed the Owner's Drawings account ($1,000) to Owner's Equity.",
+                options: [
+                    { debit: "Debit: Owner's Equity, $1,000", credit: "Credit: Owner's Drawings, $1,000" },
+                    { debit: "Debit: Owner's Drawings, $1,000", credit: "Credit: Owner's Equity, $1,000" },
+                    { debit: "Debit: Income Summary, $1,000", credit: "Credit: Owner's Drawings, $1,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid a dividend of $3,000 to shareholders (for a corporation).",
+                options: [
+                    { debit: "Debit: Retained Earnings, $3,000", credit: "Credit: Cash, $3,000" },
+                    { debit: "Debit: Dividends, $3,000", credit: "Credit: Cash, $3,000" },
+                    { debit: "Debit: Dividend Expense, $3,000", credit: "Credit: Cash, $3,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Wrote off a $500 account receivable as uncollectible (allowance method).",
+                options: [
+                    { debit: "Debit: Bad Debt Expense, $500", credit: "Credit: Accounts Receivable, $500" },
+                    { debit: "Debit: Accounts Receivable, $500", credit: "Credit: Allowance for Doubtful Accounts, $500" },
+                    { debit: "Debit: Allowance for Doubtful Accounts, $500", credit: "Credit: Accounts Receivable, $500" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "At year-end, estimated $2,000 of bad debt expense for the period.",
+                options: [
+                    { debit: "Debit: Bad Debt Expense, $2,000", credit: "Credit: Allowance for Doubtful Accounts, $2,000" },
+                    { debit: "Debit: Bad Debt Expense, $2,000", credit: "Credit: Accounts Receivable, $2,000" },
+                    { debit: "Debit: Allowance for Doubtful Accounts, $2,000", credit: "Credit: Bad Debt Expense, $2,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Sold merchandise for $1,000 cash. The cost of the merchandise was $600 (perpetual system).",
+                options: [
+                    { debit: "Debit: Cash, $1,000; Debit: Cost of Goods Sold, $600", credit: "Credit: Sales Revenue, $1,000; Credit: Merchandise Inventory, $600" },
+                    { debit: "Debit: Cash, $1,000", credit: "Credit: Sales Revenue, $1,000" },
+                    { debit: "Debit: Cash, $1,000", credit: "Credit: Merchandise Inventory, $1,000" },
+                ],
+                correct: 0 // Note: This is a compound entry. We'll simplify options for others.
+            },
+            {
+                transaction: "Purchased merchandise inventory for $3,000 on account.",
+                options: [
+                    { debit: "Debit: Purchases, $3,000", credit: "Credit: Accounts Payable, $3,000" },
+                    { debit: "Debit: Merchandise Inventory, $3,000", credit: "Credit: Accounts Payable, $3,000" },
+                    { debit: "Debit: Merchandise Inventory, $3,000", credit: "Credit: Cash, $3,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Customer returned merchandise sold on account for $200. Cost was $120.",
+                options: [
+                    { debit: "Debit: Sales Returns and Allowances, $200", credit: "Credit: Cash, $200" },
+                    { debit: "Debit: Sales Revenue, $200", credit: "Credit: Accounts Receivable, $200" },
+                    { debit: "Debit: Sales Returns and Allowances, $200", credit: "Credit: Accounts Receivable, $200" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Paid $100 for freight on merchandise purchased (FOB Shipping Point).",
+                options: [
+                    { debit: "Debit: Merchandise Inventory, $100", credit: "Credit: Cash, $100" },
+                    { debit: "Debit: Freight-Out, $100", credit: "Credit: Cash, $100" },
+                    { debit: "Debit: Freight-In, $100", credit: "Credit: Accounts Payable, $100" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid for an inventory purchase within the 2% discount period. Gross amount was $1,000.",
+                options: [
+                    { debit: "Debit: Accounts Payable, $1,000", credit: "Credit: Cash, $980; Credit: Purchase Discounts, $20" },
+                    { debit: "Debit: Accounts Payable, $1,000", credit: "Credit: Cash, $980; Credit: Merchandise Inventory, $20" },
+                    { debit: "Debit: Accounts Payable, $1,000", credit: "Credit: Cash, $1,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Paid $150 for freight on merchandise sold to a customer (FOB Destination).",
+                options: [
+                    { debit: "Debit: Merchandise Inventory, $150", credit: "Credit: Cash, $150" },
+                    { debit: "Debit: Freight-In, $150", credit: "Credit: Cash, $150" },
+                    { debit: "Debit: Freight-Out (or Delivery Expense), $150", credit: "Credit: Cash, $150" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Issued common stock for $50,000 cash.",
+                options: [
+                    { debit: "Debit: Cash, $50,000", credit: "Credit: Common Stock, $50,000" },
+                    { debit: "Debit: Cash, $50,000", credit: "Credit: Retained Earnings, $50,000" },
+                    { debit: "Debit: Common Stock, $50,000", credit: "Credit: Cash, $50,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Purchased 100 shares of its own stock for $2,000 (Treasury Stock).",
+                options: [
+                    { debit: "Debit: Investment, $2,000", credit: "Credit: Cash, $2,000" },
+                    { debit: "Debit: Treasury Stock, $2,000", credit: "Credit: Cash, $2,000" },
+                    { debit: "Debit: Retained Earnings, $2,000", credit: "Credit: Cash, $2,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Declared a cash dividend of $5,000.",
+                options: [
+                    { debit: "Debit: Dividends, $5,000", credit: "Credit: Cash, $5,000" },
+                    { debit: "Debit: Dividend Expense, $5,000", credit: "Credit: Dividends Payable, $5,000" },
+                    { debit: "Debit: Retained Earnings (or Dividends), $5,000", credit: "Credit: Dividends Payable, $5,000" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Paid the dividend that was previously declared ($5,000).",
+                options: [
+                    { debit: "Debit: Dividends Payable, $5,000", credit: "Credit: Cash, $5,000" },
+                    { debit: "Debit: Retained Earnings, $5,000", credit: "Credit: Cash, $5,000" },
+                    { debit: "Debit: Dividends, $5,000", credit: "Credit: Cash, $5,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Reissued treasury stock (cost $500) for $700 cash.",
+                options: [
+                    { debit: "Debit: Cash, $700", credit: "Credit: Treasury Stock, $500; Credit: Gain on Sale, $200" },
+                    { debit: "Debit: Cash, $700", credit: "Credit: Treasury Stock, $500; Credit: Paid-in Capital from Treasury Stock, $200" },
+                    { debit: "Debit: Cash, $700", credit: "Credit: Treasury Stock, $700" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "A customer's check for $400 (for a previous payment on account) was returned for non-sufficient funds (NSF).",
+                options: [
+                    { debit: "Debit: Cash, $400", credit: "Credit: Accounts Receivable, $400" },
+                    { debit: "Debit: Bad Debt Expense, $400", credit: "Credit: Cash, $400" },
+                    { debit: "Debit: Accounts Receivable, $400", credit: "Credit: Cash, $400" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Recorded bank service charges of $50 from the monthly bank statement.",
+                options: [
+                    { debit: "Debit: Bank Service Charge Expense, $50", credit: "Credit: Cash, $50" },
+                    { debit: "Debit: Bank Service Charge Expense, $50", credit: "Credit: Accounts Payable, $50" },
+                    { debit: "Debit: Cash, $50", credit: "Credit: Bank Service Charge Expense, $50" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Recorded interest of $120 earned on the company's bank account.",
+                options: [
+                    { debit: "Debit: Interest Revenue, $120", credit: "Credit: Cash, $120" },
+                    { debit: "Debit: Cash, $120", credit: "Credit: Interest Revenue, $120" },
+                    { debit: "Debit: Cash, $120", credit: "Credit: Interest Receivable, $120" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Paid $2,000 for legal fees related to forming the corporation.",
+                options: [
+                    { debit: "Debit: Intangible Asset, $2,000", credit: "Credit: Cash, $2,000" },
+                    { debit: "Debit: Legal Expense, $2,000", credit: "Credit: Accounts Payable, $2,000" },
+                    { debit: "Debit: Legal Expense, $2,000", credit: "Credit: Cash, $2,000" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Purchased a patent for $10,000 cash.",
+                options: [
+                    { debit: "Debit: Patents, $10,000", credit: "Credit: Cash, $10,000" },
+                    { debit: "Debit: Research & Development Expense, $10,000", credit: "Credit: Cash, $10,000" },
+                    { debit: "Debit: Patents, $10,000", credit: "Credit: Accounts Payable, $10,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Recorded the amortization of a patent for the year, $1,000.",
+                options: [
+                    { debit: "Debit: Patents, $1,000", credit: "Credit: Amortization Expense, $1,000" },
+                    { debit: "Debit: Amortization Expense, $1,000", credit: "Credit: Patents, $1,000" },
+                    { debit: "Debit: Depreciation Expense, $1,000", credit: "Credit: Patents, $1,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Scrapped a fully depreciated machine with no salvage value.",
+                options: [
+                    { debit: "Debit: Loss on Disposal, $0", credit: "Credit: Equipment, $0" },
+                    { debit: "Debit: Equipment, Cost", credit: "Credit: Accumulated Depreciation, Cost" },
+                    { debit: "Debit: Accumulated Depreciation, Cost", credit: "Credit: Equipment, Cost" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Sold equipment with a cost of $10,000 and accumulated depreciation of $8,000 for $3,000 cash.",
+                options: [
+                    { debit: "Debit: Cash, $3,000; Debit: Accumulated Depreciation, $8,000", credit: "Credit: Equipment, $10,000; Credit: Gain on Sale, $1,000" },
+                    { debit: "Debit: Cash, $3,000", credit: "Credit: Gain on Sale, $3,000" },
+                    { debit: "Debit: Cash, $3,000; Debit: Loss on Sale, $7,000", credit: "Credit: Equipment, $10,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Sold equipment with a cost of $10,000 and accumulated depreciation of $8,000 for $1,500 cash.",
+                options: [
+                    { debit: "Debit: Cash, $1,500; Debit: Gain on Sale, $500", credit: "Credit: Equipment, $2,000" },
+                    { debit: "Debit: Cash, $1,500; Debit: Accumulated Depreciation, $8,000; Debit: Loss on Sale, $500", credit: "Credit: Equipment, $10,000" },
+                    { debit: "Debit: Cash, $1,500; Debit: Accumulated Depreciation, $8,000", credit: "Credit: Equipment, $9,500" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Established a petty cash fund of $200.",
+                options: [
+                    { debit: "Debit: Cash, $200", credit: "Credit: Petty Cash, $200" },
+                    { debit: "Debit: Petty Cash Expense, $200", credit: "Credit: Cash, $200" },
+                    { debit: "Debit: Petty Cash, $200", credit: "Credit: Cash, $200" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Replenished the petty cash fund which had $180 in receipts and $20 remaining.",
+                options: [
+                    { debit: "Debit: Various Expenses, $180", credit: "Credit: Cash, $180" },
+                    { debit: "Debit: Petty Cash, $180", credit: "Credit: Cash, $180" },
+                    { debit: "Debit: Various Expenses, $180", credit: "Credit: Petty Cash, $180" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid $9,000 for a one-year commercial property lease in advance.",
+                options: [
+                    { debit: "Debit: Rent Expense, $9,000", credit: "Credit: Cash, $9,000" },
+                    { debit: "Debit: Prepaid Rent, $9,000", credit: "Credit: Cash, $9,000" },
+                    { debit: "Debit: Prepaid Rent, $9,000", credit: "Credit: Accounts Payable, $9,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "At month-end, recognized one month's rent expense from the prepaid lease ($9,000 / 12 months).",
+                options: [
+                    { debit: "Debit: Prepaid Rent, $750", credit: "Credit: Rent Expense, $750" },
+                    { debit: "Debit: Rent Expense, $9,000", credit: "Credit: Prepaid Rent, $9,000" },
+                    { debit: "Debit: Rent Expense, $750", credit: "Credit: Prepaid Rent, $750" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Received a $1,000 deposit from a customer for a large future order.",
+                options: [
+                    { debit: "Debit: Cash, $1,000", credit: "Credit: Customer Deposits (a liability), $1,000" },
+                    { debit: "Debit: Cash, $1,000", credit: "Credit: Sales Revenue, $1,000" },
+                    { debit: "Debit: Accounts Receivable, $1,000", credit: "Credit: Customer Deposits, $1,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid a consultant $2,500 for services rendered this month.",
+                options: [
+                    { debit: "Debit: Consulting Expense, $2,500", credit: "Credit: Accounts Payable, $2,500" },
+                    { debit: "Debit: Consulting Expense, $2,500", credit: "Credit: Cash, $2,500" },
+                    { debit: "Debit: Prepaid Consulting, $2,500", credit: "Credit: Cash, $2,500" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Purchased a small piece of land for a future office site for $75,000 cash.",
+                options: [
+                    { debit: "Debit: Land Expense, $75,000", credit: "Credit: Cash, $75,000" },
+                    { debit: "Debit: Building, $75,000", credit: "Credit: Cash, $75,000" },
+                    { debit: "Debit: Land, $75,000", credit: "Credit: Cash, $75,000" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Borrowed $5,000 from the owner, to be repaid in 90 days.",
+                options: [
+                    { debit: "Debit: Cash, $5,000", credit: "Credit: Loan Payable to Owner, $5,000" },
+                    { debit: "Debit: Cash, $5,000", credit: "Credit: Owner's Equity, $5,000" },
+                    { debit: "Debit: Loan Receivable, $5,000", credit: "Credit: Cash, $5,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid the owner back the $5,000 loan.",
+                options: [
+                    { debit: "Debit: Owner's Equity, $5,000", credit: "Credit: Cash, $5,000" },
+                    { debit: "Debit: Loan Payable to Owner, $5,000", credit: "Credit: Cash, $5,000" },
+                    { debit: "Debit: Loan Expense, $5,000", credit: "Credit: Cash, $5,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Paid $1,200 in property taxes for the year.",
+                options: [
+                    { debit: "Debit: Prepaid Taxes, $1,200", credit: "Credit: Cash, $1,200" },
+                    { debit: "Debit: Land, $1,200", credit: "Credit: Cash, $1,200" },
+                    { debit: "Debit: Property Tax Expense, $1,200", credit: "Credit: Cash, $1,200" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Provided services worth $800 in exchange for landscaping services.",
+                options: [
+                    { debit: "Debit: Landscaping Expense, $800", credit: "Credit: Service Revenue, $800" },
+                    { debit: "Debit: Service Revenue, $800", credit: "Credit: Landscaping Expense, $800" },
+                    { debit: "Debit: No entry required for barter transactions", credit: "" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Received a $250 invoice from the telephone company, due next month.",
+                options: [
+                    { debit: "Debit: Telephone Expense, $250", credit: "Credit: Cash, $250" },
+                    { debit: "Debit: Telephone Expense, $250", credit: "Credit: Accounts Payable, $250" },
+                    { debit: "Debit: Prepaid Telephone, $250", credit: "Credit: Accounts Payable, $250" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Paid a $10,000 invoice for the purchase of a machine.",
+                options: [
+                    { debit: "Debit: Machine Expense, $10,000", credit: "Credit: Cash, $10,000" },
+                    { debit: "Debit: Machinery, $10,000", credit: "Credit: Cash, $10,000" },
+                    { debit: "Debit: Accounts Payable, $10,000", credit: "Credit: Cash, $10,000" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Lent $1,000 to an employee, who signed a 6-month note.",
+                options: [
+                    { debit: "Debit: Notes Receivable, $1,000", credit: "Credit: Cash, $1,000" },
+                    { debit: "Debit: Accounts Receivable, $1,000", credit: "Credit: Cash, $1,000" },
+                    { debit: "Debit: Loan Expense, $1,000", credit: "Credit: Cash, $1,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "The employee paid back the $1,000 loan plus $50 in interest.",
+                options: [
+                    { debit: "Debit: Cash, $1,050", credit: "Credit: Accounts Receivable, $1,000; Credit: Interest Revenue, $50" },
+                    { debit: "Debit: Cash, $1,050", credit: "Credit: Notes Receivable, $1,000; Credit: Interest Revenue, $50" },
+                    { debit: "Debit: Cash, $1,050", credit: "Credit: Notes Receivable, $1,050" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Paid $450 for a business license that is valid for one year.",
+                options: [
+                    { debit: "Debit: Dues and Subscriptions, $450", credit: "Credit: Cash, $450" },
+                    { debit: "Debit: Office Expense, $450", credit: "Credit: Cash, $450" },
+                    { debit: "Debit: Prepaid Expenses, $450", credit: "Credit: Cash, $450" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Recognized one month of expense for the business license ($450 / 12).",
+                options: [
+                    { debit: "Debit: License Expense, $37.50", credit: "Credit: Prepaid Expenses, $37.50" },
+                    { debit: "Debit: Prepaid Expenses, $37.50", credit: "Credit: License Expense, $37.50" },
+                    { debit: "Debit: License Expense, $450", credit: "Credit: Prepaid Expenses, $450" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid a $300 fine for a late payment on a utility bill.",
+                options: [
+                    { debit: "Debit: Utilities Expense, $300", credit: "Credit: Cash, $300" },
+                    { debit: "Debit: Fines and Penalties Expense, $300", credit: "Credit: Cash, $300" },
+                    { debit: "Debit: Interest Expense, $300", credit: "Credit: Cash, $300" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Purchased a one-year subscription to an industry magazine for $120 cash.",
+                options: [
+                    { debit: "Debit: Dues and Subscriptions, $120", credit: "Credit: Accounts Payable, $120" },
+                    { debit: "Debit: Entertainment Expense, $120", credit: "Credit: Cash, $120" },
+                    { debit: "Debit: Prepaid Subscriptions, $120", credit: "Credit: Cash, $120" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Donated $500 cash to a local charity.",
+                options: [
+                    { debit: "Debit: Charitable Contributions Expense, $500", credit: "Credit: Cash, $500" },
+                    { debit: "Debit: Owner's Drawings, $500", credit: "Credit: Cash, $500" },
+                    { debit: "Debit: Advertising Expense, $500", credit: "Credit: Cash, $500" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Reimbursed an employee $80 for business-related travel expenses paid out-of-pocket.",
+                options: [
+                    { debit: "Debit: Salary Expense, $80", credit: "Credit: Cash, $80" },
+                    { debit: "Debit: Travel Expense, $80", credit: "Credit: Cash, $80" },
+                    { debit: "Debit: Accounts Payable, $80", credit: "Credit: Cash, $80" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Paid a vendor $5,000 for inventory purchased last month.",
+                options: [
+                    { debit: "Debit: Merchandise Inventory, $5,000", credit: "Credit: Cash, $5,000" },
+                    { debit: "Debit: Cost of Goods Sold, $5,000", credit: "Credit: Cash, $5,000" },
+                    { debit: "Debit: Accounts Payable, $5,000", credit: "Credit: Cash, $5,000" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "Received a payment of $2,200 on a customer's account.",
+                options: [
+                    { debit: "Debit: Cash, $2,200", credit: "Credit: Accounts Receivable, $2,200" },
+                    { debit: "Debit: Cash, $2,200", credit: "Credit: Service Revenue, $2,200" },
+                    { debit: "Debit: Sales, $2,200", credit: "Credit: Cash, $2,200" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Paid for a software license costing $600, valid for 3 years.",
+                options: [
+                    { debit: "Debit: Software Expense, $600", credit: "Credit: Cash, $600" },
+                    { debit: "Debit: Intangible Asset - Software, $600", credit: "Credit: Cash, $600" },
+                    { debit: "Debit: Office Equipment, $600", credit: "Credit: Cash, $600" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "At year-end, recorded one year's amortization on the 3-year software license ($600).",
+                options: [
+                    { debit: "Debit: Software Expense, $600", credit: "Credit: Intangible Asset - Software, $600" },
+                    { debit: "Debit: Depreciation Expense, $200", credit: "Credit: Accumulated Depreciation, $200" },
+                    { debit: "Debit: Amortization Expense, $200", credit: "Credit: Intangible Asset - Software, $200" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "The company declared a 10% stock dividend when 100,000 shares of $1 par value stock were outstanding.",
+                options: [
+                    { debit: "Debit: Retained Earnings, $10,000", credit: "Credit: Common Stock Dividend Distributable, $10,000" },
+                    { debit: "Debit: Retained Earnings, $10,000", credit: "Credit: Cash, $10,000" },
+                    { debit: "Debit: Stock Dividend Expense, $10,000", credit: "Credit: Common Stock, $10,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Issued the shares for the previously declared stock dividend.",
+                options: [
+                    { debit: "Debit: Common Stock, $10,000", credit: "Credit: Common Stock Dividend Distributable, $10,000" },
+                    { debit: "Debit: Common Stock Dividend Distributable, $10,000", credit: "Credit: Common Stock, $10,000" },
+                    { debit: "Debit: Retained Earnings, $10,000", credit: "Credit: Common Stock, $10,000" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Paid $3,000 for catering for the annual company party.",
+                options: [
+                    { debit: "Debit: Owner's Drawings, $3,000", credit: "Credit: Cash, $3,000" },
+                    { debit: "Debit: Miscellaneous Expense, $3,000", credit: "Credit: Cash, $3,000" },
+                    { debit: "Debit: Entertainment Expense, $3,000", credit: "Credit: Cash, $3,000" },
+                ],
+                correct: 2
+            },
+            {
+                transaction: "A fire destroyed a warehouse with a book value of $25,000. It was uninsured.",
+                options: [
+                    { debit: "Debit: Loss from Fire, $25,000", credit: "Credit: Warehouse, $25,000" }, // Simplified
+                    { debit: "Debit: Retained Earnings, $25,000", credit: "Credit: Warehouse, $25,000" },
+                    { debit: "Debit: Fire Expense, $25,000", credit: "Credit: Cash, $25,000" },
+                ],
+                correct: 0
+            },
+            {
+                transaction: "Corrected an error from a prior period where rent expense of $500 was incorrectly debited to salaries.",
+                options: [
+                    { debit: "Debit: Salaries Expense, $500", credit: "Credit: Rent Expense, $500" },
+                    { debit: "Debit: Rent Expense, $500", credit: "Credit: Salaries Expense, $500" },
+                    { debit: "Debit: Retained Earnings, $500", credit: "Credit: Cash, $500" },
+                ],
+                correct: 1
+            },
+            {
+                transaction: "Performed $5,000 of services for a client who paid with a 60-day note receivable.",
+                options: [
+                    { debit: "Debit: Accounts Receivable, $5,000", credit: "Credit: Service Revenue, $5,000" },
+                    { debit: "Debit: Cash, $5,000", credit: "Credit: Service Revenue, $5,000" },
+                    { debit: "Debit: Notes Receivable, $5,000", credit: "Credit: Service Revenue, $5,000" },
+                ],
+                correct: 2
+            }
+        ];
+        
+        // --- JavaScript Logic ---
+        let currentQuestionIndex = 0;
+        let timer;
+        let timeLeft = 30;
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const startBtn = document.getElementById('start-btn');
+
+        const timerEl = document.getElementById('timer-display');
+        const questionNumberEl = document.getElementById('question-number');
+        const transactionTextEl = document.getElementById('transaction-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const bodyEl = document.body;
+
+        function startGame() {
+            startScreen.style.display = 'none';
+            quizScreen.style.display = 'block';
+            showQuestion();
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            timerEl.textContent = timeLeft;
+            timerEl.style.color = 'var(--color-primary)';
+            clearInterval(timer); 
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 5) timerEl.style.color = 'var(--color-incorrect)';
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleTimeUp();
+                }
+            }, 1000);
+        }
+
+        function showQuestion() {
+            // Reset UI
+            bodyEl.className = '';
+            nextBtn.style.display = 'none';
+            optionsContainer.classList.remove('answered');
+
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            questionNumberEl.textContent = `Question ${currentQuestionIndex + 1} / ${questions.length}`;
+            transactionTextEl.textContent = currentQuestion.transaction;
+            
+            optionsContainer.innerHTML = '';
+            currentQuestion.options.forEach((option, index) => {
+                const optionEl = document.createElement('label');
+                optionEl.className = 'option-label';
+                optionEl.htmlFor = `option${index}`;
+                optionEl.innerHTML = `
+                    <input type="radio" name="answer" id="option${index}" value="${index}">
+                    <div class="journal-entry">
+                        ${option.debit}<br>
+                        <span class="credit-line">${option.credit}</span>
+                    </div>
+                `;
+                optionEl.addEventListener('click', selectAnswer);
+                optionsContainer.appendChild(optionEl);
+            });
+
+            startTimer();
+        }
+        
+        function selectAnswer(event) {
+            clearInterval(timer);
+            optionsContainer.classList.add('answered'); // Prevents more clicks
+            
+            const selectedLabel = event.currentTarget;
+            const selectedInput = selectedLabel.querySelector('input');
+            const answerIndex = parseInt(selectedInput.value);
+
+            const correctIndex = questions[currentQuestionIndex].correct;
+            const correctLabel = optionsContainer.querySelector(`label[for="option${correctIndex}"]`);
+
+            // Highlight the correct answer in all cases
+            correctLabel.classList.add('correct');
+
+            if (answerIndex === correctIndex) {
+                bodyEl.classList.add('correct-bg');
+            } else {
+                bodyEl.classList.add('incorrect-bg');
+                // Also highlight the user's wrong choice
+                selectedLabel.classList.add('incorrect');
+            }
+            
+            endTurn();
+        }
+
+        function handleTimeUp() {
+            optionsContainer.classList.add('answered');
+            bodyEl.classList.add('incorrect-bg');
+            
+            const correctIndex = questions[currentQuestionIndex].correct;
+            const correctLabel = optionsContainer.querySelector(`label[for="option${correctIndex}"]`);
+            correctLabel.classList.add('correct');
+            
+            endTurn();
+        }
+        
+        function endTurn() {
+            if (currentQuestionIndex < questions.length - 1) {
+                nextBtn.style.display = 'block';
+            } else {
+                transactionTextEl.textContent = "Quiz Complete! 🎉";
+                timerEl.style.display = 'none';
+            }
+        }
+
+        function goToNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            }
+        }
+
+        startBtn.addEventListener('click', startGame);
+        nextBtn.addEventListener('click', goToNextQuestion);
+    </script>
+
+</body>
+</html>
