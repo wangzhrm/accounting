@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal Entry Quiz</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        #quiz-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #1e3a5f;
+        }
+        #question-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        #question-text {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            background-color: #e9f5ff;
+            padding: 15px;
+            border-left: 5px solid #007bff;
+            border-radius: 5px;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .options li {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .options li:hover {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+        }
+        .options li.selected {
+            font-weight: bold;
+        }
+        .feedback {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: bold;
+            display: none; /* Hidden by default */
+        }
+        .feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .feedback.wrong {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        #explanation {
+            margin-top: 10px;
+            font-size: 0.95em;
+        }
+        #next-button {
+            display: none; /* Hidden until an answer is selected */
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        #next-button:hover {
+            background-color: #0056b3;
+        }
+        #results-container {
+            display: none; /* Hidden until the quiz is complete */
+            text-align: center;
+        }
+        #results-container h2 {
+            color: #28a745;
+        }
+        #score {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        #wrong-answers-list {
+            text-align: left;
+            margin-top: 20px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        #wrong-answers-list h3 {
+            color: #dc3545;
+        }
+        .wrong-answer-item {
+            background: #fff3f3;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+        }
+        .wrong-answer-item p {
+            margin: 0 0 10px 0;
+        }
+        .correct-answer-text {
+            font-weight: bold;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="quiz-container">
+        <h1>Journal Entry Quiz 📝</h1>
+        <div id="quiz-content">
+            <div id="question-header"></div>
+            <p id="question-text"></p>
+            <ul class="options" id="options-list"></ul>
+            <div id="feedback-container" class="feedback"></div>
+            <button id="next-button">Next Question</button>
+        </div>
+        <div id="results-container">
+            <h2>Quiz Complete! 🎉</h2>
+            <p id="score"></p>
+            <div id="wrong-answers-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "A business owner invests $20,000 cash into the company. What is the journal entry?",
+                options: {
+                    a: "Debit: Cash $20,000; Credit: Accounts Payable $20,000",
+                    b: "Debit: Cash $20,000; Credit: Owner's Capital $20,000",
+                    c: "Debit: Owner's Capital $20,000; Credit: Cash $20,000",
+                    d: "Debit: Accounts Receivable $20,000; Credit: Cash $20,000"
+                },
+                correct: "b",
+                explanation: "Cash (an asset) increases, so it is debited. Owner's Capital (equity) increases, so it is credited."
+            },
+            {
+                question: "The company purchases office supplies for $500 cash. What is the journal entry?",
+                options: {
+                    a: "Debit: Office Expense $500; Credit: Accounts Payable $500",
+                    b: "Debit: Cash $500; Credit: Office Supplies $500",
+                    c: "Debit: Office Supplies $500; Credit: Cash $500",
+                    d: "Debit: Office Supplies $500; Credit: Owner's Capital $500"
+                },
+                correct: "c",
+                explanation: "Office Supplies (an asset) increases, so it is debited. Cash (an asset) decreases, so it is credited."
+            },
+            {
+                question: "The company provides services to a client and bills them $3,000. The client will pay next month. What is the entry?",
+                options: {
+                    a: "Debit: Cash $3,000; Credit: Service Revenue $3,000",
+                    b: "Debit: Service Revenue $3,000; Credit: Accounts Receivable $3,000",
+                    c: "Debit: Accounts Payable $3,000; Credit: Service Revenue $3,000",
+                    d: "Debit: Accounts Receivable $3,000; Credit: Service Revenue $3,000"
+                },
+                correct: "d",
+                explanation: "Accounts Receivable (an asset) increases because the client owes money. Service Revenue (equity) increases because the service was performed. Assets are debited to increase, and revenue is credited to increase."
+            },
+            {
+                question: "The company pays its monthly rent of $1,200 in cash. What is the journal entry?",
+                options: {
+                    a: "Debit: Rent Expense $1,200; Credit: Cash $1,200",
+                    b: "Debit: Cash $1,200; Credit: Rent Expense $1,200",
+                    c: "Debit: Rent Expense $1,200; Credit: Accounts Payable $1,200",
+                    d: "Debit: Prepaid Rent $1,200; Credit: Rent Expense $1,200"
+                },
+                correct: "a",
+                explanation: "Rent Expense (an expense, which decreases equity) increases, so it is debited. Cash (an asset) decreases, so it is credited."
+            },
+            {
+                question: "A company purchases equipment for $15,000, paying $5,000 in cash and signing a note for the rest. What is the journal entry?",
+                options: {
+                    a: "Debit: Equipment $15,000; Credit: Cash $15,000",
+                    b: "Debit: Equipment $15,000; Credit: Cash $5,000, Credit: Accounts Payable $10,000",
+                    c: "Debit: Equipment $15,000; Credit: Cash $5,000, Credit: Notes Payable $10,000",
+                    d: "Debit: Cash $5,000, Debit: Notes Payable $10,000; Credit: Equipment $15,000"
+                },
+                correct: "c",
+                explanation: "Equipment (an asset) increases by $15,000 (debit). Cash (an asset) decreases by $5,000 (credit). Notes Payable (a liability) increases by $10,000 (credit)."
+            },
+            {
+                question: "The company receives $3,000 cash from the client billed in a previous transaction. What is the journal entry?",
+                options: {
+                    a: "Debit: Cash $3,000; Credit: Service Revenue $3,000",
+                    b: "Debit: Accounts Receivable $3,000; Credit: Cash $3,000",
+                    c: "Debit: Cash $3,000; Credit: Accounts Receivable $3,000",
+                    d: "Debit: Service Revenue $3,000; Credit: Cash $3,000"
+                },
+                correct: "c",
+                explanation: "Cash (an asset) increases, so it is debited. Accounts Receivable (an asset) decreases because the client no longer owes the money, so it is credited."
+            },
+            {
+                question: "The company pays a $700 bill for utilities that was previously recorded as an accounts payable. What is the entry?",
+                options: {
+                    a: "Debit: Utilities Expense $700; Credit: Cash $700",
+                    b: "Debit: Accounts Payable $700; Credit: Cash $700",
+                    c: "Debit: Cash $700; Credit: Accounts Payable $700",
+                    d: "Debit: Accounts Payable $700; Credit: Utilities Expense $700"
+                },
+                correct: "b",
+                explanation: "Accounts Payable (a liability) is decreased, so it is debited. Cash (an asset) is decreased, so it is credited."
+            },
+            {
+                question: "The owner withdraws $1,000 cash from the business for personal use. What is the journal entry?",
+                options: {
+                    a: "Debit: Salary Expense $1,000; Credit: Cash $1,000",
+                    b: "Debit: Cash $1,000; Credit: Owner's Drawing $1,000",
+                    c: "Debit: Owner's Capital $1,000; Credit: Cash $1,000",
+                    d: "Debit: Owner's Drawing $1,000; Credit: Cash $1,000"
+                },
+                correct: "d",
+                explanation: "Owner's Drawing (a contra-equity account) increases, so it is debited. Cash (an asset) decreases, so it is credited."
+            },
+            {
+                question: "The company buys a building for $250,000 by signing a mortgage. What is the journal entry?",
+                options: {
+                    a: "Debit: Building $250,000; Credit: Mortgage Payable $250,000",
+                    b: "Debit: Building $250,000; Credit: Cash $250,000",
+                    c: "Debit: Mortgage Payable $250,000; Credit: Building $250,000",
+                    d: "Debit: Building Expense $250,000; Credit: Mortgage Payable $250,000"
+                },
+                correct: "a",
+                explanation: "The Building account (an asset) increases, so it is debited. The Mortgage Payable account (a liability) also increases, so it is credited."
+            },
+            {
+                question: "A customer pays $600 in advance for services to be performed next month. What is the journal entry?",
+                options: {
+                    a: "Debit: Cash $600; Credit: Service Revenue $600",
+                    b: "Debit: Accounts Receivable $600; Credit: Unearned Revenue $600",
+                    c: "Debit: Cash $600; Credit: Unearned Revenue $600",
+                    d: "Debit: Unearned Revenue $600; Credit: Cash $600"
+                },
+                correct: "c",
+                explanation: "Cash (an asset) increases, so it is debited. Since the service has not yet been provided, the company has a liability to the customer, which is recorded as Unearned Revenue (a liability), so it is credited."
+            },
+            {
+                question: "The company pays employee salaries of $5,000 with cash. What is the journal entry?",
+                options: {
+                    a: "Debit: Salaries Payable $5,000; Credit: Cash $5,000",
+                    b: "Debit: Salaries Expense $5,000; Credit: Cash $5,000",
+                    c: "Debit: Cash $5,000; Credit: Salaries Expense $5,000",
+                    d: "Debit: Owner's Drawing $5,000; Credit: Cash $5,000"
+                },
+                correct: "b",
+                explanation: "Salaries Expense increases (a debit). Cash (an asset) decreases (a credit)."
+            },
+            {
+                question: "The company borrows $10,000 from the bank by signing a note. What is the entry?",
+                options: {
+                    a: "Debit: Cash $10,000; Credit: Notes Receivable $10,000",
+                    b: "Debit: Loan Expense $10,000; Credit: Cash $10,000",
+                    c: "Debit: Cash $10,000; Credit: Notes Payable $10,000",
+                    d: "Debit: Notes Payable $10,000; Credit: Cash $10,000"
+                },
+                correct: "c",
+                explanation: "The company receives cash, so the Cash account (an asset) is debited. The company incurs a liability to repay the loan, so Notes Payable (a liability) is credited."
+            },
+            {
+                question: "The company performs services for a customer and receives $800 cash immediately. What is the entry?",
+                options: {
+                    a: "Debit: Cash $800; Credit: Accounts Receivable $800",
+                    b: "Debit: Cash $800; Credit: Service Revenue $800",
+                    c: "Debit: Service Revenue $800; Credit: Cash $800",
+                    d: "Debit: Accounts Receivable $800; Credit: Service Revenue $800"
+                },
+                correct: "b",
+                explanation: "Cash (an asset) increases, so it's debited. Revenue is earned at the same time, so Service Revenue (equity) is credited."
+            },
+            {
+                question: "Record depreciation of $2,000 on company equipment for the year. What is the adjusting entry?",
+                options: {
+                    a: "Debit: Depreciation Expense $2,000; Credit: Equipment $2,000",
+                    b: "Debit: Equipment $2,000; Credit: Depreciation Expense $2,000",
+                    c: "Debit: Accumulated Depreciation $2,000; Credit: Depreciation Expense $2,000",
+                    d: "Debit: Depreciation Expense $2,000; Credit: Accumulated Depreciation $2,000"
+                },
+                correct: "d",
+                explanation: "Depreciation Expense is recorded (a debit) to recognize the cost of using the asset. Accumulated Depreciation (a contra-asset account) is credited to reduce the book value of the equipment without directly crediting the Equipment account."
+            },
+            {
+                question: "The company pays $400 to a supplier for a purchase made on account last month. What is the entry?",
+                options: {
+                    a: "Debit: Inventory $400; Credit: Cash $400",
+                    b: "Debit: Cash $400; Credit: Accounts Payable $400",
+                    c: "Debit: Accounts Payable $400; Credit: Cash $400",
+                    d: "Debit: Operating Expense $400; Credit: Cash $400"
+                },
+                correct: "c",
+                explanation: "Paying off a debt reduces the Accounts Payable liability (a debit). It also reduces Cash (an asset), which is a credit."
+            },
+            {
+                question: "The company purchases a one-year insurance policy for $2,400 cash. What is the entry?",
+                options: {
+                    a: "Debit: Insurance Expense $2,400; Credit: Cash $2,400",
+                    b: "Debit: Prepaid Insurance $2,400; Credit: Cash $2,400",
+                    c: "Debit: Cash $2,400; Credit: Prepaid Insurance $2,400",
+                    d: "Debit: Accounts Payable $2,400; Credit: Cash $2,400"
+                },
+                correct: "b",
+                explanation: "The insurance policy is an asset because its benefits will be received in the future. Therefore, Prepaid Insurance (an asset) is debited. Cash (an asset) is credited because it was used to pay for the policy."
+            },
+            {
+                question: "At the end of the month, one month of the $2,400 insurance policy has expired. What is the adjusting entry?",
+                options: {
+                    a: "Debit: Prepaid Insurance $200; Credit: Insurance Expense $200",
+                    b: "Debit: Insurance Expense $2,400; Credit: Prepaid Insurance $2,400",
+                    c: "Debit: Insurance Expense $200; Credit: Prepaid Insurance $200",
+                    d: "Debit: Insurance Expense $200; Credit: Cash $200"
+                },
+                correct: "c",
+                explanation: "One month's worth of insurance ($2,400 / 12 months = $200) has been used up. This cost is now an expense. Insurance Expense is debited, and the asset Prepaid Insurance is credited to show it has been partially consumed."
+            },
+            {
+                question: "The company sold goods for $1,000 on account. The cost of these goods was $600. What is the entry to record the sale?",
+                options: {
+                    a: "Debit: Accounts Receivable $1,000; Credit: Sales Revenue $1,000",
+                    b: "Debit: Cash $1,000; Credit: Sales Revenue $1,000",
+                    c: "Debit: Accounts Receivable $1,000; Credit: Inventory $1,000",
+                    d: "Debit: Cost of Goods Sold $600; Credit: Sales Revenue $600"
+                },
+                correct: "a",
+                explanation: "This entry records only the revenue portion of the transaction. Accounts Receivable (an asset) is debited, and Sales Revenue is credited. A separate entry is needed for the cost of goods sold."
+            },
+            {
+                question: "Following the previous question, what is the entry to record the cost of the goods sold ($600)?",
+                options: {
+                    a: "Debit: Inventory $600; Credit: Cost of Goods Sold $600",
+                    b: "Debit: Sales Expense $600; Credit: Inventory $600",
+                    c: "Debit: Cost of Goods Sold $600; Credit: Inventory $600",
+                    d: "Debit: Cost of Goods Sold $600; Credit: Accounts Payable $600"
+                },
+                correct: "c",
+                explanation: "This entry recognizes the expense associated with the sale. Cost of Goods Sold (an expense) is debited, and the Inventory account (an asset) is credited to show the reduction in inventory."
+            },
+            {
+                question: "The company pays a dividend of $5,000 cash to its shareholders. What is the journal entry?",
+                options: {
+                    a: "Debit: Retained Earnings $5,000; Credit: Cash $5,000",
+                    b: "Debit: Dividend Expense $5,000; Credit: Cash $5,000",
+                    c: "Debit: Dividends $5,000; Credit: Cash $5,000",
+                    d: "Debit: Owner's Capital $5,000; Credit: Cash $5,000"
+                },
+                correct: "c",
+                explanation: "Dividends are a distribution of earnings, not an expense. The Dividends account (a contra-equity account) is debited to record the distribution, and Cash (an asset) is credited."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const wrongAnswers = [];
+
+        const questionHeaderEl = document.getElementById('question-header');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsListEl = document.getElementById('options-list');
+        const feedbackContainerEl = document.getElementById('feedback-container');
+        const nextButton = document.getElementById('next-button');
+        const quizContentEl = document.getElementById('quiz-content');
+        const resultsContainerEl = document.getElementById('results-container');
+        const scoreEl = document.getElementById('score');
+        const wrongAnswersListEl = document.getElementById('wrong-answers-list');
+
+        function loadQuestion() {
+            // Reset state from previous question
+            feedbackContainerEl.style.display = 'none';
+            feedbackContainerEl.className = 'feedback';
+            nextButton.style.display = 'none';
+            optionsListEl.innerHTML = '';
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionHeaderEl.innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+            questionTextEl.innerText = currentQuestion.question;
+
+            for (const key in currentQuestion.options) {
+                const li = document.createElement('li');
+                li.innerText = currentQuestion.options[key];
+                li.dataset.answer = key;
+                li.addEventListener('click', selectAnswer);
+                optionsListEl.appendChild(li);
+            }
+        }
+
+        function selectAnswer(e) {
+            // Disable further clicks
+            const options = optionsListEl.querySelectorAll('li');
+            options.forEach(option => {
+                option.removeEventListener('click', selectAnswer);
+                option.style.cursor = 'default';
+            });
+
+            const selectedOption = e.target;
+            const selectedAnswer = selectedOption.dataset.answer;
+            const currentQuestion = quizData[currentQuestionIndex];
+
+            selectedOption.classList.add('selected');
+
+            if (selectedAnswer === currentQuestion.correct) {
+                score++;
+                feedbackContainerEl.innerHTML = `<p>✅ Correct!</p><div id="explanation">${currentQuestion.explanation}</div>`;
+                feedbackContainerEl.classList.add('correct');
+            } else {
+                wrongAnswers.push(currentQuestion);
+                feedbackContainerEl.innerHTML = `<p>❌ Wrong!</p><p><strong>The correct answer is:</strong></p><p>${currentQuestion.options[currentQuestion.correct]}</p><div id="explanation">${currentQuestion.explanation}</div>`;
+                feedbackContainerEl.classList.add('wrong');
+            }
+
+            feedbackContainerEl.style.display = 'block';
+            nextButton.style.display = 'block';
+        }
+
+        function showResults() {
+            quizContentEl.style.display = 'none';
+            resultsContainerEl.style.display = 'block';
+
+            const correctRatio = ((score / quizData.length) * 100).toFixed(1);
+            scoreEl.innerText = `Your Score: ${score} out of ${quizData.length} (${correctRatio}%)`;
+
+            if (wrongAnswers.length > 0) {
+                let wrongAnswersHTML = '<h3>Questions you got wrong:</h3>';
+                wrongAnswers.forEach(item => {
+                    wrongAnswersHTML += `
+                        <div class="wrong-answer-item">
+                            <p><strong>Question:</strong> ${item.question}</p>
+                            <p class="correct-answer-text">Correct Answer: ${item.options[item.correct]}</p>
+                        </div>
+                    `;
+                });
+                wrongAnswersListEl.innerHTML = wrongAnswersHTML;
+            } else {
+                wrongAnswersListEl.innerHTML = '<h3>Excellent work! You got all questions correct!</h3>';
+            }
+        }
+
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        // Initial load
+        loadQuestion();
+    </script>
+
+</body>
+</html>
