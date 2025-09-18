@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding the Profit & Loss Statement and Closing Entries</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .content-box {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        .section-title {
+            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        .subsection-title {
+            color: #4b5563;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #e5e7eb;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="p-6">
+
+    <div class="container mx-auto">
+        <div class="content-box">
+            <h1 class="text-3xl font-bold text-center mb-4 text-gray-900">Understanding the Profit & Loss Statement and Closing Entries</h1>
+            <p class="text-center text-gray-600 mb-8">A guide to the temporary accounts on the P&L and how they are closed at the end of a period.</p>
+
+            <div class="space-y-8">
+                <div>
+                    <h2 class="section-title">Commonly Used P&L Accounts</h2>
+                    <p class="text-gray-700">
+                        The Profit and Loss Statement (also known as the Income Statement) is a financial report that summarizes a company's revenues, costs, and expenses over a specific period. It is entirely composed of temporary accounts, which are closed out at the end of each period.
+                    </p>
+
+                    <h3 class="subsection-title">Revenue Accounts:</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2 ml-4">
+                        <li><strong>Sales Revenue:</strong> The income generated from the sale of goods or services.</li>
+                        <li><strong>Service Revenue:</strong> The income earned from providing services.</li>
+                        <li><strong>Interest Income:</strong> Revenue earned from investments or loans.</li>
+                    </ul>
+
+                    <h3 class="subsection-title">Expense Accounts:</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2 ml-4">
+                        <li><strong>Cost of Goods Sold (COGS):</strong> The direct costs attributable to the production of the goods sold by a company.</li>
+                        <li><strong>Salaries & Wages Expense:</strong> Costs for employee compensation.</li>
+                        <li><strong>Rent Expense:</strong> Costs for renting office space, equipment, etc.</li>
+                        <li><strong>Utilities Expense:</strong> Costs for electricity, water, and other utilities.</li>
+                        <li><strong>Advertising Expense:</strong> Costs for marketing and promotion.</li>
+                        <li><strong>Depreciation Expense:</strong> The non-cash expense for the wear and tear of long-term assets.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="section-title">The Closing Process: Step-by-Step Journal Entries</h2>
+                    <p class="text-gray-700">
+                        The process of closing these accounts to the Profit or Loss Summary account and then to the Retained Earnings account is the formal procedure for determining and recording a company's net income (or loss).
+                    </p>
+
+                    <h4 class="subsection-title">Step 1: Close all Revenue Accounts</h4>
+                    <p class="text-gray-700">
+                        Revenue accounts typically have a credit balance. To close them and make their balance zero, you must <strong>debit</strong> each revenue account for its full balance. The total amount is then <strong>credited</strong> to the <strong>Profit or Loss Summary</strong> account.
+                    </p>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Account</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Dec 31</td>
+                                    <td>Sales Revenue</td>
+                                    <td>$250,000</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Dec 31</td>
+                                    <td>Service Revenue</td>
+                                    <td>$80,000</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><strong>Profit or Loss Summary</strong></td>
+                                    <td></td>
+                                    <td><strong>$330,000</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="italic text-gray-500">*To close all revenue accounts to the summary account.*</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4 class="subsection-title">Step 2: Close all Expense Accounts</h4>
+                    <p class="text-gray-700">
+                        Expense accounts typically have a debit balance. To close them, you must <strong>credit</strong> each expense account for its full balance. The total amount is then <strong>debited</strong> to the <strong>Profit or Loss Summary</strong> account.
+                    </p>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Account</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Dec 31</td>
+                                    <td><strong>Profit or Loss Summary</strong></td>
+                                    <td><strong>$280,000</strong></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>Cost of Goods Sold</td>
+                                    <td></td>
+                                    <td>$150,000</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>Salaries & Wages Expense</td>
+                                    <td></td>
+                                    <td>$80,000</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>Rent Expense</td>
+                                    <td></td>
+                                    <td>$30,000</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>Advertising Expense</td>
+                                    <td></td>
+                                    <td>$20,000</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="italic text-gray-500">*To close all expense accounts to the summary account.*</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4 class="subsection-title">Step 3: Close the Profit or Loss Summary Account</h4>
+                    <p class="text-gray-700">
+                        After the first two steps, the Profit or Loss Summary account's balance represents the net income or loss for the period ($330,000 - $280,000 = $50,000 Credit). This final balance is then transferred to the <strong>Retained Earnings</strong> account, which is a permanent equity account on the balance sheet.
+                    </p>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Account</th>
+                                    <th>Debit</th>
+                                    <th>Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Dec 31</td>
+                                    <td><strong>Profit or Loss Summary</strong></td>
+                                    <td><strong>$50,000</strong></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><strong>Retained Earnings</strong></td>
+                                    <td></td>
+                                    <td><strong>$50,000</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="italic text-gray-500">*To close net income to Retained Earnings.*</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-gray-700 mt-4">
+                        By following this process, all temporary accounts are reset to zero, and the company's profitability for the period is officially recorded in its equity.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
