@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Enron Accounting Scandal: A Business Case Study</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .content-box {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            transition: transform 0.3s ease;
+        }
+        .content-box:hover {
+            transform: translateY(-5px);
+        }
+        .section-title {
+            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        .scenario-box {
+            background-color: #f9fafb;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .quote {
+            font-style: italic;
+            color: #4b5563;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #e5e7eb;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="p-6">
+
+    <div class="container mx-auto">
+        <div class="content-box">
+            <h1 class="text-3xl font-bold text-center mb-4 text-gray-900">The Enron Accounting Scandal: A Business Case Study</h1>
+            <p class="text-center text-gray-600 mb-8">How the manipulation of adjusting entries led to one of the largest corporate bankruptcies in history.</p>
+            
+            <div class="space-y-8">
+                <div>
+                    <h2 class="section-title">Case Overview: The Enron Corporation</h2>
+                    <p class="text-gray-700">
+                        In the late 1990s, Enron was celebrated as a financial innovator and a darling of Wall Street. The energy giant seemed unstoppable, reporting consistently high profits and a soaring stock price. However, this success was an illusion built on a foundation of sophisticated accounting fraud. At the heart of the deception was the systematic manipulation of accounting principles, particularly through the misuse of adjusting entries.
+                    </p>
+                </div>
+
+                <div>
+                    <h2 class="section-title">Core Deception 1: Mark-to-Market Accounting</h2>
+                    <p class="text-gray-700">
+                        Enron pioneered a practice known as "mark-to-market" accounting, which allowed them to book projected future profits as current revenue. While this method can be valid for certain financial instruments, Enron applied it to long-term contracts for energy and other commodities, such as a 20-year energy deal. They would estimate the total profit over the entire contract period and recognize it all on the current year's income statement.
+                    </p>
+                    <div class="scenario-box">
+                        <p class="font-semibold text-gray-800">Scenario: A Legitimate Accrual</p>
+                        <p class="text-gray-600 mt-2">
+                            A company sells a 20-year energy service contract for a total projected profit of $20 million. At the end of the first year, they have legitimately earned $1 million in profit. The correct adjusting entry, based on the **matching principle**, would be:
+                        </p>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Account</th>
+                                        <th>Debit</th>
+                                        <th>Credit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Dec 31, Year 1</td>
+                                        <td>Accounts Receivable</td>
+                                        <td>$1,000,000</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>Service Revenue</td>
+                                        <td></td>
+                                        <td>$1,000,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="text-gray-500 italic text-sm">To accrue revenue earned for the current period.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="scenario-box">
+                        <p class="font-semibold text-gray-800">Scenario: Enron's Fraudulent Accrual</p>
+                        <p class="text-gray-600 mt-2">
+                            Enron, instead of recognizing the $1 million, would make a fraudulent adjusting entry to book the *entire* $20 million projected profit, creating an immediate, massive boost to their reported earnings.
+                        </p>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Account</th>
+                                        <th>Debit</th>
+                                        <th>Credit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Dec 31, Year 1</td>
+                                        <td>Accounts Receivable</td>
+                                        <td>$20,000,000</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>Service Revenue</td>
+                                        <td></td>
+                                        <td>$20,000,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="text-gray-500 italic text-sm">To recognize all future revenue in the current period (Fraudulent).</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="section-title">Core Deception 2: Special Purpose Entities (SPEs)</h2>
+                    <p class="text-gray-700">
+                        When Enron's speculative projects failed to generate the massive profits they had booked, they were left with significant losses and debt. To hide this from investors, they created a complex web of off-balance-sheet entities, or SPEs. They would transfer their failing assets and liabilities to these entities.
+                    </p>
+                    <div class="scenario-box">
+                        <p class="font-semibold text-gray-800">Scenario: Hiding a Loss with an SPE</p>
+                        <p class="text-gray-600 mt-2">
+                            Imagine an Enron investment is losing value. A legitimate company would be required to make an adjusting entry to recognize the loss on their income statement.
+                        </p>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Account</th>
+                                        <th>Debit</th>
+                                        <th>Credit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Dec 31, Year 2</td>
+                                        <td>Loss on Impaired Investment</td>
+                                        <td>$5,000,000</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td>Investment Asset</td>
+                                        <td></td>
+                                        <td>$5,000,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="text-gray-500 italic text-sm">To recognize a loss on a failing investment (Legitimate).</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-gray-600 mt-4">
+                            Enron's method was to sell this failing investment to an SPE. Because the SPE was not "consolidated" on Enron's financial statements, the loss and the associated debt simply vanished from Enron's books. They avoided this adjusting entry altogether, keeping their income and assets artificially high. 
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="section-title">The Aftermath and Lessons Learned</h2>
+                    <p class="text-gray-700">
+                        The web of deceit unraveled in late 2001, leading to Enron's bankruptcy and the demise of its auditing firm, Arthur Andersen. The scandal led to the passage of the Sarbanes-Oxley Act of 2002 (SOX), which aimed to prevent future corporate fraud by increasing accountability and strengthening financial reporting standards.
+                    </p>
+                    <p class="text-gray-700 mt-4">
+                        This case study serves as a powerful lesson for all accounting students: adjusting entries are not just routine transactions. They are critical to ensuring financial statements present a true and fair view of a company's financial health. When they are manipulated or omitted, they can be used to deceive investors and hide significant financial problems.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
