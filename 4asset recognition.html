@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Recognition Practice Exercises</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 40px;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007bff;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .scenario-block {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #ccc;
+        }
+        .scenario-block:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .scenario-title {
+            font-size: 1.3em;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        .scenario-description {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+        .question {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .answer-section {
+            display: none; /* Hidden by default */
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #e2f0d9; /* Light green background for answers */
+            border-left: 5px solid #28a745;
+            border-radius: 5px;
+        }
+        .answer-title {
+            font-size: 1.2em;
+            color: #28a745;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .answer-text {
+            margin-bottom: 15px;
+        }
+        .answer-text p {
+            margin-bottom: 5px;
+        }
+        .answer-text strong {
+            color: #007bff;
+        }
+        .show-answers-button {
+            display: block;
+            width: 200px;
+            padding: 12px 20px;
+            margin: 30px auto;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        .show-answers-button:hover {
+            background-color: #0056b3;
+        }
+        .answer-explanation {
+            margin-top: 8px;
+            font-style: italic;
+            font-size: 0.95em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Asset Recognition Practice Exercises</h1>
+        <p>Evaluate each scenario below and determine whether an asset should be recognized, considering the five key criteria: Future Economic Benefits, Control, Existence Uncertainty, Probability of Inflows, and Measurement Uncertainty.</p>
+
+        <div class="scenario-block">
+            <div class="scenario-title">Scenario 1: Pending R&D</div>
+            <div class="scenario-description">A pharmaceutical company spent **$500,000** this year developing a new vaccine compound. The compound has passed initial lab trials, but full government regulatory approval (required before sales can begin) has a historical **55% chance** of being granted. All costs are reliably tracked.</div>
+            <div class="question">**Question:** Based on the information, should the $500,000 in development costs be recognized as an intangible asset?</div>
+        </div>
+
+        <div class="scenario-block">
+            <div class="scenario-title">Scenario 2: Marketing Investment</div>
+            <div class="scenario-description">A beverage company launched a massive new advertising campaign, incurring **$2,000,000** in costs over the quarter. Management is certain this campaign will result in higher sales next year. The costs are verifiable, but the resulting customer loyalty is not transferable and cannot be separated from the business as a whole.</div>
+            <div class="question">**Question:** Should the $2,000,000 spent on advertising be recognized as an asset on the balance sheet?</div>
+        </div>
+
+        <div class="scenario-block">
+            <div class="scenario-title">Scenario 3: Bulk Equipment Purchase</div>
+            <div class="scenario-description">A manufacturing firm paid **$800,000** for a package deal that included a new production machine and the special tools required to operate it. The contract did not provide a separate price for the machine (a tangible asset) and the tools (which are expensed immediately). Independent valuation of the tools is extremely difficult.</div>
+            <div class="question">**Question:** Can the firm recognize the machine as an asset, given the difficulty in allocating the **$800,000** cost?</div>
+        </div>
+
+        <div class="scenario-block">
+            <div class="scenario-title">Scenario 4: Exclusive Usage Right</div>
+            <div class="scenario-description">A shipping logistics company paid a fee to secure the **exclusive, irrevocable right** to use a specific private port dock for all its operations for the next 15 years. The port remains under the legal ownership of the local government, but the shipping company has the sole power to determine access and usage. The fee paid was **$1,000,000**.</div>
+            <div class="question">**Question:** Does the shipping company **control** a resource in this scenario, allowing the $1,000,000 payment to be recognized as an asset?</div>
+        </div>
+
+        <div class="scenario-block">
+            <div class="scenario-title">Scenario 5: Unapproved Construction</div>
+            <div class="scenario-description">A mining company spent **$100,000** building a temporary access road to a new mining site. The road is complete, but the local environmental authority has not yet granted the final operating permit. If the permit is denied (a low but possible risk), the road must be immediately dismantled and abandoned.</div>
+            <div class="question">**Question:** Does the completed road meet the **existence uncertainty** criterion required for immediate asset recognition?</div>
+        </div>
+
+        <div class="scenario-block">
+            <div class="scenario-title">Scenario 6: Customer Advance Payment</div>
+            <div class="scenario-description">A software development firm received **$75,000** from a client as an advance payment for custom software development that will take 6 months to complete. The funds are in the firm's bank account.</div>
+            <div class="question">**Question:** Should the **$75,000** received be recognized as an asset (e.g., "Cash") by the software firm at the time of receipt?</div>
+        </div>
+
+        <div class="scenario-block">
+            <div class="scenario-title">Scenario 7: Contingent Royalty Income</div>
+            <div class="scenario-description">A movie studio signed a contract entitling it to **10% of future net profits** from a new film produced by another studio. The film has just been released, and early box office reports are mixed. Future profits are highly uncertain.</div>
+            <div class="question">**Question:** Should the studio recognize an asset for the expected future royalty income at the time the film is released?</div>
+        </div>
+
+        <div class="scenario-block">
+            <div class="scenario-title">Scenario 8: Internal Training Costs</div>
+            <div class="scenario-description">A manufacturing company spent **$200,000** on a specialized internal training program to significantly upgrade its workforce's skills, expecting increased efficiency and output for years to come. The trained employees are free to leave the company at any time.</div>
+            <div class="question">**Question:** Should the **$200,000** spent on training be recognized as an asset?</div>
+        </div>
+
+        <div class="scenario-block">
+            <div class="scenario-title">Scenario 9: Non-Transferable Software License</div>
+            <div class="scenario-description">A small business paid **$5,000** for a perpetual license to use off-the-shelf accounting software. The license explicitly states it is **non-transferable** and cannot be sold to another entity.</div>
+            <div class="question">**Question:** Despite being non-transferable, can the **$5,000** software license be recognized as an intangible asset?</div>
+        </div>
+
+        <div class="scenario-block">
+            <div class="scenario-title">Scenario 10: Environmental Remediation Obligation</div>
+            <div class="scenario-description">A chemical plant is legally required to perform environmental cleanup on its site at the end of its 20-year useful life. The estimated cost of this future cleanup is **$10,000,000** (present value), and it is a definite obligation.</div>
+            <div class="question">**Question:** Should the estimated **$10,000,000** future cleanup cost be recognized as an asset today?</div>
+        </div>
+
+        <button class="show-answers-button" onclick="toggleAnswers()">Show Answers</button>
+
+        <div id="answers" class="answer-section">
+            <div class="answer-title">Answers and Explanations</div>
+
+            <div class="answer-text">
+                <p><strong>Scenario 1: Pending R&D</strong></p>
+                <p><strong>Answer: No, the $500,000 in development costs should likely be expensed.</strong></p>
+                <div class="answer-explanation">
+                    The key issue here is **Probability of Inflows**. While 55% is over 50%, regulatory approval is a significant external hurdle, and accounting standards often require a higher degree of probability (e.g., "virtually certain" or substantial evidence) for the recognition of internally generated intangible assets, especially when future economic benefits are contingent on such an event. The risk of not obtaining approval makes the future economic benefits (sales revenue) not sufficiently probable.
+                </div>
+            </div>
+
+            <div class="answer-text">
+                <p><strong>Scenario 2: Marketing Investment</strong></p>
+                <p><strong>Answer: No, the $2,000,000 spent on advertising should be expensed.</strong></p>
+                <div class="answer-explanation">
+                    This fails the **Control** and **Measurement Uncertainty** criteria. While management expects future benefits (higher sales), the company does not control the resulting customer loyalty (customers can switch brands easily). Furthermore, the value of the 'asset' (brand recognition/customer loyalty) cannot be reliably measured or separated from the business as a whole.
+                </div>
+            </div>
+
+            <div class="answer-text">
+                <p><strong>Scenario 3: Bulk Equipment Purchase</strong></p>
+                <p><strong>Answer: The firm faces a significant challenge and may not be able to recognize the machine separately as an asset.</strong></p>
+                <div class="answer-explanation">
+                    The primary issue is **Measurement Uncertainty**. While the total cost is known, the inability to reliably allocate the $800,000 between the machine (a long-lived asset) and the tools (typically expensed) means the cost of the machine itself cannot be reliably measured. If a reasonable allocation method cannot be found (e.g., obtaining an appraisal), recognizing the machine as a separate asset is problematic.
+                </div>
+            </div>
+
+            <div class="answer-text">
+                <p><strong>Scenario 4: Exclusive Usage Right</strong></p>
+                <p><strong>Answer: Yes, the $1,000,000 payment should be recognized as an asset.</strong></p>
+                <div class="answer-explanation">
+                    The company has effective **Control** over the economic benefits of the dock access, even without legal ownership of the land. The right is exclusive and irrevocable for 15 years, allowing the company to dictate its use. This meets all five criteria, likely leading to recognition as a Right-of-Use asset or an Intangible Right.
+                </div>
+            </div>
+
+            <div class="answer-text">
+                <p><strong>Scenario 5: Unapproved Construction</strong></p>
+                <p><strong>Answer: No, the completed road likely does not meet the **existence uncertainty** criterion for immediate asset recognition.</strong></p>
+                <div class="answer-explanation">
+                    While the physical road exists, the **economic resource** (a road that provides *useful* access for mining operations) is contingent on receiving the final operating permit. If the permit is denied, the road becomes a liability (dismantling cost) rather than an asset. The costs should be deferred or expensed until the permit is secured.
+                </div>
+            </div>
+
+            <div class="answer-text">
+                <p><strong>Scenario 6: Customer Advance Payment</strong></p>
+                <p><strong>Answer: Yes, the $75,000 should be recognized as an asset (Cash) by the software firm.</strong></p>
+                <div class="answer-explanation">
+                    The software firm has received cash, which is a universally recognized asset. However, it will also recognize a **liability** (e.g., Unearned Revenue) because it now owes a service to the client. The question specifically asks about the recognition of the *money received* as an asset, which it certainly is.
+                </div>
+            </div>
+
+            <div class="answer-text">
+                <p><strong>Scenario 7: Contingent Royalty Income</strong></p>
+                <p><strong>Answer: No, the studio should not recognize an asset for the expected future royalty income at this time.</strong></p>
+                <div class="answer-explanation">
+                    The primary issues are **Probability of Inflows** and potentially **Existence Uncertainty**. Future profits from a newly released film are highly uncertain, making the future economic benefits not "probable" enough to meet recognition criteria. This is a classic example of a contingent asset, which is typically disclosed in notes but not recognized on the balance sheet until realization is virtually certain.
+                </div>
+            </div>
+
+            <div class="answer-text">
+                <p><strong>Scenario 8: Internal Training Costs</strong></p>
+                <p><strong>Answer: No, the $200,000 spent on training should be expensed.</strong></p>
+                <div class="answer-explanation">
+                    The critical failure here is **Control**. While the training provides future economic benefits (increased efficiency) via the employees, the company does not control the employees themselves, as they are free to leave. Therefore, the company cannot reliably control the future benefits of the training investment.
+                </div>
+            </div>
+
+            <div class="answer-text">
+                <p><strong>Scenario 9: Non-Transferable Software License</strong></p>
+                <p><strong>Answer: Yes, the $5,000 software license can still be recognized as an intangible asset.</strong></p>
+                <div class="answer-explanation">
+                    The non-transferability affects its marketability but not necessarily the criteria for internal recognition. The company **controls** the right to use the software (even if it can't sell it), it generates **future economic benefits** (by enabling accounting functions), its **existence** is certain, **probability** of use is high, and the **cost ($5,000)** is reliably measured. It's a "use asset" rather than a "resale asset."
+                </div>
+            </div>
+
+            <div class="answer-text">
+                <p>
