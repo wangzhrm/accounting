@@ -1,0 +1,199 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Recognition Criteria Practice Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        p {
+            margin: 5px 0;
+        }
+        .question {
+            margin-bottom: 30px;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        hr {
+            margin: 20px 0;
+            border: 0;
+            border-top: 1px solid #ccc;
+        }
+        @media print {
+            body {
+                margin: 20px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            h2 {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Asset Recognition Criteria Practice Quiz (10 Questions) 🧠</h1>
+    <p style="text-align: center;">Please circle the correct answer for each question. Provide brief explanations where required.</p>
+
+    <div class="question">
+        <h2>1. Which of the following is a key criterion for recognizing an item as an asset in accounting?</h2>
+        <div class="options">
+            <p>A. The item must be sold within the next fiscal year.</p>
+            <p>B. The item must have the potential to generate future economic benefits.</p>
+            <p>C. The item must be fully depreciated.</p>
+            <p>D. The item must be used only by the organization’s employees.</p>
+        </div>
+    </div>
+
+    <div class="question">
+        <h2>2. A company purchases a vehicle that is in poor condition and would cost more to repair than to replace. Why should this vehicle not be recognized as an asset?</h2>
+        <div class="options">
+            <p>A. It lacks control by the organization.</p>
+            <p>B. It cannot generate net future economic benefits.</p>
+            <p>C. Its value cannot be reliably measured.</p>
+            <p>D. Its existence is uncertain.</p>
+        </div>
+    </div>
+
+    <div class="question">
+        <h2>3. What does it mean for an organization to have "control" over an asset?</h2>
+        <div class="options">
+            <p>A. The organization must own the asset legally.</p>
+            <p>B. The organization can direct the use of the asset and obtain its benefits.</p>
+            <p>C. The organization must insure the asset against loss.</p>
+            <p>D. The organization must have exclusive access to the asset’s location.</p>
+        </div>
+    </div>
+
+    <div class="question">
+        <h2>4. A retail company uses a public parking lot for its customers. Why can’t the parking lot be recognized as an asset on the company’s balance sheet?</h2>
+        <div class="options">
+            <p>A. The parking lot has no future economic benefits.</p>
+            <p>B. The company does not control the parking lot.</p>
+            <p>C. The parking lot’s value is too uncertain to measure.</p>
+            <p>D. The parking lot is a contingent asset.</p>
+        </div>
+    </div>
+
+    <div class="question">
+        <h2>5. Why is the existence of an asset important for recognition in accounting?</h2>
+        <div class="options">
+            <p>A. The asset must be physically present in the organization’s premises.</p>
+            <p>B. The asset’s existence must be certain or highly probable.</p>
+            <p>C. The asset must be recorded in the general ledger.</p>
+            <p>D. The asset must have a historical cost.</p>
+        </div>
+    </div>
+
+    <div class="question">
+        <h2>6. A company expects to receive a patent approval for a new invention, but it is still under review. Why should this patent not be recognized as an asset yet?</h2>
+        <div class="options">
+            <p>A. The patent’s value cannot be reliably measured.</p>
+            <p>B. The company does not control the patent.</p>
+            <p>C. The patent’s existence is uncertain until approved.</p>
+            <p>D. The patent will not generate economic benefits.</p>
+        </div>
+    </div>
+
+    <div class="question">
+        <h2>7. A tech company invests heavily in developing a new software product, but market success is uncertain. Why are these development costs typically expensed rather than recognized as an asset?</h2>
+        <div class="options">
+            <p>A. The software lacks control by the company.</p>
+            <p>B. The probability of future economic benefits is low.</p>
+            <p>C. The software’s value is too high to measure.</p>
+            <p>D. The software is a contingent asset.</p>
+        </div>
+    </div>
+
+    <div class="question">
+        <h2>8. Why is reliable measurement important for asset recognition?</h2>
+        <div class="options">
+            <p>A. The asset must have a monetary value that can be accurately determined.</p>
+            <p>B. The asset must be appraised annually.</p>
+            <p>C. The asset’s cost must exceed a certain threshold.</p>
+            <p>D. The asset must be compared to market standards.</p>
+        </div>
+    </div>
+
+    <div class="question">
+        <h2>9. A company’s internally developed customer loyalty program is valuable but has no external transaction to base its value on. Why is it not recognized as an asset?</h2>
+        <div class="options">
+            <p>A. It lacks future economic benefits.</p>
+            <p>B. The company does not control the program.</p>
+            <p>C. Its value cannot be reliably measured.</p>
+            <p>D. Its existence is uncertain.</p>
+        </div>
+    </div>
+
+    <div class="question">
+        <h2>10. A manufacturing company spends $50,000 on a feasibility study for a new factory, but the project is deemed unviable. Why should these costs not be recognized as an asset?</h2>
+        <div class="options">
+            <p>A. The costs lack control by the company.</p>
+            <p>B. The costs do not lead to future economic benefits.</p>
+            <p>C. The costs are too uncertain to measure.</p>
+            <p>D. The costs are a contingent asset.</p>
+        </div>
+    </div>
+
+    <hr>
+    <p style="text-align: center;">End of Quiz. Please submit your answers for grading!</p>
+</body>
+</html>
