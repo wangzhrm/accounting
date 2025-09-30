@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liability Recognition Scenarios</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .scenario { margin-bottom: 40px; border-bottom: 1px solid #ccc; padding-bottom: 20px; }
+        .answer { display: none; background-color: #f0f0f0; padding: 10px; margin-top: 10px; border-radius: 5px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+    </style>
+    <script>
+        function toggleAnswer(id) {
+            var answer = document.getElementById(id);
+            if (answer.style.display === "none" || answer.style.display === "") {
+                answer.style.display = "block";
+            } else {
+                answer.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Liability Recognition Scenarios</h1>
+    <p>The following scenarios test the recognition of liabilities based on key criteria: meeting the definition of a liability, relevance (existence uncertainty and probability of outflows), and faithful representation (measurement uncertainty).</p>
+
+    <div class="scenario">
+        <h2>Scenario 1: Product Warranty</h2>
+        <p>A company sells electronic devices and offers a one-year warranty. Based on historical data, it estimates that 5% of products will require repairs costing an average of $50 each. The company has sold 10,000 units this year.</p>
+        <p><strong>Should the liability be recognized?</strong></p>
+        <button onclick="toggleAnswer('answer1')">Answer</button>
+        <div id="answer1" class="answer">
+            <p>Yes, the liability should be recognized. It meets the definition of a liability (present obligation from past event). Relevance: Low existence uncertainty (based on history), probable outflow (5% likelihood per unit, overall probable). Faithful representation: Low measurement uncertainty (reliable estimate from data).</p>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <h2>Scenario 2: Pending Lawsuit</h2>
+        <p>A company is sued for patent infringement. Legal advisors estimate a 40% chance of losing the case, with potential damages of $1 million if lost. The outcome is uncertain until the court ruling.</p>
+        <p><strong>Should the liability be recognized?</strong></p>
+        <button onclick="toggleAnswer('answer2')">Answer</button>
+        <div id="answer2" class="answer">
+            <p>No, the liability should not be recognized (disclose as contingent). It meets the definition potentially, but relevance: Existence uncertainty exists, probability of outflow is possible (40%) but not probable (>50%). Faithful representation: Measurement is reliable if needed, but probability fails.</p>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <h2>Scenario 3: Environmental Cleanup</h2>
+        <p>A manufacturing firm has contaminated a site due to past operations. Regulations require cleanup, and the company estimates costs at $2 million with high confidence. Cleanup is certain to occur.</p>
+        <p><strong>Should the liability be recognized?</strong></p>
+        <button onclick="toggleAnswer('answer3')">Answer</button>
+        <div id="answer3" class="answer">
+            <p>Yes, the liability should be recognized. Meets definition (legal obligation from past event). Relevance: No existence uncertainty, high probability of outflow (certain). Faithful representation: Low measurement uncertainty (reliable estimate).</p>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <h2>Scenario 4: Potential Fine for Non-Compliance</h2>
+        <p>A company may have violated safety regulations, but an investigation is ongoing. Experts say there's a 10% chance of a fine, estimated at $500,000 if imposed.</p>
+        <p><strong>Should the liability be recognized?</strong></p>
+        <button onclick="toggleAnswer('answer4')">Answer</button>
+        <div id="answer4" class="answer">
+            <p>No, the liability should not be recognized (no disclosure if remote). Meets definition potentially, but relevance: High existence uncertainty (investigation pending), low probability of outflow (10%, remote). Faithful representation: Measurement reliable, but other tests fail.</p>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <h2>Scenario 5: Decommissioning Costs</h2>
+        <p>An oil company operates a rig with a legal obligation to dismantle it at the end of its 20-year life. Costs are estimated at $10 million, discounted to present value with reliable models.</p>
+        <p><strong>Should the liability be recognized?</strong></p>
+        <button onclick="toggleAnswer('answer5')">Answer</button>
+        <div id="answer5" class="answer">
+            <p>Yes, the liability should be recognized. Meets definition (present obligation). Relevance: Low existence uncertainty (legal requirement), probable outflow (will occur). Faithful representation: Low measurement uncertainty (discounted reliably).</p>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <h2>Scenario 6: Uncertain Tax Dispute</h2>
+        <p>A firm is in a tax dispute with authorities over deductions. Advisors estimate a 60% chance of owing $800,000, but the amount could vary widely due to interpretations.</p>
+        <p><strong>Should the liability be recognized?</strong></p>
+        <button onclick="toggleAnswer('answer6')">Answer</button>
+        <div id="answer6" class="answer">
+            <p>No, the liability should not be recognized. Meets definition potentially, relevance: Existence uncertainty (dispute ongoing), probable outflow (60%). But faithful representation: High measurement uncertainty (wide variance in amount).</p>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <h2>Scenario 7: Employee Bonus Scheme</h2>
+        <p>A company has a performance-based bonus plan. At year-end, targets are met, and bonuses totaling $300,000 are calculable based on contracts.</p>
+        <p><strong>Should the liability be recognized?</strong></p>
+        <button onclick="toggleAnswer('answer7')">Answer</button>
+        <div id="answer7" class="answer">
+            <p>Yes, the liability should be recognized. Meets definition (obligation from past performance). Relevance: No existence uncertainty, high probability of outflow. Faithful representation: Low measurement uncertainty (calculable).</p>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <h2>Scenario 8: Guarantee for Subsidiary Debt</h2>
+        <p>A parent company guarantees a subsidiary's loan. The subsidiary is financially stable, with only a 5% estimated default risk. If default, liability is $1 million.</p>
+        <p><strong>Should the liability be recognized?</strong></p>
+        <button onclick="toggleAnswer('answer8')">Answer</button>
+        <div id="answer8" class="answer">
+            <p>No, the liability should not be recognized (disclose if significant). Meets definition potentially, but relevance: Existence uncertainty (depends on default), low probability of outflow (5%, remote). Faithful representation: Measurement reliable.</p>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <h2>Scenario 9: Restructuring Provision</h2>
+        <p>A company announces a restructuring plan, including layoffs. Costs are estimated at $4 million with detailed plans and communications creating expectations.</p>
+        <p><strong>Should the liability be recognized?</strong></p>
+        <button onclick="toggleAnswer('answer9')">Answer</button>
+        <div id="answer9" class="answer">
+            <p>Yes, the liability should be recognized. Meets definition (constructive obligation from announcement). Relevance: Low existence uncertainty, probable outflow. Faithful representation: Low measurement uncertainty (detailed estimates).</p>
+        </div>
+    </div>
+
+    <div class="scenario">
+        <h2>Scenario 10: Potential Product Recall</h2>
+        <p>A company discovers a possible defect in products sold. Testing shows a 30% chance of safety issues requiring recall, with costs hard to estimate due to unknowns.</p>
+        <p><strong>Should the liability be recognized?</strong></p>
+        <button onclick="toggleAnswer('answer10')">Answer</button>
+        <div id="answer10" class="answer">
+            <p>No, the liability should not be recognized. Meets definition potentially, relevance: Existence uncertainty (testing ongoing), possible outflow (30%). Faithful representation: High measurement uncertainty (hard to estimate).</p>
+        </div>
+    </div>
+
+</body>
+</html>
