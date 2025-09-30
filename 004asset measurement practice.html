@@ -1,0 +1,293 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Measurement Practice Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        p {
+            margin: 5px 0;
+        }
+        .question {
+            margin-bottom: 30px;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .formula {
+            font-style: italic;
+            color: #555;
+            margin: 10px 0;
+        }
+        .answer {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-top: 10px;
+            display: none;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        hr {
+            margin: 20px 0;
+            border: 0;
+            border-top: 1px solid #ccc;
+        }
+        @media print {
+            body {
+                margin: 20px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            h2 {
+                font-size: 16px;
+            }
+            .answer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Asset Measurement Practice Quiz (15 Questions) 🧠</h1>
+    <p style="text-align: center;">Please select one answer for each question. The correct answer will appear below after selection.</p>
+
+    <div class="question" id="q1">
+        <h2>1. How is inventory typically measured in financial statements?</h2>
+        <div class="options">
+            <p><input type="radio" name="q1" value="A">A. At its fair value.</p>
+            <p><input type="radio" name="q1" value="B">B. At the lower of cost and net realizable value.</p>
+            <p><input type="radio" name="q1" value="C">C. At cost plus accumulated depreciation.</p>
+            <p><input type="radio" name="q1" value="D">D. At sales price without adjustments.</p>
+        </div>
+        <p class="answer" id="answer1">Correct Answer: B. At the lower of cost and net realizable value.</p>
+    </div>
+
+    <div class="question" id="q2">
+        <h2>2. What does net realizable value (NRV) for inventory represent?</h2>
+        <div class="options">
+            <p><input type="radio" name="q2" value="A">A. The original cost of the inventory.</p>
+            <p><input type="radio" name="q2" value="B">B. The sales price less any costs incurred in the process of sale.</p>
+            <p><input type="radio" name="q2" value="C">C. The fair value plus selling expenses.</p>
+            <p><input type="radio" name="q2" value="D">D. The replacement cost of the inventory.</p>
+        </div>
+        <p class="answer" id="answer2">Correct Answer: B. The sales price less any costs incurred in the process of sale.</p>
+    </div>
+
+    <div class="question" id="q3">
+        <h2>3. If an inventory item's cost is $100 and its NRV is $80, how should it be valued?</h2>
+        <div class="options">
+            <p><input type="radio" name="q3" value="A">A. $100</p>
+            <p><input type="radio" name="q3" value="B">B. $80</p>
+            <p><input type="radio" name="q3" value="C">C. $90 (average)</p>
+            <p><input type="radio" name="q3" value="D">D. $120 (estimated profit)</p>
+        </div>
+        <p class="answer" id="answer3">Correct Answer: B. $80</p>
+    </div>
+
+    <div class="question" id="q4">
+        <h2>4. How are accounts receivable measured in the balance sheet?</h2>
+        <div class="options">
+            <p><input type="radio" name="q4" value="A">A. At their fair value.</p>
+            <p><input type="radio" name="q4" value="B">B. At the total value less allowance for doubtful debt.</p>
+            <p><input type="radio" name="q4" value="C">C. At cost minus depreciation.</p>
+            <p><input type="radio" name="q4" value="D">D. At net realizable value plus interest.</p>
+        </div>
+        <p class="answer" id="answer4">Correct Answer: B. At the total value less allowance for doubtful debt.</p>
+    </div>
+
+    <div class="question" id="q5">
+        <h2>5. If total accounts receivable are $50,000 and the allowance for doubtful debt is $5,000, what is the net value?</h2>
+        <div class="options">
+            <p><input type="radio" name="q5" value="A">A. $55,000</p>
+            <p><input type="radio" name="q5" value="B">B. $50,000</p>
+            <p><input type="radio" name="q5" value="C">C. $45,000</p>
+            <p><input type="radio" name="q5" value="D">D. $5,000</p>
+        </div>
+        <p class="answer" id="answer5">Correct Answer: C. $45,000</p>
+    </div>
+
+    <div class="question" id="q6">
+        <h2>6. What does the allowance for doubtful debt represent?</h2>
+        <div class="options">
+            <p><input type="radio" name="q6" value="A">A. Expected uncollectible amounts from receivables.</p>
+            <p><input type="radio" name="q6" value="B">B. Interest income on receivables.</p>
+            <p><input type="radio" name="q6" value="C">C. Depreciation on receivables.</p>
+            <p><input type="radio" name="q6" value="D">D. Fair value adjustments.</p>
+        </div>
+        <p class="answer" id="answer6">Correct Answer: A. Expected uncollectible amounts from receivables.</p>
+    </div>
+
+    <div class="question" id="q7">
+        <h2>7. What are the initial measurement approaches for Property, Plant, and Equipment (PPE)?</h2>
+        <div class="options">
+            <p><input type="radio" name="q7" value="A">A. Cost or fair value approach.</p>
+            <p><input type="radio" name="q7" value="B">B. NRV or cost.</p>
+            <p><input type="radio" name="q7" value="C">C. Fair value only.</p>
+            <p><input type="radio" name="q7" value="D">D. Depreciation model only.</p>
+        </div>
+        <p class="answer" id="answer7">Correct Answer: A. Cost or fair value approach.</p>
+    </div>
+
+    <div class="question" id="q8">
+        <h2>8. Under the cost model for PPE, how is it measured after initial recognition?</h2>
+        <div class="options">
+            <p><input type="radio" name="q8" value="A">A. At fair value.</p>
+            <p><input type="radio" name="q8" value="B">B. At cost minus accumulated depreciation.</p>
+            <p><input type="radio" name="q8" value="C">C. At NRV.</p>
+            <p><input type="radio" name="q8" value="D">D. At cost plus gains.</p>
+        </div>
+        <p class="answer" id="answer8">Correct Answer: B. At cost minus accumulated depreciation.</p>
+    </div>
+
+    <div class="question" id="q9">
+        <h2>9. In straight-line depreciation, how is annual depreciation calculated?</h2>
+        <div class="options">
+            <p><input type="radio" name="q9" value="A">A. (Initial value + salvage value) / useful years.</p>
+            <p><input type="radio" name="q9" value="B">B. Initial value / useful years.</p>
+            <p><input type="radio" name="q9" value="C">C. (Initial value - salvage value) / useful years.</p>
+            <p><input type="radio" name="q9" value="D">D. Salvage value / useful years.</p>
+        </div>
+        <p class="answer" id="answer9">Correct Answer: C. (Initial value - salvage value) / useful years.</p>
+    </div>
+
+    <div class="question" id="q10">
+        <h2>10. Calculation: A machine costs $10,000, has a salvage value of $2,000, and useful life of 4 years. What is the annual straight-line depreciation?</h2>
+        <p class="formula">Formula: (Initial value - salvage value) / useful years</p>
+        <div class="options">
+            <p><input type="radio" name="q10" value="A">A. $2,000</p>
+            <p><input type="radio" name="q10" value="B">B. $2,500</p>
+            <p><input type="radio" name="q10" value="C">C. $3,000</p>
+            <p><input type="radio" name="q10" value="D">D. $4,000</p>
+        </div>
+        <p class="answer" id="answer10">Correct Answer: A. $2,000<br>
+            Calculation: ($10,000 - $2,000) / 4 = $8,000 / 4 = $2,000</p>
+    </div>
+
+    <div class="question" id="q11">
+        <h2>11. How are marketable securities typically measured?</h2>
+        <div class="options">
+            <p><input type="radio" name="q11" value="A">A. At cost minus depreciation.</p>
+            <p><input type="radio" name="q11" value="B">B. At their fair value.</p>
+            <p><input type="radio" name="q11" value="C">C. At NRV less costs to sell.</p>
+            <p><input type="radio" name="q11" value="D">D. At historical cost only.</p>
+        </div>
+        <p class="answer" id="answer11">Correct Answer: B. At their fair value.</p>
+    </div>
+
+    <div class="question" id="q12">
+        <h2>12. If the fair value of marketable securities rises, how is it recorded?</h2>
+        <div class="options">
+            <p><input type="radio" name="q12" value="A">A. As an expense.</p>
+            <p><input type="radio" name="q12" value="B">B. As income.</p>
+            <p><input type="radio" name="q12" value="C">C. As a liability.</p>
+            <p><input type="radio" name="q12" value="D">D. Ignored until sold.</p>
+        </div>
+        <p class="answer" id="answer12">Correct Answer: B. As income.</p>
+    </div>
+
+    <div class="question" id="q13">
+        <h2>13. If the fair value of marketable securities falls, how is it recorded?</h2>
+        <div class="options">
+            <p><input type="radio" name="q13" value="A">A. As income.</p>
+            <p><input type="radio" name="q13" value="B">B. As an expense in the current year.</p>
+            <p><input type="radio" name="q13" value="C">C. As a gain.</p>
+            <p><input type="radio" name="q13" value="D">D. Deferred to future periods.</p>
+        </div>
+        <p class="answer" id="answer13">Correct Answer: B. As an expense in the current year.</p>
+    </div>
+
+    <div class="question" id="q14">
+        <h2>14. How are intangible assets generally treated if they are internally generated?</h2>
+        <div class="options">
+            <p><input type="radio" name="q14" value="A">A. Recorded at fair value on the balance sheet.</p>
+            <p><input type="radio" name="q14" value="B">B. Not recorded in the balance sheet.</p>
+            <p><input type="radio" name="q14" value="C">C. Measured at cost minus depreciation.</p>
+            <p><input type="radio" name="q14" value="D">D. Valued at NRV.</p>
+        </div>
+        <p class="answer" id="answer14">Correct Answer: B. Not recorded in the balance sheet.</p>
+    </div>
+
+    <div class="question" id="q15">
+        <h2>15. Which intangible assets are typically recorded on the balance sheet?</h2>
+        <div class="options">
+            <p><input type="radio" name="q15" value="A">A. Those developed internally.</p>
+            <p><input type="radio" name="q15" value="B">B. Those acquired from externally.</p>
+            <p><input type="radio" name="q15" value="C">C. All intangible assets regardless of source.</p>
+            <p><input type="radio" name="q15" value="D">D. None, as they have no physical form.</p>
+        </div>
+        <p class="answer" id="answer15">Correct Answer: B. Those acquired from externally.</p>
+    </div>
+
+    <hr>
+    <p style="text-align: center;">End of Quiz. Please review your answers carefully!</p>
+
+    <script>
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const questionId = this.name;
+                const answerElement = document.getElementById(`answer${questionId.slice(1)}`);
+                answerElement.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
