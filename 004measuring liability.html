@@ -1,0 +1,221 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz on Liability Measurement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .question p {
+            font-weight: bold;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .result {
+            margin-top: 10px;
+            font-style: italic;
+            color: #333;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        hr {
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Quiz on Liability Measurement</h1>
+    <p>This quiz contains 10 multiple-choice questions to test your understanding of how liabilities are measured. Liabilities due within 12 months are measured at face value, while those due beyond 12 months are measured at present value. Click an option to see the correct answer and an explanation.</p>
+
+    <div class="question" id="q1">
+        <p>Question 1: How should a $10,000 accounts payable due in 6 months be measured?</p>
+        <div class="options">
+            <label><input type="radio" name="q1" value="A" onchange="checkAnswer(1, 'A', 'Liabilities due within 12 months, like this accounts payable, are measured at face value, which is $10,000.')"> A) At face value</label>
+            <label><input type="radio" name="q1" value="B" onchange="checkAnswer(1, 'A', 'Liabilities due within 12 months, like this accounts payable, are measured at face value, which is $10,000.')"> B) At present value</label>
+            <label><input type="radio" name="q1" value="C" onchange="checkAnswer(1, 'A', 'Liabilities due within 12 months, like this accounts payable, are measured at face value, which is $10,000.')"> C) At fair value</label>
+            <label><input type="radio" name="q1" value="D" onchange="checkAnswer(1, 'A', 'Liabilities due within 12 months, like this accounts payable, are measured at face value, which is $10,000.')"> D) At amortized cost</label>
+        </div>
+        <div class="result" id="result1"></div>
+    </div>
+
+    <div class="question" id="q2">
+        <p>Question 2: A $50,000 loan is due in 3 years. How should it be measured?</p>
+        <div class="options">
+            <label><input type="radio" name="q2" value="A" onchange="checkAnswer(2, 'B', 'Liabilities due beyond 12 months, like this loan, are measured at present value to reflect the time value of money.')"> A) At face value</label>
+            <label><input type="radio" name="q2" value="B" onchange="checkAnswer(2, 'B', 'Liabilities due beyond 12 months, like this loan, are measured at present value to reflect the time value of money.')"> B) At present value</label>
+            <label><input type="radio" name="q2" value="C" onchange="checkAnswer(2, 'B', 'Liabilities due beyond 12 months, like this loan, are measured at present value to reflect the time value of money.')"> C) At historical cost</label>
+            <label><input type="radio" name="q2" value="D" onchange="checkAnswer(2, 'B', 'Liabilities due beyond 12 months, like this loan, are measured at present value to reflect the time value of money.')"> D) At market value</label>
+        </div>
+        <div class="result" id="result2"></div>
+    </div>
+
+    <div class="question" id="q3">
+        <p>Question 3: Which measurement method is used for a $5,000 salary payable due next month?</p>
+        <div class="options">
+            <label><input type="radio" name="q3" value="A" onchange="checkAnswer(3, 'A', 'Salaries payable due within 12 months are measured at face value, as they are short-term liabilities.')"> A) Face value</label>
+            <label><input type="radio" name="q3" value="B" onchange="checkAnswer(3, 'A', 'Salaries payable due within 12 months are measured at face value, as they are short-term liabilities.')"> B) Present value</label>
+            <label><input type="radio" name="q3" value="C" onchange="checkAnswer(3, 'A', 'Salaries payable due within 12 months are measured at face value, as they are short-term liabilities.')"> C) Fair value</label>
+            <label><input type="radio" name="q3" value="D" onchange="checkAnswer(3, 'A', 'Salaries payable due within 12 months are measured at face value, as they are short-term liabilities.')"> D) Replacement cost</label>
+        </div>
+        <div class="result" id="result3"></div>
+    </div>
+
+    <div class="question" id="q4">
+        <p>Question 4: True or False: A bond payable due in 5 years should be measured at its face value.</p>
+        <div class="options">
+            <label><input type="radio" name="q4" value="A" onchange="checkAnswer(4, 'B', 'Bonds due beyond 12 months are measured at present value to account for the time value of money, not face value.')"> A) True</label>
+            <label><input type="radio" name="q4" value="B" onchange="checkAnswer(4, 'B', 'Bonds due beyond 12 months are measured at present value to account for the time value of money, not face value.')"> B) False</label>
+        </div>
+        <div class="result" id="result4"></div>
+    </div>
+
+    <div class="question" id="q5">
+        <p>Question 5: A $20,000 note payable due in 9 months should be measured at:</p>
+        <div class="options">
+            <label><input type="radio" name="q5" value="A" onchange="checkAnswer(5, 'A', 'Notes payable due within 12 months are measured at face value, as they are considered short-term.')"> A) Face value</label>
+            <label><input type="radio" name="q5" value="B" onchange="checkAnswer(5, 'A', 'Notes payable due within 12 months are measured at face value, as they are considered short-term.')"> B) Present value</label>
+            <label><input type="radio" name="q5" value="C" onchange="checkAnswer(5, 'A', 'Notes payable due within 12 months are measured at face value, as they are considered short-term.')"> C) Amortized cost</label>
+            <label><input type="radio" name="q5" value="D" onchange="checkAnswer(5, 'A', 'Notes payable due within 12 months are measured at face value, as they are considered short-term.')"> D) Carrying amount</label>
+        </div>
+        <div class="result" id="result5"></div>
+    </div>
+
+    <div class="question" id="q6">
+        <p>Question 6: Why are non-current liabilities measured at present value?</p>
+        <div class="options">
+            <label><input type="radio" name="q6" value="A" onchange="checkAnswer(6, 'B', 'Non-current liabilities are measured at present value to reflect the time value of money for obligations due beyond 12 months.')"> A) To reflect their historical cost</label>
+            <label><input type="radio" name="q6" value="B" onchange="checkAnswer(6, 'B', 'Non-current liabilities are measured at present value to reflect the time value of money for obligations due beyond 12 months.')"> B) To account for the time value of money</label>
+            <label><input type="radio" name="q6" value="C" onchange="checkAnswer(6, 'B', 'Non-current liabilities are measured at present value to reflect the time value of money for obligations due beyond 12 months.')"> C) To match their face value</label>
+            <label><input type="radio" name="q6" value="D" onchange="checkAnswer(6, 'B', 'Non-current liabilities are measured at present value to reflect the time value of money for obligations due beyond 12 months.')"> D) To simplify accounting records</label>
+        </div>
+        <div class="result" id="result6"></div>
+    </div>
+
+    <div class="question" id="q7">
+        <p>Question 7: A $100,000 lease liability due in 4 years should be measured at:</p>
+        <div class="options">
+            <label><input type="radio" name="q7" value="A" onchange="checkAnswer(7, 'B', 'Lease liabilities due beyond 12 months are measured at present value to discount future payments.')"> A) Face value</label>
+            <label><input type="radio" name="q7" value="B" onchange="checkAnswer(7, 'B', 'Lease liabilities due beyond 12 months are measured at present value to discount future payments.')"> B) Present value</label>
+            <label><input type="radio" name="q7" value="C" onchange="checkAnswer(7, 'B', 'Lease liabilities due beyond 12 months are measured at present value to discount future payments.')"> C) Fair value</label>
+            <label><input type="radio" name="q7" value="D" onchange="checkAnswer(7, 'B', 'Lease liabilities due beyond 12 months are measured at present value to discount future payments.')"> D) Nominal value</label>
+        </div>
+        <div class="result" id="result7"></div>
+    </div>
+
+    <div class="question" id="q8">
+        <p>Question 8: True or False: A tax liability due in 3 months is measured at its present value.</p>
+        <div class="options">
+            <label><input type="radio" name="q8" value="A" onchange="checkAnswer(8, 'B', 'Tax liabilities due within 12 months are measured at face value, not present value, as they are short-term.')"> A) True</label>
+            <label><input type="radio" name="q8" value="B" onchange="checkAnswer(8, 'B', 'Tax liabilities due within 12 months are measured at face value, not present value, as they are short-term.')"> B) False</label>
+        </div>
+        <div class="result" id="result8"></div>
+    </div>
+
+    <div class="question" id="q9">
+        <p>Question 9: A $15,000 portion of a long-term loan due within the next 6 months should be measured at:</p>
+        <div class="options">
+            <label><input type="radio" name="q9" value="A" onchange="checkAnswer(9, 'A', 'The portion of a long-term loan due within 12 months is classified as a current liability and measured at face value.')"> A) Face value</label>
+            <label><input type="radio" name="q9" value="B" onchange="checkAnswer(9, 'A', 'The portion of a long-term loan due within 12 months is classified as a current liability and measured at face value.')"> B) Present value</label>
+            <label><input type="radio" name="q9" value="C" onchange="checkAnswer(9, 'A', 'The portion of a long-term loan due within 12 months is classified as a current liability and measured at face value.')"> C) Carrying amount</label>
+            <label><input type="radio" name="q9" value="D" onchange="checkAnswer(9, 'A', 'The portion of a long-term loan due within 12 months is classified as a current liability and measured at face value.')"> D) Fair value</label>
+        </div>
+        <div class="result" id="result9"></div>
+    </div>
+
+    <div class="question" id="q10">
+        <p>Question 10: Which liability is measured at present value?</p>
+        <div class="options">
+            <label><input type="radio" name="q10" value="A" onchange="checkAnswer(10, 'C', 'Pension obligations due beyond 12 months are measured at present value to account for the time value of future payments.')"> A) Accounts payable due in 45 days</label>
+            <label><input type="radio" name="q10" value="B" onchange="checkAnswer(10, 'C', 'Pension obligations due beyond 12 months are measured at present value to account for the time value of future payments.')"> B) Dividends payable next month</label>
+            <label><input type="radio" name="q10" value="C" onchange="checkAnswer(10, 'C', 'Pension obligations due beyond 12 months are measured at present value to account for the time value of future payments.')"> C) Pension obligations due in 10 years</label>
+            <label><input type="radio" name="q10" value="D" onchange="checkAnswer(10, 'C', 'Pension obligations due beyond 12 months are measured at present value to account for the time value of future payments.')"> D) Sales taxes payable this quarter</label>
+        </div>
+        <div class="result" id="result10"></div>
+    </div>
+
+    <script>
+        function checkAnswer(questionNumber, correctAnswer, explanation) {
+            const selectedOption = document.querySelector(`input[name="q${questionNumber}"]:checked`);
+            const resultDiv = document.getElementById(`result${questionNumber}`);
+
+            if (selectedOption) {
+                const userAnswer = selectedOption.value;
+                if (userAnswer === correctAnswer) {
+                    resultDiv.innerHTML = `Correct! ${explanation}`;
+                    resultDiv.className = 'result correct';
+                } else {
+                    resultDiv.innerHTML = `Incorrect. The correct answer is ${correctAnswer}. ${explanation}`;
+                    resultDiv.className = 'result incorrect';
+                }
+
+                // Disable radio buttons after selection
+                document.querySelectorAll(`input[name="q${questionNumber}"]`).forEach(input => {
+                    input.disabled = true;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
