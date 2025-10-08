@@ -1,0 +1,171 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz on Current vs Non-Current Liabilities</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .question p {
+            font-weight: bold;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        hr {
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quiz on Current vs Non-Current Liabilities</h1>
+    <p>This quiz includes 10 multiple-choice questions to assess your knowledge of current liabilities (due within one year) and non-current liabilities (due after one year). Choose the correct option for each question.</p>
+
+    <div class="question">
+        <p>Question 1: Classify the following as a current or non-current liability.</p>
+        <p>Invoices payable to vendors for services rendered, due in 90 days.</p>
+        <div class="options">
+            <label><input type="radio" name="q1" value="A"> A) Current liability</label>
+            <label><input type="radio" name="q1" value="B"> B) Non-current liability</label>
+        </div>
+    </div>
+
+    <div class="question">
+        <p>Question 2: Classify the following as a current or non-current liability.</p>
+        <p>Loan from a financial institution with repayments starting in 5 years.</p>
+        <div class="options">
+            <label><input type="radio" name="q2" value="A"> A) Current liability</label>
+            <label><input type="radio" name="q2" value="B"> B) Non-current liability</label>
+        </div>
+    </div>
+
+    <div class="question">
+        <p>Question 3: Which of the following is typically classified as a current liability?</p>
+        <div class="options">
+            <label><input type="radio" name="q3" value="A"> A) Long-term notes payable due in 8 years</label>
+            <label><input type="radio" name="q3" value="B"> B) Accrued payroll for the current week</label>
+            <label><input type="radio" name="q3" value="C"> C) Bonds issued with a 12-year maturity</label>
+            <label><input type="radio" name="q3" value="D"> D) Pension liabilities due in 10 years</label>
+        </div>
+    </div>
+
+    <div class="question">
+        <p>Question 4: True or False: The portion of a long-term liability due within the next year is classified as a non-current liability.</p>
+        <div class="options">
+            <label><input type="radio" name="q4" value="A"> A) True</label>
+            <label><input type="radio" name="q4" value="B"> B) False</label>
+        </div>
+    </div>
+
+    <div class="question">
+        <p>Question 5: Classify the following as a current or non-current liability.</p>
+        <p>Advance payments received for a 10-month service contract, starting this month.</p>
+        <div class="options">
+            <label><input type="radio" name="q5" value="A"> A) Current liability</label>
+            <label><input type="radio" name="q5" value="B"> B) Non-current liability</label>
+        </div>
+    </div>
+
+    <div class="question">
+        <p>Question 6: Which statement best defines non-current liabilities?</p>
+        <div class="options">
+            <label><input type="radio" name="q6" value="A"> A) Debts settled within the operating cycle or one year</label>
+            <label><input type="radio" name="q6" value="B"> B) Obligations due beyond one year or the operating cycle</label>
+            <label><input type="radio" name="q6" value="C"> C) Short-term credit card payables</label>
+            <label><input type="radio" name="q6" value="D"> D) Customer prepayments for immediate delivery</label>
+        </div>
+    </div>
+
+    <div class="question">
+        <p>Question 7: Classify the following as a current or non-current liability.</p>
+        <p>Retirement benefits payable over the next 25 years.</p>
+        <div class="options">
+            <label><input type="radio" name="q7" value="A"> A) Current liability</label>
+            <label><input type="radio" name="q7" value="B"> B) Non-current liability</label>
+        </div>
+    </div>
+
+    <div class="question">
+        <p>Question 8: On a balance sheet, where are current liabilities usually reported?</p>
+        <div class="options">
+            <label><input type="radio" name="q8" value="A"> A) Under current assets</label>
+            <label><input type="radio" name="q8" value="B"> B) Before non-current liabilities in the liabilities section</label>
+            <label><input type="radio" name="q8" value="C"> C) After retained earnings</label>
+            <label><input type="radio" name="q8" value="D"> D) In the statement of cash flows</label>
+        </div>
+    </div>
+
+    <div class="question">
+        <p>Question 9: True or False: Interest accrued on a long-term note, due in the next month, is a current liability.</p>
+        <div class="options">
+            <label><input type="radio" name="q9" value="A"> A) True</label>
+            <label><input type="radio" name="q9" value="B"> B) False</label>
+        </div>
+    </div>
+
+    <div class="question">
+        <p>Question 10: Which of the following is NOT typically a current liability?</p>
+        <div class="options">
+            <label><input type="radio" name="q10" value="A"> A) Short-term commercial paper</label>
+            <label><input type="radio" name="q10" value="B"> B) Accounts payable due in 30 days</label>
+            <label><input type="radio" name="q10" value="C"> C) Long-term debt maturing in 6 years</label>
+            <label><input type="radio" name="q10" value="D"> D) Sales taxes payable</label>
+        </div>
+    </div>
+
+</body>
+</html>
