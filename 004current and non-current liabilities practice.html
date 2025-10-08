@@ -1,0 +1,165 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: Current vs. Non-Current Liabilities</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; }
+        .question { margin-bottom: 20px; }
+        .question h3 { margin-bottom: 10px; }
+        ul { list-style-type: none; }
+    </style>
+</head>
+<body>
+    <h1>Quiz on Differentiating Current and Non-Current Liabilities</h1>
+    <p>This quiz contains 10 questions to test your understanding of current liabilities (due within one year) and non-current liabilities (due after one year). Answer each question by selecting or noting the correct option.</p>
+
+    <div class="question">
+        <h3>Question 1: Classify the following as current or non-current liability.</h3>
+        <p>Accounts payable to suppliers for goods purchased on credit, due in 30 days.</p>
+        <ul>
+            <li>A) Current liability</li>
+            <li>B) Non-current liability</li>
+        </ul>
+    </div>
+
+    <div class="question">
+        <h3>Question 2: Classify the following as current or non-current liability.</h3>
+        <p>Long-term bank loan with principal repayment starting in 3 years.</p>
+        <ul>
+            <li>A) Current liability</li>
+            <li>B) Non-current liability</li>
+        </ul>
+    </div>
+
+    <div class="question">
+        <h3>Question 3: Which of the following is typically a current liability?</h3>
+        <ul>
+            <li>A) Mortgage payable over 15 years</li>
+            <li>B) Salaries payable to employees for the current month</li>
+            <li>C) Bonds payable maturing in 10 years</li>
+            <li>D) Deferred tax liabilities due in 5 years</li>
+        </ul>
+    </div>
+
+    <div class="question">
+        <h3>Question 4: True or False: A portion of a long-term debt that is due within the next 12 months should be classified as a current liability.</h3>
+        <ul>
+            <li>A) True</li>
+            <li>B) False</li>
+        </ul>
+    </div>
+
+    <div class="question">
+        <h3>Question 5: Classify the following as current or non-current liability.</h3>
+        <p>Unearned revenue from a one-year subscription service, where services will be provided over the next 6 months.</p>
+        <ul>
+            <li>A) Current liability</li>
+            <li>B) Non-current liability</li>
+        </ul>
+    </div>
+
+    <div class="question">
+        <h3>Question 6: Which statement best describes non-current liabilities?</h3>
+        <ul>
+            <li>A) Obligations that must be settled using current assets within one year</li>
+            <li>B) Long-term obligations not due within the operating cycle or one year</li>
+            <li>C) Short-term borrowings from banks</li>
+            <li>D) Accounts receivable from customers</li>
+        </ul>
+    </div>
+
+    <div class="question">
+        <h3>Question 7: Classify the following as current or non-current liability.</h3>
+        <p>Pension obligations payable to retired employees over the next 20 years.</p>
+        <ul>
+            <li>A) Current liability</li>
+            <li>B) Non-current liability</li>
+        </ul>
+    </div>
+
+    <div class="question">
+        <h3>Question 8: In a balance sheet, where are current liabilities typically listed?</h3>
+        <ul>
+            <li>A) Under non-current assets</li>
+            <li>B) Before non-current liabilities in the liabilities section</li>
+            <li>C) After equity</li>
+            <li>D) In the income statement</li>
+        </ul>
+    </div>
+
+    <div class="question">
+        <h3>Question 9: True or False: Accrued interest on a long-term loan that is payable in the next quarter is a non-current liability.</h3>
+        <ul>
+            <li>A) True</li>
+            <li>B) False</li>
+        </ul>
+    </div>
+
+    <div class="question">
+        <h3>Question 10: Which of the following is NOT a current liability?</h3>
+        <ul>
+            <li>A) Short-term notes payable</li>
+            <li>B) Dividends payable</li>
+            <li>C) Lease obligations due in 5 years</li>
+            <li>D) Taxes payable</li>
+        </ul>
+    </div>
+
+    <hr>
+    <p><strong>Answer Key (For Instructor Use Only):</strong></p>
+    <ol>
+        <li>A) Current liability</li>
+        <li>B) Non-current liability</li>
+        <li>B) Salaries payable to employees for the current month</li>
+        <li>A) True</li>
+        <li>A) Current liability</li>
+        <li>B) Long-term obligations not due within the operating cycle or one year</li>
+        <li>B) Non-current liability</li>
+        <li>B) Before non-current liabilities in the liabilities section</li>
+        <li>B) False (It is a current liability)</li>
+        <li>C) Lease obligations due in 5 years</li>
+    </ol>
+</body>
+</html>
