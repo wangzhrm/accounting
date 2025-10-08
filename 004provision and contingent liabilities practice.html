@@ -1,0 +1,221 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz on Provisions and Contingent Liabilities</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .question p {
+            font-weight: bold;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .result {
+            margin-top: 10px;
+            font-style: italic;
+            color: #333;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        hr {
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Quiz on Provisions and Contingent Liabilities</h1>
+    <p>This quiz contains 10 multiple-choice questions to test your understanding of provisions and contingent liabilities. Click an option to see the correct answer and an explanation.</p>
+
+    <div class="question" id="q1">
+        <p>Question 1: What is a provision?</p>
+        <div class="options">
+            <label><input type="radio" name="q1" value="A" onchange="checkAnswer(1, 'A', 'A provision is a liability where the timing or amount is uncertain but can be reasonably estimated, per accounting standards.')"> A) A liability of uncertain timing or amount</label>
+            <label><input type="radio" name="q1" value="B" onchange="checkAnswer(1, 'A', 'A provision is a liability where the timing or amount is uncertain but can be reasonably estimated, per accounting standards.')"> B) A confirmed debt payable within one year</label>
+            <label><input type="radio" name="q1" value="C" onchange="checkAnswer(1, 'A', 'A provision is a liability where the timing or amount is uncertain but can be reasonably estimated, per accounting standards.')"> C) An asset expected to generate future income</label>
+            <label><input type="radio" name="q1" value="D" onchange="checkAnswer(1, 'A', 'A provision is a liability where the timing or amount is uncertain but can be reasonably estimated, per accounting standards.')"> D) A contingent asset with high probability</label>
+        </div>
+        <div class="result" id="result1"></div>
+    </div>
+
+    <div class="question" id="q2">
+        <p>Question 2: When should a contingent liability be recognized in the financial statements?</p>
+        <div class="options">
+            <label><input type="radio" name="q2" value="A" onchange="checkAnswer(2, 'A', 'A contingent liability is recognized as a provision if it is probable (likely to occur) and the amount can be reliably measured.')"> A) When it is probable and can be reliably measured</label>
+            <label><input type="radio" name="q2" value="B" onchange="checkAnswer(2, 'A', 'A contingent liability is recognized as a provision if it is probable (likely to occur) and the amount can be reliably measured.')"> B) When it is disclosed in the notes</label>
+            <label><input type="radio" name="q2" value="C" onchange="checkAnswer(2, 'A', 'A contingent liability is recognized as a provision if it is probable (likely to occur) and the amount can be reliably measured.')"> C) When it is remotely possible</label>
+            <label><input type="radio" name="q2" value="D" onchange="checkAnswer(2, 'A', 'A contingent liability is recognized as a provision if it is probable (likely to occur) and the amount can be reliably measured.')"> D) When it is confirmed as a provision</label>
+        </div>
+        <div class="result" id="result2"></div>
+    </div>
+
+    <div class="question" id="q3">
+        <p>Question 3: A company is facing a lawsuit with a 20% chance of losing and a potential $100,000 penalty. How should this be treated?</p>
+        <div class="options">
+            <label><input type="radio" name="q3" value="A" onchange="checkAnswer(3, 'B', 'With a 20% chance, the liability is not probable, so it should be disclosed as a contingent liability if material, not recognized.')"> A) Recognize as a provision</label>
+            <label><input type="radio" name="q3" value="B" onchange="checkAnswer(3, 'B', 'With a 20% chance, the liability is not probable, so it should be disclosed as a contingent liability if material, not recognized.')"> B) Disclose as a contingent liability</label>
+            <label><input type="radio" name="q3" value="C" onchange="checkAnswer(3, 'B', 'With a 20% chance, the liability is not probable, so it should be disclosed as a contingent liability if material, not recognized.')"> C) Ignore in the financial statements</label>
+            <label><input type="radio" name="q3" value="D" onchange="checkAnswer(3, 'B', 'With a 20% chance, the liability is not probable, so it should be disclosed as a contingent liability if material, not recognized.')"> D) Record as an expense</label>
+        </div>
+        <div class="result" id="result3"></div>
+    </div>
+
+    <div class="question" id="q4">
+        <p>Question 4: True or False: A provision is recorded when there is a present obligation, it is probable, and the amount can be reliably estimated.</p>
+        <div class="options">
+            <label><input type="radio" name="q4" value="A" onchange="checkAnswer(4, 'A', 'This is true; a provision requires a present obligation, a probable outflow, and a reliable estimate of the amount.')"> A) True</label>
+            <label><input type="radio" name="q4" value="B" onchange="checkAnswer(4, 'A', 'This is true; a provision requires a present obligation, a probable outflow, and a reliable estimate of the amount.')"> B) False</label>
+        </div>
+        <div class="result" id="result4"></div>
+    </div>
+
+    <div class="question" id="q5">
+        <p>Question 5: Which of the following is an example of a provision?</p>
+        <div class="options">
+            <label><input type="radio" name="q5" value="A" onchange="checkAnswer(5, 'B', 'Warranty obligations are provisions because they involve uncertain timing or amounts based on future repairs.')"> A) Accounts payable due in 30 days</label>
+            <label><input type="radio" name="q5" value="B" onchange="checkAnswer(5, 'B', 'Warranty obligations are provisions because they involve uncertain timing or amounts based on future repairs.')"> B) Warranty obligations for products sold</label>
+            <label><input type="radio" name="q5" value="C" onchange="checkAnswer(5, 'B', 'Warranty obligations are provisions because they involve uncertain timing or amounts based on future repairs.')"> C) Potential tax refund</label>
+            <label><input type="radio" name="q5" value="D" onchange="checkAnswer(5, 'B', 'Warranty obligations are provisions because they involve uncertain timing or amounts based on future repairs.')"> D) Long-term loan due in 5 years</label>
+        </div>
+        <div class="result" id="result5"></div>
+    </div>
+
+    <div class="question" id="q6">
+        <p>Question 6: A contingent liability should be disclosed in the notes to the financial statements if:</p>
+        <div class="options">
+            <label><input type="radio" name="q6" value="A" onchange="checkAnswer(6, 'B', 'Contingent liabilities are disclosed if possible (but not probable) and material; probable ones are recognized as provisions.')"> A) It is probable and measurable</label>
+            <label><input type="radio" name="q6" value="B" onchange="checkAnswer(6, 'B', 'Contingent liabilities are disclosed if possible (but not probable) and material; probable ones are recognized as provisions.')"> B) It is possible but not probable, and material</label>
+            <label><input type="radio" name="q6" value="C" onchange="checkAnswer(6, 'B', 'Contingent liabilities are disclosed if possible (but not probable) and material; probable ones are recognized as provisions.')"> C) It is confirmed as a provision</label>
+            <label><input type="radio" name="q6" value="D" onchange="checkAnswer(6, 'B', 'Contingent liabilities are disclosed if possible (but not probable) and material; probable ones are recognized as provisions.')"> D) It is a remote possibility</label>
+        </div>
+        <div class="result" id="result6"></div>
+    </div>
+
+    <div class="question" id="q7">
+        <p>Question 7: A company estimates it will incur $50,000 in environmental cleanup costs due to a past event, with a high likelihood of payment next year. How should this be classified?</p>
+        <div class="options">
+            <label><input type="radio" name="q7" value="A" onchange="checkAnswer(7, 'B', 'This meets the criteria for a provision: a present obligation, probable, and reliably measurable.')"> A) Contingent liability</label>
+            <label><input type="radio" name="q7" value="B" onchange="checkAnswer(7, 'B', 'This meets the criteria for a provision: a present obligation, probable, and reliably measurable.')"> B) Provision</label>
+            <label><input type="radio" name="q7" value="C" onchange="checkAnswer(7, 'B', 'This meets the criteria for a provision: a present obligation, probable, and reliably measurable.')"> C) Current asset</label>
+            <label><input type="radio" name="q7" value="D" onchange="checkAnswer(7, 'B', 'This meets the criteria for a provision: a present obligation, probable, and reliably measurable.')"> D) Non-current liability</label>
+        </div>
+        <div class="result" id="result7"></div>
+    </div>
+
+    <div class="question" id="q8">
+        <p>Question 8: True or False: Contingent liabilities are always recorded as a liability on the balance sheet.</p>
+        <div class="options">
+            <label><input type="radio" name="q8" value="A" onchange="checkAnswer(8, 'B', 'Contingent liabilities are not recorded on the balance sheet unless probable and measurable; otherwise, they are disclosed in notes.')"> A) True</label>
+            <label><input type="radio" name="q8" value="B" onchange="checkAnswer(8, 'B', 'Contingent liabilities are not recorded on the balance sheet unless probable and measurable; otherwise, they are disclosed in notes.')"> B) False</label>
+        </div>
+        <div class="result" id="result8"></div>
+    </div>
+
+    <div class="question" id="q9">
+        <p>Question 9: Which of the following is NOT a characteristic of a contingent liability?</p>
+        <div class="options">
+            <label><input type="radio" name="q9" value="A" onchange="checkAnswer(9, 'B', 'Contingent liabilities often cannot be reliably measured; if they are, they may become provisions instead.')"> A) Dependent on a future event</label>
+            <label><input type="radio" name="q9" value="B" onchange="checkAnswer(9, 'B', 'Contingent liabilities often cannot be reliably measured; if they are, they may become provisions instead.')"> B) Reliably measurable amount</label>
+            <label><input type="radio" name="q9" value="C" onchange="checkAnswer(9, 'B', 'Contingent liabilities often cannot be reliably measured; if they are, they may become provisions instead.')"> C) Low probability of economic outflow</label>
+            <label><input type="radio" name="q9" value="D" onchange="checkAnswer(9, 'B', 'Contingent liabilities often cannot be reliably measured; if they are, they may become provisions instead.')"> D) Disclosed in financial statement notes if material</label>
+        </div>
+        <div class="result" id="result9"></div>
+    </div>
+
+    <div class="question" id="q10">
+        <p>Question 10: A company is involved in a legal dispute with a 50% chance of a $200,000 loss, but the amount cannot be reliably estimated. How should this be treated?</p>
+        <div class="options">
+            <label><input type="radio" name="q10" value="A" onchange="checkAnswer(10, 'B', 'Since the amount cannot be reliably estimated, it is disclosed as a contingent liability if material, not recognized as a provision.')"> A) Recognize as a provision</label>
+            <label><input type="radio" name="q10" value="B" onchange="checkAnswer(10, 'B', 'Since the amount cannot be reliably_actimate reliably estimated, it is disclosed as a contingent liability if material, not recognized as a provision.')"> B) Disclose as a contingent liability</label>
+            <label><input type="radio" name="q10" value="C" onchange="checkAnswer(10, 'B', 'Since the amount cannot be reliably estimated, it is disclosed as a contingent liability if material, not recognized as a provision.')"> C) Record as an expense</label>
+            <label><input type="radio" name="q10" value="D" onchange="checkAnswer(10, 'B', 'Since the amount cannot be reliably estimated, it is disclosed as a contingent liability if material, not recognized as a provision.')"> D) Ignore in the financial statements</label>
+        </div>
+        <div class="result" id="result10"></div>
+    </div>
+
+    <script>
+        function checkAnswer(questionNumber, correctAnswer, explanation) {
+            const selectedOption = document.querySelector(`input[name="q${questionNumber}"]:checked`);
+            const resultDiv = document.getElementById(`result${questionNumber}`);
+
+            if (selectedOption) {
+                const userAnswer = selectedOption.value;
+                if (userAnswer === correctAnswer) {
+                    resultDiv.innerHTML = `Correct! ${explanation}`;
+                    resultDiv.className = 'result correct';
+                } else {
+                    resultDiv.innerHTML = `Incorrect. The correct answer is ${correctAnswer}. ${explanation}`;
+                    resultDiv.className = 'result incorrect';
+                }
+
+                // Disable radio buttons after selection
+                document.querySelectorAll(`input[name="q${questionNumber}"]`).forEach(input => {
+                    input.disabled = true;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
