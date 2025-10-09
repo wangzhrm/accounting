@@ -1,4 +1,43 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -41,6 +80,13 @@
             border: 1px solid #ddd;
             margin-bottom: 20px;
             font-family: monospace;
+        }
+        .not-tested {
+            color: #999;
+            background-color: #f5f5f5;
+        }
+        .not-tested .scenario, .not-tested .journal-entry {
+            background-color: #f0f0f0;
         }
         ul {
             list-style-type: disc;
@@ -88,7 +134,7 @@
                     Cr. Cash $10,000
                 </div>
             </li>
-            <li>Capital reduction or cancellation of shares.
+            <li class="not-tested">Capital reduction or cancellation of shares.
                 <div class="scenario">
                     <strong>Scenario:</strong> A company cancels 2,000 shares as part of a capital reduction plan, returning $15,000 to shareholders.
                 </div>
@@ -141,7 +187,7 @@
                     Cr. Cash $30,000
                 </div>
             </li>
-            <li>Prior-period adjustments (e.g., correction of past errors).
+            <li class="not-tested">Prior-period adjustments (e.g., correction of past errors).
                 <div class="scenario">
                     <strong>Scenario:</strong> A company discovers an error from the previous year that overstated revenue by $20,000, requiring a correction.
                 </div>
@@ -172,7 +218,7 @@
                     Cr. Revaluation Reserve $50,000
                 </div>
             </li>
-            <li>Foreign Currency Translation Reserve: from translating foreign subsidiaries’ financials.
+            <li class="not-tested">Foreign Currency Translation Reserve: from translating foreign subsidiaries’ financials.
                 <div class="scenario">
                     <strong>Scenario:</strong> A company translates the financial statements of its foreign subsidiary, resulting in a $15,000 gain due to exchange rate changes.
                 </div>
@@ -181,7 +227,7 @@
                     Cr. Foreign Currency Translation Reserve $15,000
                 </div>
             </li>
-            <li>General Reserve: portion of retained earnings set aside by management.
+            <li class="not-tested">General Reserve: portion of retained earnings set aside by management.
                 <div class="scenario">
                     <strong>Scenario:</strong> Management decides to transfer $25,000 from retained earnings to a general reserve for future contingencies.
                 </div>
@@ -190,7 +236,7 @@
                     Cr. General Reserve $25,000
                 </div>
             </li>
-            <li>Capital Reserve: from non-trading gains (e.g., bargain purchase in acquisition).
+            <li class="not-tested">Capital Reserve: from non-trading gains (e.g., bargain purchase in acquisition).
                 <div class="scenario">
                     <strong>Scenario:</strong> A company acquires another entity at a bargain price, resulting in a $40,000 gain recognized as a capital reserve.
                 </div>
