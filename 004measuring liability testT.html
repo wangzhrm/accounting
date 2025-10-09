@@ -1,0 +1,320 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Measurement of Liabilities Test Paper</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            margin: 40px;
+            line-height: 1.6;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid #000;
+            padding: 20px;
+            background-color: #fff;
+        }
+        h1 {
+            text-align: center;
+            text-decoration: underline;
+        }
+        .instructions {
+            margin-bottom: 30px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .question p {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .options p {
+            margin: 0;
+        }
+        .answer {
+            margin-left: 20px;
+            font-style: italic;
+            color: #333;
+        }
+        hr {
+            margin: 30px 0;
+            border: none;
+            border-top: 1px dashed #000;
+        }
+        @media print {
+            body {
+                border: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Measurement of Liabilities Test Paper</h1>
+    <div class="instructions">
+        <p><strong>Name: _______________________________</strong> &nbsp;&nbsp;&nbsp;&nbsp; <strong>Date: _______________________________</strong></p>
+        <p>This test paper contains 20 multiple-choice questions on the measurement of liabilities. Liabilities due within 12 months are typically measured at face value, while those due beyond 12 months are measured at present value. Select the best answer for each question by circling the letter.</p>
+        <p>Total Marks: 20</p>
+    </div>
+    <hr>
+
+    <div class="question">
+        <p>Question 1: How should a $8,000 utility bill due in 2 months be measured?</p>
+        <div class="options">
+            <p>A) At face value</p>
+            <p>B) At present value</p>
+            <p>C) At fair value</p>
+            <p>D) At amortized cost</p>
+        </div>
+        <p class="answer">Correct Answer: A) At face value<br>Explanation: Utility bills due within 12 months are short-term liabilities and are measured at face value, as the time value of money is not significant.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 2: A $75,000 mortgage payable due in 15 years should be measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Historical cost</p>
+            <p>D) Market value</p>
+        </div>
+        <p class="answer">Correct Answer: B) Present value<br>Explanation: Mortgages due beyond 12 months are long-term liabilities and are measured at present value to account for the time value of money.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 3: Which measurement method is used for $12,000 interest payable due in 10 months?</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Fair value</p>
+            <p>D) Replacement cost</p>
+        </div>
+        <p class="answer">Correct Answer: A) Face value<br>Explanation: Interest payable due within 12 months is a short-term liability and is measured at face value.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 4: True or False: Deferred revenue expected to be recognized in 2 years should be measured at face value.</p>
+        <div class="options">
+            <p>A) True</p>
+            <p>B) False</p>
+        </div>
+        <p class="answer">Correct Answer: B) False<br>Explanation: Deferred revenue due beyond 12 months is measured at present value to reflect the time value of future obligations.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 5: A $30,000 supplier invoice due in 1 month should be measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Amortized cost</p>
+            <p>D) Carrying amount</p>
+        </div>
+        <p class="answer">Correct Answer: A) Face value<br>Explanation: Supplier invoices due within 12 months are short-term liabilities and are measured at face value.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 6: Why are current liabilities typically measured at face value?</p>
+        <div class="options">
+            <p>A) To reflect their historical cost</p>
+            <p>B) Because the time value of money is not significant for short-term obligations</p>
+            <p>C) To match their present value</p>
+            <p>D) To simplify tax calculations</p>
+        </div>
+        <p class="answer">Correct Answer: B) Because the time value of money is not significant for short-term obligations<br>Explanation: For liabilities due within 12 months, the time value of money is minimal, so face value is used for simplicity.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 7: A $90,000 convertible bond due in 4 years should be measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Fair value</p>
+            <p>D) Nominal value</p>
+        </div>
+        <p class="answer">Correct Answer: B) Present value<br>Explanation: Convertible bonds due beyond 12 months are measured at present value to discount future cash flows.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 8: True or False: All liabilities, regardless of due date, are measured at present value.</p>
+        <div class="options">
+            <p>A) True</p>
+            <p>B) False</p>
+        </div>
+        <p class="answer">Correct Answer: B) False<br>Explanation: Only liabilities due beyond 12 months are measured at present value; short-term liabilities are measured at face value.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 9: $7,000 accrued expenses due in 5 months should be measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Carrying amount</p>
+            <p>D) Fair value</p>
+        </div>
+        <p class="answer">Correct Answer: A) Face value<br>Explanation: Accrued expenses due within 12 months are short-term and measured at face value.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 10: A long-term debt of $200,000 due in 2 years is measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Historical cost</p>
+            <p>D) Market value</p>
+        </div>
+        <p class="answer">Correct Answer: B) Present value<br>Explanation: Long-term debt due beyond 12 months is measured at present value to account for the time value of money.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 11: How should a bank overdraft payable on demand be measured?</p>
+        <div class="options">
+            <p>A) At face value</p>
+            <p>B) At present value</p>
+            <p>C) At fair value</p>
+            <p>D) At amortized cost</p>
+        </div>
+        <p class="answer">Correct Answer: A) At face value<br>Explanation: Bank overdrafts payable on demand are short-term and measured at face value.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 12: Bonds payable amounting to $60,000 due in 6 months should be measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Fair value</p>
+            <p>D) Replacement cost</p>
+        </div>
+        <p class="answer">Correct Answer: A) Face value<br>Explanation: Bonds due within 12 months are short-term liabilities and measured at face value.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 13: A $40,000 loan payable in 18 months is measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Amortized cost</p>
+            <p>D) Carrying amount</p>
+        </div>
+        <p class="answer">Correct Answer: B) Present value<br>Explanation: Loans due beyond 12 months are long-term and measured at present value.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 14: True or False: The present value of short-term liabilities approximates their face value.</p>
+        <div class="options">
+            <p>A) True</p>
+            <p>B) False</p>
+        </div>
+        <p class="answer">Correct Answer: A) True<br>Explanation: For short-term liabilities, the time value of money is negligible, so their present value is approximately equal to their face value.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 15: An environmental cleanup liability estimated at $150,000 due in 10 years should be measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Fair value</p>
+            <p>D) Nominal value</p>
+        </div>
+        <p class="answer">Correct Answer: B) Present value<br>Explanation: Environmental liabilities due beyond 12 months are measured at present value to discount future costs.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 16: Employee benefits liability of $25,000 due in 3 years is measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Historical cost</p>
+            <p>D) Market value</p>
+        </div>
+        <p class="answer">Correct Answer: B) Present value<br>Explanation: Employee benefits due beyond 12 months are measured at present value to reflect future obligations.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 17: Dividends declared and payable next week should be measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Fair value</p>
+            <p>D) Replacement cost</p>
+        </div>
+        <p class="answer">Correct Answer: A) Face value<br>Explanation: Dividends payable within 12 months are short-term and measured at face value.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 18: True or False: A warranty liability extending beyond 12 months is measured at face value.</p>
+        <div class="options">
+            <p>A) True</p>
+            <p>B) False</p>
+        </div>
+        <p class="answer">Correct Answer: B) False<br>Explanation: Warranty liabilities due beyond 12 months are measured at present value to account for the time value of money.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 19: A $55,000 note payable due in 11 months should be measured at:</p>
+        <div class="options">
+            <p>A) Face value</p>
+            <p>B) Present value</p>
+            <p>C) Carrying amount</p>
+            <p>D) Fair value</p>
+        </div>
+        <p class="answer">Correct Answer: A) Face value<br>Explanation: Notes payable due within 12 months are short-term and measured at face value.</p>
+    </div>
+
+    <div class="question">
+        <p>Question 20: Which of the following liabilities is measured at present value?</p>
+        <div class="options">
+            <p>A) Rent payable due in 30 days</p>
+            <p>B) Utilities payable next month</p>
+            <p>C) Long-term warranty obligations due in 5 years</p>
+            <p>D) Income taxes payable this quarter</p>
+        </div>
+        <p class="answer">Correct Answer: C) Long-term warranty obligations due in 5 years<br>Explanation: Liabilities due beyond 12 months, such as long-term warranty obligations, are measured at present value.</p>
+    </div>
+
+    <hr>
+    <p style="text-align: center;"><strong>End of Test Paper</strong></p>
+</body>
+</html>
