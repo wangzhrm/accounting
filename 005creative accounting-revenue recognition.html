@@ -1,0 +1,150 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Accounting: Revenue Recognition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6 max-w-4xl">
+        <h1 class="text-3xl font-bold text-center mb-6">Creative Accounting: Revenue Recognition at TechSolutions Inc.</h1>
+        <p class="text-lg mb-4">
+            At TechSolutions Inc., managers estimate the percentage of service completion for a $10,000,000 project to recognize revenue. Adjust the slider to see how this decision impacts the income statement and the manager's bonus. Recognizing over 70% may violate accounting standards.
+        </p>
+        <p class="text-lg mb-4">
+            <strong>Bonus Policy:</strong> The manager receives a 5% bonus on net income if net income exceeds $999,999; otherwise, no bonus is awarded.
+        </p>
+
+        <!-- Slider for Revenue Recognition Percentage -->
+        <div class="mb-6">
+            <label for="revenuePercent" class="block text-lg font-medium mb-2">Revenue Recognition Percentage: <span id="percentValue">50%</span></label>
+            <input type="range" id="revenuePercent" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            <p id="warning" class="text-red-600 font-semibold mt-2 hidden">Warning: Recognizing over 70% may violate accounting standards.</p>
+        </div>
+
+        <!-- Income Statement -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-semibold mb-4">Income Statement</h2>
+            <table class="w-full text-left">
+                <tr class="border-b">
+                    <th class="py-2">Item</th>
+                    <th class="py-2 text-right">Amount</th>
+                </tr>
+                <tr>
+                    <td class="py-2">Revenue</td>
+                    <td id="revenue" class="py-2 text-right">$5,000,000</td>
+                </tr>
+                <tr>
+                    <td class="py-2">Cost of Goods Sold (50% of Revenue)</td>
+                    <td id="cogs" class="py-2 text-right">$2,500,000</td>
+                </tr>
+                <tr>
+                    <td class="py-2">Operating Expenses</td>
+                    <td id="expenses" class="py-2 text-right">$2,000,000</td>
+                </tr>
+                <tr class="border-t font-bold">
+                    <td class="py-2">Net Income</td>
+                    <td id="netIncome" class="py-2 text-right">$500,000</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Bonus Information -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Manager's Bonus</h2>
+            <p id="bonus" class="text-lg">Bonus: $0 (Net income below $999,999 threshold)</p>
+        </div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('revenuePercent');
+        const percentValue = document.getElementById('percentValue');
+        const warning = document.getElementById('warning');
+        const revenue = document.getElementById('revenue');
+        const cogs = document.getElementById('cogs');
+        const expenses = document.getElementById('expenses');
+        const netIncome = document.getElementById('netIncome');
+        const bonus = document.getElementById('bonus');
+
+        const totalRevenue = 10000000; // $10,000,000
+        const cogsRate = 0.5; // 50% of revenue
+        const fixedExpenses = 2000000; // $2,000,000
+        const bonusThreshold = 999999; // $999,999
+        const bonusRate = 0.05; // 5% of net income
+
+        function formatNumber(num) {
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 0 });
+        }
+
+        function updateFinancials() {
+            const percent = slider.value;
+            percentValue.textContent = `${percent}%`;
+
+            // Show warning if percentage > 70
+            warning.classList.toggle('hidden', percent <= 70);
+
+            // Calculate financials
+            const recognizedRevenue = totalRevenue * (percent / 100);
+            const cogsValue = recognizedRevenue * cogsRate;
+            const netIncomeValue = recognizedRevenue - cogsValue - fixedExpenses;
+            const bonusValue = netIncomeValue > bonusThreshold ? netIncomeValue * bonusRate : 0;
+
+            // Update income statement
+            revenue.textContent = formatNumber(recognizedRevenue);
+            cogs.textContent = formatNumber(cogsValue);
+            expenses.textContent = formatNumber(fixedExpenses);
+            netIncome.textContent = formatNumber(netIncomeValue);
+
+            // Update bonus
+            if (netIncomeValue > bonusThreshold) {
+                bonus.textContent = `Bonus: ${formatNumber(bonusValue)} (5% of net income)`;
+            } else {
+                bonus.textContent = `Bonus: $0 (Net income below $999,999 threshold)`;
+            }
+        }
+
+        slider.addEventListener('input', updateFinancials);
+        updateFinancials(); // Initial calculation
+    </script>
+</body>
+</html>

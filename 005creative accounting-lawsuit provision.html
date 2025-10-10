@@ -1,0 +1,159 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Accounting: Lawsuit Provision</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6 max-w-4xl">
+        <h1 class="text-3xl font-bold text-center mb-6">Creative Accounting: Lawsuit Provision at Apex Enterprises</h1>
+        <p class="text-lg mb-4">
+            Apex Enterprises faces a highly probable lawsuit loss, requiring a provision for potential compensation. The manager estimates the provision amount. A provision below $200,000 violates accounting standards. Adjust the slider to see the impact on the income statement and the manager's bonus.
+        </p>
+        <p class="text-lg mb-4">
+            <strong>Bonus Policy:</strong> The manager receives a 5% bonus on net income if net income exceeds $1,200,000 and the provision is less than $400,000; otherwise, no bonus is awarded.
+        </p>
+
+        <!-- Slider for Lawsuit Provision -->
+        <div class="mb-6">
+            <label for="provisionAmount" class="block text-lg font-medium mb-2">Lawsuit Provision Amount: <span id="provisionValue">$500,000</span></label>
+            <input type="range" id="provisionAmount" min="0" max="1000000" value="500000" step="10000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            <p id="warning" class="text-red-600 font-semibold mt-2 hidden">Warning: A provision below $200,000 violates accounting standards.</p>
+        </div>
+
+        <!-- Income Statement -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-semibold mb-4">Income Statement</h2>
+            <table class="w-full text-left">
+                <tr class="border-b">
+                    <th class="py-2">Item</th>
+                    <th class="py-2 text-right">Amount</th>
+                </tr>
+                <tr>
+                    <td class="py-2">Revenue</td>
+                    <td id="revenue" class="py-2 text-right">$5,000,000</td>
+                </tr>
+                <tr>
+                    <td class="py-2">Cost of Goods Sold (50% of Revenue)</td>
+                    <td id="cogs" class="py-2 text-right">$2,500,000</td>
+                </tr>
+                <tr>
+                    <td class="py-2">Operating Expenses</td>
+                    <td id="expenses" class="py-2 text-right">$1,000,000</td>
+                </tr>
+                <tr>
+                    <td class="py-2">Lawsuit Provision</td>
+                    <td id="provision" class="py-2 text-right">$500,000</td>
+                </tr>
+                <tr class="border-t font-bold">
+                    <td class="py-2">Net Income</td>
+                    <td id="netIncome" class="py-2 text-right">$1,000,000</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Bonus Information -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Manager's Bonus</h2>
+            <p id="bonus" class="text-lg">Bonus: $0 (Provision ≥ $400,000)</p>
+        </div>
+    </div>
+
+    <script>
+        const slider = document.getElementById('provisionAmount');
+        const provisionValue = document.getElementById('provisionValue');
+        const warning = document.getElementById('warning');
+        const revenue = document.getElementById('revenue');
+        const cogs = document.getElementById('cogs');
+        const expenses = document.getElementById('expenses');
+        const provision = document.getElementById('provision');
+        const netIncome = document.getElementById('netIncome');
+        const bonus = document.getElementById('bonus');
+
+        const totalRevenue = 5000000; // $5,000,000
+        const cogsRate = 0.5; // 50% of revenue
+        const fixedExpenses = 1000000; // $1,000,000
+        const bonusThreshold = 1200000; // $1,200,000
+        const bonusRate = 0.05; // 5% of net income
+        const provisionBonusLimit = 400000; // $400,000
+        const minProvision = 200000; // $200,000
+
+        function formatNumber(num) {
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 0 });
+        }
+
+        function updateFinancials() {
+            const provisionAmount = parseInt(slider.value);
+            provisionValue.textContent = formatNumber(provisionAmount);
+
+            // Show warning if provision < $200,000
+            warning.classList.toggle('hidden', provisionAmount >= minProvision);
+
+            // Calculate financials
+            const cogsValue = totalRevenue * cogsRate;
+            const netIncomeValue = totalRevenue - cogsValue - fixedExpenses - provisionAmount;
+            const bonusValue = (netIncomeValue > bonusThreshold && provisionAmount < provisionBonusLimit) ? netIncomeValue * bonusRate : 0;
+
+            // Update income statement
+            revenue.textContent = formatNumber(totalRevenue);
+            cogs.textContent = formatNumber(cogsValue);
+            expenses.textContent = formatNumber(fixedExpenses);
+            provision.textContent = formatNumber(provisionAmount);
+            netIncome.textContent = formatNumber(netIncomeValue);
+
+            // Update bonus
+            if (provisionAmount >= provisionBonusLimit) {
+                bonus.textContent = `Bonus: $0 (Provision ≥ $400,000)`;
+            } else if (netIncomeValue > bonusThreshold) {
+                bonus.textContent = `Bonus: ${formatNumber(bonusValue)} (5% of net income)`;
+            } else {
+                bonus.textContent = `Bonus: $0 (Net income below $1,200,000 threshold)`;
+            }
+        }
+
+        slider.addEventListener('input', updateFinancials);
+        updateFinancials(); // Initial calculation
+    </script>
+</body>
+</html>
