@@ -1,0 +1,431 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue and Expense Recognition Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .answer { display: none; }
+        .answer.show { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6 max-w-5xl">
+        <!-- Header -->
+        <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">Revenue and Expense Recognition Quiz</h1>
+        <p class="text-lg text-gray-700 mb-8 text-center">Test your understanding of the Conceptual Framework criteria for recognizing revenue and expenses. Click "Show Answer" to reveal the answer and explanation for each scenario.</p>
+
+        <!-- Criteria Recap -->
+        <section class="bg-white shadow-md rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-blue-600 mb-4">Criteria for Recognition</h2>
+            <p class="text-gray-600 mb-4">Revenue or expenses are recognized when:</p>
+            <ul class="list-disc list-inside text-gray-600 space-y-2">
+                <li><strong>Probability of Economic Benefits:</strong> It is probable that economic benefits will flow to or from the entity.</li>
+                <li><strong>Reliable Measurement:</strong> The amount of revenue or expense can be measured with reasonable certainty.</li>
+            </ul>
+            <p class="text-gray-600 mt-4">If either criterion is not met, recognition is deferred.</p>
+        </section>
+
+        <!-- Questions -->
+        <section class="space-y-8">
+            <!-- Question 1 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">1. Bakery Cash Sale</h3>
+                <p class="text-gray-600 mt-2">A bakery sells a cake for $50, and the customer pays in cash at the counter. Should the revenue be recognized?</p>
+                <button onclick="toggleAnswer('answer1')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer1" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-green-600 font-semibold">Yes, recognize $50 revenue.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Payment received in cash, so inflow is certain.</li>
+                        <li><strong>Measurement:</strong> The amount ($50) is fixed and known.</li>
+                    </ul>
+                    <p>Both criteria are met, so revenue is recognized immediately.</p>
+                </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">2. Doubtful Software Project</h3>
+                <p class="text-gray-600 mt-2">A software developer completes a $10,000 project for a start-up with financial difficulties and no payment received. Should the revenue be recognized?</p>
+                <button onclick="toggleAnswer('answer2')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer2" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-red-600 font-semibold">No, do not recognize revenue.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Low probability of payment due to client’s financial issues.</li>
+                        <li><strong>Measurement:</strong> Amount is known, but uncertainty of collection affects reliability.</li>
+                    </ul>
+                    <p>The probability criterion is not met, so revenue recognition is deferred.</p>
+                </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">3. Advance Payment for Services</h3>
+                <p class="text-gray-600 mt-2">A company receives a $1,000 advance payment for consulting services to be provided next month. Should a liability be recognized?</p>
+                <button onclick="toggleAnswer('answer3')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer3" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-green-600 font-semibold">Yes, recognize $1,000 liability.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Probable obligation to provide services or refund.</li>
+                        <li><strong>Measurement:</strong> The amount ($1,000) is fixed and known.</li>
+                    </ul>
+                    <p>Both criteria are met, so a liability (deferred revenue) is recognized.</p>
+                </div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">4. Estimated Warranty Costs</h3>
+                <p class="text-gray-600 mt-2">A company sells products with a warranty, estimating $5,000 in future repair costs based on historical data. Should an expense be recognized?</p>
+                <button onclick="toggleAnswer('answer4')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer4" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-green-600 font-semibold">Yes, recognize $5,000 expense.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Probable outflow based on historical warranty claims.</li>
+                        <li><strong>Measurement:</strong> The amount ($5,000) is reliably estimated from past data.</li>
+                    </ul>
+                    <p>Both criteria are met, so a warranty expense and liability are recognized.</p>
+                </div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">5. Contingent Legal Settlement</h3>
+                <p class="text-gray-600 mt-2">A company is sued, but the outcome is uncertain, and no reliable estimate of the settlement cost can be made. Should an expense be recognized?</p>
+                <button onclick="toggleAnswer('answer5')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer5" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-red-600 font-semibold">No, do not recognize expense.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Outcome is uncertain, so outflow is not probable.</li>
+                        <li><strong>Measurement:</strong> No reliable estimate of the cost is available.</li>
+                    </ul>
+                    <p>Neither criterion is met, so no expense is recognized, though disclosure may be required.</p>
+                </div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">6. Subscription Revenue</h3>
+                <p class="text-gray-600 mt-2">A magazine publisher receives $120 for a one-year subscription, with magazines delivered monthly. Should revenue be recognized upfront?</p>
+                <button onclick="toggleAnswer('answer6')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer6" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-red-600 font-semibold">No, recognize revenue over time.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Payment received, so inflow is probable.</li>
+                        <li><strong>Measurement:</strong> The amount ($120) is known, but services are provided over time.</li>
+                    </ul>
+                    <p>Both criteria are met, but revenue is recognized as magazines are delivered (e.g., $10/month), with a liability for unearned revenue initially.</p>
+                </div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">7. Employee Bonus</h3>
+                <p class="text-gray-600 mt-2">A company promises a $20,000 bonus to employees if sales targets are met, which is highly likely based on current performance. Should an expense be recognized?</p>
+                <button onclick="toggleAnswer('answer7')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer7" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-green-600 font-semibold">Yes, recognize $20,000 expense.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> High likelihood of meeting sales targets, so outflow is probable.</li>
+                        <li><strong>Measurement:</strong> The amount ($20,000) is fixed and known.</li>
+                    </ul>
+                    <p>Both criteria are met, so the bonus expense and liability are recognized.</p>
+                </div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">8. Uncertain Sales Commission</h3>
+                <p class="text-gray-600 mt-2">A salesperson earns a commission based on future sales, but the amount cannot be reliably estimated yet. Should an expense be recognized?</p>
+                <button onclick="toggleAnswer('answer8')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer8" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-red-600 font-semibold">No, do not recognize expense.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Outflow is probable if sales occur, but not certain yet.</li>
+                        <li><strong>Measurement:</strong> The amount cannot be reliably estimated.</li>
+                    </ul>
+                    <p>The measurement criterion is not met, so no expense is recognized until the amount is estimable.</p>
+                </div>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">9. Online Course Sale</h3>
+                <p class="text-gray-600 mt-2">An online platform sells a $200 course with immediate access to all materials, paid upfront via credit card. Should revenue be recognized?</p>
+                <button onclick="toggleAnswer('answer9')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer9" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-green-600 font-semibold">Yes, recognize $200 revenue.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Payment received via credit card, so inflow is probable.</li>
+                        <li><strong>Measurement:</strong> The amount ($200) is fixed and known.</li>
+                    </ul>
+                    <p>Both criteria are met, and the service (course access) is provided, so revenue is recognized immediately.</p>
+                </div>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">10. Potential Fine</h3>
+                <p class="text-gray-600 mt-2">A company faces a potential regulatory fine, but the likelihood and amount are uncertain. Should an expense be recognized?</p>
+                <button onclick="toggleAnswer('answer10')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer10" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-red-600 font-semibold">No, do not recognize expense.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class日至
+
+System: <xaiArtifact artifact_id="7cee3e3b-8d0a-4840-9a25-7cdcc724b1e0" artifact_version_id="3da57c06-b99f-4426-8178-cbf3ea488447" title="index.html" contentType="text/html">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue and Expense Recognition Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .answer { display: none; }
+        .answer.show { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6 max-w-5xl">
+        <!-- Header -->
+        <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">Revenue and Expense Recognition Quiz</h1>
+        <p class="text-lg text-gray-700 mb-8 text-center">Test your understanding of the Conceptual Framework criteria for recognizing revenue and expenses. Click "Show Answer" to reveal the answer and explanation for each scenario.</p>
+
+        <!-- Criteria Recap -->
+        <section class="bg-white shadow-md rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-blue-600 mb-4">Criteria for Recognition</h2>
+            <p class="text-gray-600 mb-4">Revenue or expenses are recognized when:</p>
+            <ul class="list-disc list-inside text-gray-600 space-y-2">
+                <li><strong>Probability of Economic Benefits:</strong> It is probable that economic benefits will flow to or from the entity.</li>
+                <li><strong>Reliable Measurement:</strong> The amount of revenue or expense can be measured with reasonable certainty.</li>
+            </ul>
+            <p class="text-gray-600 mt-4">If either criterion is not met, recognition is deferred.</p>
+        </section>
+
+        <!-- Questions -->
+        <section class="space-y-8">
+            <!-- Question 1 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">1. Bakery Cash Sale</h3>
+                <p class="text-gray-600 mt-2">A bakery sells a cake for $50, and the customer pays in cash at the counter. Should the revenue be recognized?</p>
+                <button onclick="toggleAnswer('answer1')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer1" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-green-600 font-semibold">Yes, recognize $50 revenue.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Payment received in cash, so inflow is certain.</li>
+                        <li><strong>Measurement:</strong> The amount ($50) is fixed and known.</li>
+                    </ul>
+                    <p>Both criteria are met, so revenue is recognized immediately.</p>
+                </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">2. Doubtful Software Project</h3>
+                <p class="text-gray-600 mt-2">A software developer completes a $10,000 project for a start-up with financial difficulties and no payment received. Should the revenue be recognized?</p>
+                <button onclick="toggleAnswer('answer2')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer2" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-red-600 font-semibold">No, do not recognize revenue.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Low probability of payment due to client’s financial issues.</li>
+                        <li><strong>Measurement:</strong> Amount is known, but uncertainty of collection affects reliability.</li>
+                    </ul>
+                    <p>The probability criterion is not met, so revenue recognition is deferred.</p>
+                </div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">3. Advance Payment for Services</h3>
+                <p class="text-gray-600 mt-2">A company receives a $1,000 advance payment for consulting services to be provided next month. Should a liability be recognized?</p>
+                <button onclick="toggleAnswer('answer3')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer3" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-green-600 font-semibold">Yes, recognize $1,000 liability.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Probable obligation to provide services or refund.</li>
+                        <li><strong>Measurement:</strong> The amount ($1,000) is fixed and known.</li>
+                    </ul>
+                    <p>Both criteria are met, so a liability (deferred revenue) is recognized.</p>
+                </div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">4. Estimated Warranty Costs</h3>
+                <p class="text-gray-600 mt-2">A company sells products with a warranty, estimating $5,000 in future repair costs based on historical data. Should an expense be recognized?</p>
+                <button onclick="toggleAnswer('answer4')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer4" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-green-600 font-semibold">Yes, recognize $5,000 expense.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Probable outflow based on historical warranty claims.</li>
+                        <li><strong>Measurement:</strong> The amount ($5,000) is reliably estimated from past data.</li>
+                    </ul>
+                    <p>Both criteria are met, so a warranty expense and liability are recognized.</p>
+                </div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">5. Contingent Legal Settlement</h3>
+                <p class="text-gray-600 mt-2">A company is sued, but the outcome is uncertain, and no reliable estimate of the settlement cost can be made. Should an expense be recognized?</p>
+                <button onclick="toggleAnswer('answer5')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer5" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-red-600 font-semibold">No, do not recognize expense.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Outcome is uncertain, so outflow is not probable.</li>
+                        <li><strong>Measurement:</strong> No reliable estimate of the cost is available.</li>
+                    </ul>
+                    <p>Neither criterion is met, so no expense is recognized, though disclosure may be required.</p>
+                </div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">6. Subscription Revenue</h3>
+                <p class="text-gray-600 mt-2">A magazine publisher receives $120 for a one-year subscription, with magazines delivered monthly. Should revenue be recognized upfront?</p>
+                <button onclick="toggleAnswer('answer6')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer6" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-red-600 font-semibold">No, recognize revenue over time.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Payment received, so inflow is probable.</li>
+                        <li><strong>Measurement:</strong> The amount ($120) is known, but services are provided over time.</li>
+                    </ul>
+                    <p>Both criteria are met, but revenue is recognized as magazines are delivered (e.g., $10/month), with a liability for unearned revenue initially.</p>
+                </div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">7. Employee Bonus</h3>
+                <p class="text-gray-600 mt-2">A company promises a $20,000 bonus to employees if sales targets are met, which is highly likely based on current performance. Should an expense be recognized?</p>
+                <button onclick="toggleAnswer('answer7')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer7" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-green-600 font-semibold">Yes, recognize $20,000 expense.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> High likelihood of meeting sales targets, so outflow is probable.</li>
+                        <li><strong>Measurement:</strong> The amount ($20,000) is fixed and known.</li>
+                    </ul>
+                    <p>Both criteria are met, so the bonus expense and liability are recognized.</p>
+                </div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">8. Uncertain Sales Commission</h3>
+                <p class="text-gray-600 mt-2">A salesperson earns a commission based on future sales, but the amount cannot be reliably estimated yet. Should an expense be recognized?</p>
+                <button onclick="toggleAnswer('answer8')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer8" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-red-600 font-semibold">No, do not recognize expense.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Outflow is probable if sales occur, but not certain yet.</li>
+                        <li><strong>Measurement:</strong> The amount cannot be reliably estimated.</li>
+                    </ul>
+                    <p>The measurement criterion is not met, so no expense is recognized until the amount is estimable.</p>
+                </div>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">9. Online Course Sale</h3>
+                <p class="text-gray-600 mt-2">An online platform sells a $200 course with immediate access to all materials, paid upfront via credit card. Should revenue be recognized?</p>
+                <button onclick="toggleAnswer('answer9')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer9" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-green-600 font-semibold">Yes, recognize $200 revenue.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Payment received via credit card, so inflow is probable.</li>
+                        <li><strong>Measurement:</strong> The amount ($200) is fixed and known.</li>
+                    </ul>
+                    <p>Both criteria are met, and the service (course access) is provided, so revenue is recognized immediately.</p>
+                </div>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-blue-600">10. Potential Fine</h3>
+                <p class="text-gray-600 mt-2">A company faces a potential regulatory fine, but the likelihood and amount are uncertain. Should an expense be recognized?</p>
+                <button onclick="toggleAnswer('answer10')" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+                <div id="answer10" class="answer mt-4 text-gray-600">
+                    <p><strong>Answer:</strong> <span class="text-red-600 font-semibold">No, do not recognize expense.</span></p>
+                    <p><strong>Explanation:</strong></p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Probability:</strong> Likelihood of the fine is uncertain, so outflow is not probable.</li>
+                        <li><strong>Measurement:</strong> The amount cannot be reliably estimated.</li>
+                    </ul>
+                    <p>Neither criterion is met, so no expense is recognized, though disclosure may be required.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 mt-8">
+            <p>Built with Tailwind CSS | Content based on Conceptual Framework for Financial Reporting</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleAnswer(id) {
+            const answer = document.getElementById(id);
+            answer.classList.toggle('show');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Recognition Scenarios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .answer { display: none; }
+        .answer.show { display: block; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-8">Revenue Recognition in Long-Term Contracts: Test Scenarios</h1>
+        <p class="text-lg text-center mb-6">Click the "Show Answer" button to reveal the solution for each scenario.</p>
+
+        <!-- Scenario 1 -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Scenario 1</h2>
+            <p class="mb-4">A construction company is building a custom-designed office building for a client. The contract stipulates that the client takes control of the building as it is constructed, with legal title transferring progressively. The company can invoice the client based on the percentage of completion. Can the company recognize revenue over time for this contract?</p>
+            <button onclick="toggleAnswer('answer1')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+            <div id="answer1" class="answer mt-4 p-4 bg-gray-50 rounded">
+                <p><strong>Answer:</strong> Yes, the company can recognize revenue over time. The client's control of the building as it is constructed (progressive transfer of legal title) satisfies the condition that the customer controls the asset as it is created. Additionally, the enforceable right to invoice based on percentage of completion supports recognizing revenue over time as performance obligations are satisfied.</p>
+            </div>
+        </div>
+
+        <!-- Scenario 2 -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Scenario 2</h2>
+            <p class="mb-4">A shipbuilding company is constructing a specialized vessel for a client. The vessel is highly customized and has no alternative use. The contract allows the company to demand payment for work completed if the client cancels the contract. Can revenue be recognized over time?</p>
+            <button onclick="toggleAnswer('answer2')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+            <div id="answer2" class="answer mt-4 p-4 bg-gray-50 rounded">
+                <p><strong>Answer:</strong> Yes, revenue can be recognized over time. The vessel has no alternative use due to its specialized design, and the enforceable right to payment for performance completed to date meets the criteria for recognizing revenue as the performance obligation is satisfied over the contract period.</p>
+            </div>
+        </div>
+
+        <!-- Scenario 3 -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Scenario 3</h2>
+            <p class="mb-4">A contractor is building a warehouse for a client. The warehouse is a standard design that could be sold to other buyers. The contract does not allow the contractor to recover costs for work completed if the client terminates the contract early. Should revenue be recognized over time or at a point in time?</p>
+            <button onclick="toggleAnswer('answer3')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+            <div id="answer3" class="answer mt-4 p-4 bg-gray-50 rounded">
+                <p><strong>Answer:</strong> Revenue should be recognized at a point in time. The warehouse has an alternative use (it can be sold to other buyers), and there is no enforceable right to payment for performance completed to date. Therefore, revenue recognition over time is not permitted, and revenue should be recognized when control of the completed warehouse transfers to the client.</p>
+            </div>
+        </div>
+
+        <!-- Scenario 4 -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Scenario 4</h2>
+            <p class="mb-4">A company is developing a unique software system for a client under a long-term contract. The client gains access to the software as it is developed and can use it during the development process. The contract includes milestone payments based on development progress. Can the company recognize revenue over time?</p>
+            <button onclick="toggleAnswer('answer4')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+            <div id="answer4" class="answer mt-4 p-4 bg-gray-50 rounded">
+                <p><strong>Answer:</strong> Yes, the company can recognize revenue over time. The client controls the software as it is developed (gains access and can use it), satisfying the condition that the customer controls the asset as it is created. The milestone payments further support recognizing revenue based on progress, as the performance obligation is satisfied over time.</p>
+            </div>
+        </div>
+
+        <!-- Scenario 5 -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Scenario 5</h2>
+            <p class="mb-4">A construction firm is building a bridge for a government client. The bridge is built on public land owned by the government, and the contract allows the firm to bill for work completed monthly. However, the bridge could be repurposed for another project if the contract is canceled. Should revenue be recognized over time or at a point in time?</p>
+            <button onclick="toggleAnswer('answer5')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Show Answer</button>
+            <div id="answer5" class="answer mt-4 p-4 bg-gray-50 rounded">
+                <p><strong>Answer:</strong> Revenue can be recognized over time. The government client controls the asset (the bridge) as it is constructed on public land, meeting the condition for customer control during creation. The ability to bill monthly for work completed indicates an enforceable right to payment, supporting revenue recognition over time, even though the bridge could theoretically be repurposed.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAnswer(id) {
+            const answer = document.getElementById(id);
+            answer.classList.toggle('show');
+        }
+    </script>
+</body>
+</html>
