@@ -1,0 +1,125 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comscore Scandal: Improper Revenue Recognition and Liability Understatement</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            margin: 0;
+            padding: 1in;
+            line-height: 1.5;
+            max-width: 8.5in;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 14pt;
+            margin-bottom: 0.5in;
+        }
+        h2 {
+            font-size: 12pt;
+            margin-top: 0.5in;
+            margin-bottom: 0.2in;
+        }
+        p {
+            margin: 0 0 0.3in 0;
+            text-align: justify;
+        }
+        .criteria {
+            font-style: italic;
+            margin-bottom: 0.5in;
+        }
+        .timeline {
+            margin-left: 0.5in;
+        }
+        .timeline p {
+            margin-bottom: 0.2in;
+        }
+        @media print {
+            body {
+                margin: 0;
+                padding: 1in;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Comscore Scandal: A Case Study on Improper Revenue Recognition and Liability Understatement</h1>
+    <div class="criteria">
+        <p>This case study examines Comscore’s improper revenue recognition and liability understatement against IFRS 15 criteria: (1) the probability of economic benefits flowing to the entity, (2) the level of measurement uncertainty associated with those benefits, and (3) the transfer of control of an underlying asset to the customer, where control is defined as the ability to direct the use of and obtain substantially all remaining benefits from the asset, including preventing others from doing so. Additionally, it addresses the understatement of liabilities, particularly unearned revenue.</p>
+    </div>
+    <div class="timeline">
+        <h2>Background and Business Model (1999–2015)</h2>
+        <p>Comscore, founded in 1999 in Reston, Virginia, provided digital analytics services, measuring online audience behavior for advertisers and publishers. Its revenue primarily came from subscription-based analytics services and custom research reports. Initially, Comscore recognized revenue in line with IFRS 15 (and ASC 606, its U.S. equivalent), recording income when services were delivered (e.g., when clients accessed analytics dashboards), ensuring control transfer. The probability of economic benefits was high, as subscriptions were backed by signed contracts, and measurement uncertainty was low due to predictable subscription fees. Liabilities, such as deferred revenue for prepaid subscriptions, were recognized when cash was received before service delivery.</p>
+
+        <h2>Early Signs of Aggressive Accounting (2016–2018)</h2>
+        <p>As Comscore faced competitive pressure from tech giants like Google and declining stock prices after its 2015 peak, it began manipulating revenue recognition to inflate financial performance. From 2016, Comscore prematurely recognized revenue from subscription contracts before delivering analytics services. For example, in 2017, it recorded $20 million in revenue from a multi-year contract with a major advertiser, despite only partial dashboard access provided. This violated IFRS 15’s control criterion, as the customer did not yet have full control over the service (i.e., the ability to direct its use or obtain benefits). The probability of economic benefits was overstated, as some clients disputed contract terms, and measurement uncertainty was high due to unverified service delivery milestones. Additionally, Comscore understated liabilities by failing to record deferred revenue for unearned portions of these contracts, reducing reported obligations by approximately $15 million in 2017.</p>
+
+        <h2>Round-Trip Transactions and Revenue Fabrication (2018–2020)</h2>
+        <p>Comscore’s most blatant fraud involved round-trip transactions to artificially inflate revenue. Between 2018 and 2020, the company engaged in reciprocal agreements with third-party data providers, swapping services without economic substance. For instance, Comscore “sold” $50 million in analytics services to a partner in 2019, recognizing revenue immediately, while simultaneously “purchasing” equivalent services, which were not recorded as expenses or liabilities. This violated IFRS 15’s control criterion, as no real service was transferred—clients could not direct the use of or benefit from the swapped data. The probability of economic benefits was near zero, as these transactions lacked cash inflows, and measurement uncertainty was extreme due to fabricated contracts. Comscore recognized over $150 million in such fictitious revenues, inflating accounts receivable. Concurrently, it understated liabilities by not recording $30 million in deferred revenue for unperformed services, presenting a falsely robust balance sheet.</p>
+
+        <h2>Liability Understatement and Financial Misrepresentation (2019–2021)</h2>
+        <p>Comscore systematically understated liabilities to mask financial weakness. For prepaid subscriptions, it failed to recognize deferred revenue as a liability when cash was received before service delivery. In 2020, Comscore collected $25 million in advance payments from clients but recorded only $5 million as deferred revenue, understating liabilities by $20 million. This violated IFRS 15’s requirement to defer revenue until control of the service is transferred (e.g., when clients access analytics reports). By underreporting these liabilities, Comscore overstated net income and misrepresented its financial obligations, misleading investors about its cash flow stability. This practice also ignored IFRS 15’s emphasis on measurement certainty, as the company could not reliably estimate when or if services would be delivered for these payments.</p>
+
+        <h2>SEC Investigation and Exposure (2021–2022)</h2>
+        <p>In 2021, the SEC launched an investigation following whistleblower tips and analyst reports questioning Comscore’s financials. The probe revealed that Comscore’s revenue recognition practices breached IFRS 15. For example, a $40 million contract in 2019 was recognized in full upon signing, despite services being delivered over two years. This ignored the control transfer requirement, as clients could not use the analytics platform until later stages. The probability of economic benefits was uncertain due to client disputes over service quality, and measurement uncertainty was high, as revenue was based on unverified milestones. The SEC also found that Comscore understated liabilities by $35 million in 2020 by failing to record unearned revenue from round-trip deals and prepaid contracts. These misstatements inflated assets (receivables) and understated obligations, leading to restatements that erased 90% of Comscore’s valuation.</p>
+
+        <h2>Collapse and Regulatory Consequences (2022–2023)</h2>
+        <p>In 2023, Comscore settled with the SEC for $3.5 million, admitting to improper revenue recognition and liability understatement. The restatements corrected $150 million in improperly recognized revenue, as no control was transferred in many contracts, economic benefits were improbable (e.g., round-trip deals), and measurement uncertainty was ignored. Liability understatements, particularly $50 million in unreported deferred revenue, were rectified, revealing Comscore’s true financial distress. The company filed for bankruptcy in 2023, with its stock falling 99% from its 2015 peak. Executives faced bans, and auditors were criticized for failing to test revenue recognition against IFRS 15 criteria or verify liability accruals.</p>
+
+        <h2>Lessons for IFRS 15 Compliance and Liability Recognition</h2>
+        <p>Comscore’s scandal provides critical lessons for students:
+            <ul>
+                <li><strong>Probability of Economic Benefits</strong>: Comscore recognized revenues from round-trip transactions and premature contract bookings, despite low or no probability of cash inflows, violating IFRS 15.</li>
+                <li><strong>Measurement Uncertainty</strong>: The company ignored high uncertainty in revenue recognition, using unverified milestones and fabricated contracts, breaching IFRS 15’s requirement for reliable measurement.</li>
+                <li><strong>Transfer of Control</strong>: Revenues were recorded without transferring control of services (e.g., analytics access), as clients could not direct use or benefit, invalidating recognition under IFRS 15.</li>
+                <li><strong>Liability Understatement</strong>: By failing to record deferred revenue for unearned payments, Comscore understated liabilities, misrepresenting financial health and violating IFRS 15’s deferral rules.</li>
+            </ul>
+        </p>
+        <p>This case highlights the need for rigorous controls, independent audits, and adherence to IFRS 15 to ensure proper revenue and liability recognition. Students can use Comscore’s failures to analyze how disregarding IFRS 15 criteria leads to financial collapse and regulatory penalties.</p>
+    </div>
+</body>
+</html>

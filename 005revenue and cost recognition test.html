@@ -1,0 +1,287 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Recognition Test</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 0.5in;
+            line-height: 1.2;
+        }
+        .container {
+            max-width: 8.5in;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 12pt;
+            margin: 0.2in 0;
+        }
+        .columns {
+            column-count: 2;
+            column-gap: 0.3in;
+            column-rule: 1px solid #000;
+        }
+        .question {
+            margin-bottom: 0.2in;
+            break-inside: avoid;
+        }
+        .question p {
+            margin: 0 0 0.1in 0;
+        }
+        .question ol {
+            list-style-type: lower-alpha;
+            margin: 0;
+            padding-left: 0.6in;
+        }
+        .question li {
+            margin-bottom: 0.05in;
+        }
+        @media print {
+            body {
+                margin: 0;
+                padding: 0.5in;
+            }
+            .columns {
+                column-count: 2;
+                column-gap: 0.3in;
+                column-rule: 1px solid #000;
+            }
+            .question {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Revenue Recognition Test</h1>
+        <div class="columns">
+            <div class="question">
+                <p>1. What is a key criterion for recognizing revenue?</p>
+                <ol>
+                    <li>Probability of economic benefits</li>
+                    <li>Guaranteed payment</li>
+                    <li>Customer satisfaction</li>
+                    <li>Asset depreciation</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>2. What is the uncertainty in measuring economic benefits called?</p>
+                <ol>
+                    <li>Financial ambiguity</li>
+                    <li>Measurement uncertainty</li>
+                    <li>Economic variance</li>
+                    <li>Revenue risk</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>3. Per IFRS 15, what must be transferred for revenue recognition?</p>
+                <ol>
+                    <li>Ownership</li>
+                    <li>Control</li>
+                    <li>Possession</li>
+                    <li>Risks</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>4. What does control of an asset allow?</p>
+                <ol>
+                    <li>Modify asset value</li>
+                    <li>Direct use and benefits</li>
+                    <li>Insure asset</li>
+                    <li>Depreciate asset</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>5. If control isn't transferred, what happens to revenue?</p>
+                <ol>
+                    <li>Partially recognized</li>
+                    <li>Not recognized</li>
+                    <li>Deferred indefinitely</li>
+                    <li>Estimated</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>6. When does control of a service pass to the customer?</p>
+                <ol>
+                    <li>Contract signing</li>
+                    <li>Service performed</li>
+                    <li>Payment received</li>
+                    <li>Contract completion</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>7. How is revenue recognized in long-term construction?</p>
+                <ol>
+                    <li>Point of sale</li>
+                    <li>Over accounting periods</li>
+                    <li>Customer approval</li>
+                    <li>Final payment</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>8. What is a precondition for revenue in long-term contracts?</p>
+                <ol>
+                    <li>Transfer of control</li>
+                    <li>Construction completion</li>
+                    <li>Customer inspection</li>
+                    <li>Payment receipt</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>9. When can income be recognized over time?</p>
+                <ol>
+                    <li>Asset fully completed</li>
+                    <li>Customer controls asset</li>
+                    <li>Payments received</li>
+                    <li>Contract signed</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>10. What is needed for revenue recognition if an asset has no alternative use?</p>
+                <ol>
+                    <li>Customer approval</li>
+                    <li>Right to payment</li>
+                    <li>Full payment</li>
+                    <li>Asset ownership</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>11. How is deferred income treated if payment is delayed over a year?</p>
+                <ol>
+                    <li>Ignored</li>
+                    <li>Full value</li>
+                    <li>Discounted to present value</li>
+                    <li>Deferred indefinitely</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>12. Sale of $100,000, payment in 2 years at 10% interest, present value?</p>
+                <ol>
+                    <li>$82,645</li>
+                    <li>$90,909</li>
+                    <li>$100,000</li>
+                    <li>$110,000</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>13. How is income measured for non-cash consideration?</p>
+                <ol>
+                    <li>Asset cost</li>
+                    <li>Fair value received</li>
+                    <li>Book value</li>
+                    <li>Customer valuation</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>14. Sale with $10,000 cash, land (fair value $90,000), sales price?</p>
+                <ol>
+                    <li>$75,000</li>
+                    <li>$90,000</li>
+                    <li>$100,000</li>
+                    <li>$65,000</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>15. What does specific identification assign to inventory?</p>
+                <ol>
+                    <li>Average costs</li>
+                    <li>Specific costs</li>
+                    <li>First purchased</li>
+                    <li>Last purchased</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>16. What does weighted-average cost use for inventory?</p>
+                <ol>
+                    <li>Specific costs</li>
+                    <li>Periodic calculation</li>
+                    <li>First-in costs</li>
+                    <li>Last-in costs</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>17. What does FIFO assume about inventory sold?</p>
+                <ol>
+                    <li>Last purchased first</li>
+                    <li>First purchased first</li>
+                    <li>Average cost</li>
+                    <li>Specific costs</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>18. What is central to revenue recognition under IFRS 15?</p>
+                <ol>
+                    <li>Payment receipt</li>
+                    <li>Asset ownership</li>
+                    <li>Transfer of control</li>
+                    <li>Customer satisfaction</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>19. When is revenue recognized for services per IFRS 15?</p>
+                <ol>
+                    <li>Contract agreement</li>
+                    <li>Service performed</li>
+                    <li>Customer payment</li>
+                    <li>Service initiation</li>
+                </ol>
+            </div>
+            <div class="question">
+                <p>20. What is required for revenue in long-term contracts with no alternative use?</p>
+                <ol>
+                    <li>Customer inspection</li>
+                    <li>Right to payment</li>
+                    <li>Full payment</li>
+                    <li>Asset completion</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

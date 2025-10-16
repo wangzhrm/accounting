@@ -1,0 +1,344 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fair Value Accounting MCQs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .answer {
+            display: none;
+            margin-top: 10px;
+            color: green;
+        }
+        button {
+            padding: 5px 10px;
+            background-color: #005a87;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #003d5d;
+        }
+    </style>
+    <script>
+        function showAnswer(questionId) {
+            var answer = document.getElementById("answer" + questionId);
+            if (answer.style.display === "none") {
+                answer.style.display = "block";
+            } else {
+                answer.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Fair Value Accounting MCQs</h1>
+
+        <div class="question">
+            <p>1. According to the general principle, how should organizations measure income for goods or services provided?</p>
+            <div class="options">
+                <p>a) At the cost of the assets received</p>
+                <p>b) At the fair value of the assets received</p>
+                <p>c) At the market price of the goods sold</p>
+                <p>d) At the cash amount paid</p>
+            </div>
+            <button onclick="showAnswer(1)">Answer</button>
+            <p id="answer1" class="answer">b) At the fair value of the assets received</p>
+        </div>
+
+        <div class="question">
+            <p>2. What happens if a customer pays for a service with non-cash consideration, such as land?</p>
+            <div class="options">
+                <p>a) The sale price is based on the cost of the land</p>
+                <p>b) The sale price is measured at the fair value of the land</p>
+                <p>c) The sale price is ignored</p>
+                <p>d) The sale price is based on the organization’s inventory value</p>
+            </div>
+            <button onclick="showAnswer(2)">Answer</button>
+            <p id="answer2" class="answer">b) The sale price is measured at the fair value of the land</p>
+        </div>
+
+        <div class="question">
+            <p>3. An organization receives $5,000 cash and land with a fair value of $15,000 for a sale. What is the sales price?</p>
+            <div class="options">
+                <p>a) $5,000</p>
+                <p>b) $15,000</p>
+                <p>c) $20,000</p>
+                <p>d) $10,000</p>
+            </div>
+            <button onclick="showAnswer(3)">Answer</button>
+            <p id="answer3" class="answer">c) $20,000</p>
+        </div>
+
+        <div class="question">
+            <p>4. If land with a cost of $50,000 and a fair value of $70,000 is received instead of cash, what is the sales price?</p>
+            <div class="options">
+                <p>a) $50,000</p>
+                <p>b) $70,000</p>
+                <p>c) $120,000</p>
+                <p>d) $20,000</p>
+            </div>
+            <button onclick="showAnswer(4)">Answer</button>
+            <p id="answer4" class="answer">b) $70,000</p>
+        </div>
+
+        <div class="question">
+            <p>5. An organization sells inventory for $10,000 cash and land with a fair value of $90,000. What is the sales price?</p>
+            <div class="options">
+                <p>a) $10,000</p>
+                <p>b) $90,000</p>
+                <p>c) $100,000</p>
+                <p>d) $80,000</p>
+            </div>
+            <button onclick="showAnswer(5)">Answer</button>
+            <p id="answer5" class="answer">c) $100,000</p>
+        </div>
+
+        <div class="question">
+            <p>6. What is the primary factor in determining the sales price when non-cash consideration is involved?</p>
+            <div class="options">
+                <p>a) The cost to the buyer</p>
+                <p>b) The fair value of the assets received</p>
+                <p>c) The original cost of the inventory</p>
+                <p>d) The market demand</p>
+            </div>
+            <button onclick="showAnswer(6)">Answer</button>
+            <p id="answer6" class="answer">b) The fair value of the assets received</p>
+        </div>
+
+        <div class="question">
+            <p>7. If a customer pays with $8,000 cash and equipment with a fair value of $12,000, what is the sales price?</p>
+            <div class="options">
+                <p>a) $8,000</p>
+                <p>b) $12,000</p>
+                <p>c) $20,000</p>
+                <p>d) $4,000</p>
+            </div>
+            <button onclick="showAnswer(7)">Answer</button>
+            <p id="answer7" class="answer">c) $20,000</p>
+        </div>
+
+        <div class="question">
+            <p>8. Which of the following is NOT a valid method to measure the sales price?</p>
+            <div class="options">
+                <p>a) Fair value of non-cash assets</p>
+                <p>b) Cash amount received</p>
+                <p>c) Cost of the asset to the buyer</p>
+                <p>d) Total of cash and fair value of non-cash assets</p>
+            </div>
+            <button onclick="showAnswer(8)">Answer</button>
+            <p id="answer8" class="answer">c) Cost of the asset to the buyer</p>
+        </div>
+
+        <div class="question">
+            <p>9. An organization receives land with a fair value of $30,000 for a service. What is the sales price?</p>
+            <div class="options">
+                <p>a) $0</p>
+                <p>b) $30,000</p>
+                <p>c) $15,000</p>
+                <p>d) $60,000</p>
+            </div>
+            <button onclick="showAnswer(9)">Answer</button>
+            <p id="answer9" class="answer">b) $30,000</p>
+        </div>
+
+        <div class="question">
+            <p>10. If $15,000 cash and a vehicle with a fair value of $25,000 are received, what is the sales price?</p>
+            <div class="options">
+                <p>a) $15,000</p>
+                <p>b) $25,000</p>
+                <p>c) $40,000</p>
+                <p>d) $10,000</p>
+            </div>
+            <button onclick="showAnswer(10)">Answer</button>
+            <p id="answer10" class="answer">c) $40,000</p>
+        </div>
+
+        <div class="question">
+            <p>11. What should be the basis for measuring income when a customer pays with assets instead of cash?</p>
+            <div class="options">
+                <p>a) The historical cost of the asset</p>
+                <p>b) The fair value of the asset received</p>
+                <p>c) The book value of the inventory sold</p>
+                <p>d) The estimated future value</p>
+            </div>
+            <button onclick="showAnswer(11)">Answer</button>
+            <p id="answer11" class="answer">b) The fair value of the asset received</p>
+        </div>
+
+        <div class="question">
+            <p>12. An organization receives $20,000 cash and a building with a fair value of $50,000. What is the sales price?</p>
+            <div class="options">
+                <p>a) $20,000</p>
+                <p>b) $50,000</p>
+                <p>c) $70,000</p>
+                <p>d) $30,000</p>
+            </div>
+            <button onclick="showAnswer(12)">Answer</button>
+            <p id="answer12" class="answer">c) $70,000</p>
+        </div>
+
+        <div class="question">
+            <p>13. Which of the following best describes the fair value concept?</p>
+            <div class="options">
+                <p>a) The original cost of an asset</p>
+                <p>b) The amount an asset could be sold for in an open market</p>
+                <p>c) The depreciated value of an asset</p>
+                <p>d) The cost to acquire an asset</p>
+            </div>
+            <button onclick="showAnswer(13)">Answer</button>
+            <p id="answer13" class="answer">b) The amount an asset could be sold for in an open market</p>
+        </div>
+
+        <div class="question">
+            <p>14. If a customer pays with $5,000 cash and land with a fair value of $45,000, what is the sales price?</p>
+            <div class="options">
+                <p>a) $5,000</p>
+                <p>b) $45,000</p>
+                <p>c) $50,000</p>
+                <p>d) $40,000</p>
+            </div>
+            <button onclick="showAnswer(14)">Answer</button>
+            <p id="answer14" class="answer">c) $50,000</p>
+        </div>
+
+        <div class="question">
+            <p>15. What is the sales price if only non-cash consideration with a fair value of $80,000 is received?</p>
+            <div class="options">
+                <p>a) $0</p>
+                <p>b) $80,000</p>
+                <p>c) $40,000</p>
+                <p>d) $160,000</p>
+            </div>
+            <button onclick="showAnswer(15)">Answer</button>
+            <p id="answer15" class="answer">b) $80,000</p>
+        </div>
+
+        <div class="question">
+            <p>16. An organization receives $30,000 cash and a machine with a fair value of $20,000. What is the sales price?</p>
+            <div class="options">
+                <p>a) $30,000</p>
+                <p>b) $20,000</p>
+                <p>c) $50,000</p>
+                <p>d) $10,000</p>
+            </div>
+            <button onclick="showAnswer(16)">Answer</button>
+            <p id="answer16" class="answer">c) $50,000</p>
+        </div>
+
+        <div class="question">
+            <p>17. Which factor is irrelevant when determining the sales price with non-cash consideration?</p>
+            <div class="options">
+                <p>a) Fair value of the asset received</p>
+                <p>b) Cash amount received</p>
+                <p>c) Cost of the asset to the customer</p>
+                <p>d) Total value of consideration</p>
+            </div>
+            <button onclick="showAnswer(17)">Answer</button>
+            <p id="answer17" class="answer">c) Cost of the asset to the customer</p>
+        </div>
+
+        <div class="question">
+            <p>18. If $25,000 cash and property with a fair value of $35,000 are received, what is the sales price?</p>
+            <div class="options">
+                <p>a) $25,000</p>
+                <p>b) $35,000</p>
+                <p>c) $60,000</p>
+                <p>d) $10,000</p>
+            </div>
+            <button onclick="showAnswer(18)">Answer</button>
+            <p id="answer18" class="answer">c) $60,000</p>
+        </div>
+
+        <div class="question">
+            <p>19. What is the sales price when a customer pays with $12,000 cash and land with a fair value of $88,000?</p>
+            <div class="options">
+                <p>a) $12,000</p>
+                <p>b) $88,000</p>
+                <p>c) $100,000</p>
+                <p>d) $76,000</p>
+            </div>
+            <button onclick="showAnswer(19)">Answer</button>
+            <p id="answer19" class="answer">c) $100,000</p>
+        </div>
+
+        <div class="question">
+            <p>20. Which of the following reflects the correct approach to measuring sales price with mixed payments?</p>
+            <div class="options">
+                <p>a) Sum of cash and cost of non-cash assets</p>
+                <p>b) Sum of cash and fair value of non-cash assets</p>
+                <p>c) Only the cash amount</p>
+                <p>d) Only the fair value of non-cash assets</p>
+            </div>
+            <button onclick="showAnswer(20)">Answer</button>
+            <p id="answer20" class="answer">b) Sum of cash and fair value of non-cash assets</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wirecard Scandal: Detailed Revenue Recognition Case Study</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            margin: 0;
+            padding: 1in;
+            line-height: 1.5;
+            max-width: 8.5in;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 14pt;
+            margin-bottom: 0.5in;
+        }
+        h2 {
+            font-size: 12pt;
+            margin-top: 0.5in;
+            margin-bottom: 0.2in;
+        }
+        p {
+            margin: 0 0 0.3in 0;
+            text-align: justify;
+        }
+        .criteria {
+            font-style: italic;
+            margin-bottom: 0.5in;
+        }
+        .timeline {
+            margin-left: 0.5in;
+        }
+        .timeline p {
+            margin-bottom: 0.2in;
+        }
+        @media print {
+            body {
+                margin: 0;
+                padding: 1in;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Wirecard Scandal: A Detailed Case Study on Improper Revenue Recognition</h1>
+    <div class="criteria">
+        <p>This case study examines Wirecard’s improper revenue recognition practices against IFRS 15 criteria: (1) the probability of economic benefits flowing to the entity, (2) the level of measurement uncertainty associated with those benefits, and (3) the transfer of control of an underlying asset to the customer, where control is defined as the ability to direct the use of and obtain substantially all remaining benefits from the asset, including preventing others from doing so.</p>
+    </div>
+    <div class="timeline">
+        <h2>Background and Founding (1999–2005)</h2>
+        <p>Wirecard, founded in 1999 in Munich, Germany, started as a payment processor for online merchants, particularly in gaming and e-commerce. Initially, revenue recognition aligned with IFRS 15: transaction fees were recognized when payment services were rendered, ensuring control of the service (processing) was transferred to customers (merchants). The probability of economic benefits was high, as fees were tied to completed transactions with low measurement uncertainty (cash payments were verifiable). However, as Wirecard sought to compete with global fintech giants, pressure to report rapid growth set the stage for fraudulent practices.</p>
+
+        <h2>Early Manipulation through Third-Party Acquirers (2006–2012)</h2>
+        <p>During its expansion into Asia, Wirecard began manipulating revenue recognition through third-party acquirers (TPAs), intermediaries processing high-risk transactions (e.g., for gambling or adult content merchants). Wirecard claimed revenues from TPA contracts, often recognizing them before services were fully rendered or payments were assured, violating IFRS 15’s probability criterion. For example, Wirecard recorded €50 million in 2010 from TPA deals in Singapore, despite no evidence that merchants had transferred control of payments to Wirecard or that economic benefits were probable (many TPAs were shell entities with no real operations). Measurement uncertainty was high, as revenues were based on unverified transaction volumes, yet Wirecard reported them as certain, inflating accounts receivable. This overstated assets and misrepresented financial health to investors.</p>
+
+        <h2>Fabricated Escrow Accounts and Revenue Inflation (2013–2018)</h2>
+        <p>The most significant fraud involved €1.9 billion in fictitious revenues tied to nonexistent escrow accounts in the Philippines and Singapore. Wirecard claimed these accounts held cash from TPA transactions, recognizing revenue as if it had control over these funds. Under IFRS 15, revenue requires the transfer of control of an asset (here, cash or payment services) to the customer. Wirecard falsely claimed merchants received payment processing services, but investigations revealed no such services were provided—merchants either didn’t exist or didn’t use Wirecard’s platform. The probability of economic benefits was near zero, as the escrow accounts were fabricated (e.g., a supposed €500 million account in Manila was a forged document). Measurement uncertainty was extreme, as no verifiable data supported the revenue figures, yet Wirecard recorded them as certain, inflating assets by €1.9 billion. This violated all three IFRS 15 criteria: no control transfer, no probable benefits, and high uncertainty.</p>
+
+        <h2>Round-Tripping Schemes (2016–2019)</h2>
+        <p>Wirecard employed “round-tripping” to further inflate revenues, particularly in Asia. In these schemes, Wirecard paid TPAs (often related parties) to process fake transactions, then recorded the returned funds as revenue. For instance, in 2017, Wirecard reported €300 million in revenue from a Malaysian TPA for processing online gaming payments. No gaming merchants existed; Wirecard simply cycled money through the TPA, recognizing it as revenue without transferring control of any service to a customer. This breached IFRS 15’s control criterion, as no underlying asset or service was delivered. The probability of economic benefits was null, as the transactions were fictitious, and measurement uncertainty was infinite due to fabricated contracts. These practices overstated revenue and accounts receivable, misleading investors about Wirecard’s growth.</p>
+
+        <h2>Whistleblower Exposures and Auditor Failures (2018–2019)</h2>
+        <p>In 2018, whistleblowers alerted authorities to Wirecard’s practices, followed by Financial Times reports in 2019 exposing round-tripping and fake contracts. Wirecard’s auditors, EY, failed to verify control transfer, relying on forged bank statements for the €1.9 billion escrow accounts. IFRS 15 requires assessing the probability of economic benefits, yet EY accepted unverified TPA revenues despite red flags (e.g., TPAs lacking physical offices). Measurement uncertainty was ignored, as Wirecard provided no evidence of transaction volumes or cash flows. For example, a 2018 audit accepted €400 million in revenue from a Dubai-based TPA without confirming customer contracts or service delivery, directly violating IFRS 15’s control and probability criteria.</p>
+
+        <h2>Collapse and Admission of Fraud (2020)</h2>
+        <p>In June 2020, Wirecard admitted the €1.9 billion in escrow accounts “likely did not exist.” Revenues recognized from 2013–2019, tied to these accounts, lacked any transfer of control, as no payment services were rendered to real customers. The probability of economic benefits was nonexistent, as the funds were fabricated, and measurement uncertainty was absolute due to forged documents. For instance, Wirecard claimed €200 million in 2019 from Philippine TPAs, but banks confirmed no such accounts existed. This violated IFRS 15 entirely, leading to a €20 billion market value loss, bankruptcy, and CEO Markus Braun’s arrest. The scandal revealed systemic revenue recognition fraud, with no adherence to IFRS 15’s requirements.</p>
+
+        <h2>Lessons for IFRS 15 Compliance</h2>
+        <p>Wirecard’s collapse offers a stark case study for students:
+            <ul>
+                <li><strong>Probability of Economic Benefits</strong>: Wirecard recognized revenues from fictitious TPAs and escrow accounts, despite zero probability of cash inflows, directly breaching IFRS 15’s requirement for probable economic benefits.</li>
+                <li><strong>Measurement Uncertainty</strong>: The company ignored extreme uncertainty, recording revenues based on forged documents and unverified transactions, violating IFRS 15’s need for reliable measurement.</li>
+                <li><strong>Transfer of Control</strong>: No services or assets were transferred to customers, as TPAs and merchants were often nonexistent. Wirecard’s failure to demonstrate control transfer invalidated all revenue recognition under IFRS 15.</li>
+            </ul>
+        </p>
+        <p>This case underscores the importance of robust internal controls, independent audits, and adherence to IFRS 15 to prevent fraudulent revenue recognition. Students can analyze Wirecard’s practices to understand how misjudgments in probability, uncertainty, and control lead to catastrophic financial misstatements.</p>
+    </div>
+</body>
+</html>
