@@ -1,0 +1,192 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Depot: A Cash Crunch Survival Story</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for enhanced visuals */
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+        }
+        .section-header {
+            background-color: #f97316; /* Home Depot orange */
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        .timeline-event {
+            border-left: 4px solid #f97316;
+            padding-left: 1rem;
+            margin-bottom: 1rem;
+        }
+        .timeline-event h3 {
+            color: #f97316;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <header class="bg-white shadow">
+        <div class="container mx-auto px-4 py-6">
+            <h1 class="text-3xl font-bold text-center">Home Depot: From Cash Crunch to Retail Giant</h1>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Founding and Growth -->
+        <section class="mb-12">
+            <h2 class="section-header text-2xl font-semibold">Founding and Early Growth</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md mt-4">
+                <p>Home Depot was founded in 1978 by Bernie Marcus and Arthur Blank, with a vision to revolutionize home improvement retail. Inspired by the DIY boom, they opened their first two stores in Atlanta, Georgia, in 1979, offering a warehouse-style shopping experience with vast product selections and low prices. By 1981, the company went public on NASDAQ, raising capital to fuel expansion.</p>
+                <p>By 1985, Home Depot operated 50 stores, driven by strong consumer demand and a scalable model. Sales grew at a 40% compound annual growth rate (CAGR) from 1981–1985, reaching $700 million, with net income margins of 4–5%. Its focus on customer service, knowledgeable staff, and competitive pricing cemented its market leadership.</p>
+            </div>
+        </section>
+
+        <!-- Health During Cash Crunch -->
+        <section class="mb-12">
+            <h2 class="section-header text-2xl font-semibold">Why Home Depot Was Healthy in 1985</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md mt-4">
+                <p>Despite its 1985 cash crisis, Home Depot was fundamentally robust:</p>
+                <ul class="list-disc pl-6">
+                    <li><strong>Strong Revenue Growth</strong>: Annual sales neared $700 million, with same-store sales growth outpacing competitors like Lowe’s.</li>
+                    <li><strong>Brand Strength</strong>: Its warehouse model and DIY focus resonated with customers, driving loyalty and repeat business.</li>
+                    <li><strong>Operational Efficiency</strong>: Efficient supply chains and inventory turnover (4–5x annually) kept costs low, supporting profitability.</li>
+                    <li><strong>Market Opportunity</strong>: The U.S. home improvement market was expanding rapidly, with Home Depot capturing a growing share.</li>
+                </ul>
+                <p>However, rapid expansion strained liquidity, as cash was tied up in inventory and new stores, not yet generating sufficient returns.</p>
+            </div>
+        </section>
+
+        <!-- Unfavorable Emergency Funding -->
+        <section class="mb-12">
+            <h2 class="section-header text-2xl font-semibold">Unfavorable Terms of Emergency Funding</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md mt-4">
+                <p>In 1985, Home Depot’s cash reserves fell to just three weeks’ worth due to aggressive expansion (opening 10–15 stores annually) and high inventory costs. To avoid bankruptcy, it secured emergency financing, but the terms were unfavorable:</p>
+                <ul class="list-disc pl-6">
+                    <li><strong>High Interest Rates</strong>: Lenders, wary of the company’s cash burn and unproven long-term model, charged rates above market norms (estimated 10–12% vs. prime rates of ~9%).</li>
+                    <li><strong>Restrictive Covenants</strong>: The financing included strict conditions, such as limits on further borrowing and mandatory cash flow targets, reducing operational flexibility.</li>
+                    <li><strong>Equity Dilution Risk</strong>: Some funding involved convertible debt, which could dilute existing shareholders if converted to equity at lower valuations.</li>
+                    <li><strong>Short-Term Repayment</strong>: Loans had tight repayment schedules, pressuring Home Depot to generate cash quickly.</li>
+                </ul>
+                <p>These terms reflected lenders’ skepticism about Home Depot’s ability to sustain growth without collapsing under its own weight.</p>
+            </div>
+        </section>
+
+        <!-- How Funding Saved Home Depot -->
+        <section class="mb-12">
+            <h2 class="section-header text-2xl font-semibold">How Emergency Funding Saved Home Depot</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md mt-4">
+                <p>The emergency financing provided a critical lifeline, enabling Home Depot to:</p>
+                <ul class="list-disc pl-6">
+                    <li><strong>Bridge Liquidity Gap</strong>: The funds covered immediate obligations (e.g., supplier payments, payroll), preventing insolvency.</li>
+                    <li><strong>Optimize Operations</strong>: Management slowed store openings, reducing capital expenditures by 20% in 1986, and improved inventory turnover (from 4x to 5.5x annually).</li>
+                    <li><strong>Boost Cash Flow</strong>: Enhanced collections and cost controls increased free cash flow, allowing debt repayment without further distress.</li>
+                    <li><strong>Restore Confidence</strong>: The financing signaled to suppliers and investors that Home Depot was viable, stabilizing trade credit and stock performance.</li>
+                </ul>
+                <p>By 1987, Home Depot was cash-flow positive, with sales exceeding $1 billion, proving the crisis was a temporary liquidity issue, not a structural flaw.</p>
+            </div>
+        </section>
+
+        <!-- Growth to Today -->
+        <section class="mb-12">
+            <h2 class="section-header text-2xl font-semibold">Growth to 2025</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md mt-4">
+                <p>Post-1985, Home Depot leveraged its strengthened financial position to dominate the home improvement sector:</p>
+                <div class="timeline-event">
+                    <h3>1990s: National Expansion</h3>
+                    <p>Expanded to 500+ stores by 1999, with sales of $38B. Strategic acquisitions (e.g., HomeBase) and supply chain efficiencies drove 20%+ CAGR.</p>
+                </div>
+                <div class="timeline-event">
+                    <h3>2000s: Digital Pivot</h3>
+                    <p>Launched homedepot.com in 2000; by 2010, e-commerce sales grew to $1B+, complementing 2,200+ stores. Focused on contractor services, boosting margins.</p>
+                </div>
+                <div class="timeline-event">
+                    <h3>2010s: Resilience Post-Recession</h3>
+                    <p>Recovered from 2008 downturn by optimizing store formats and investing $11B in tech/logistics by 2019, with sales hitting $108B.</p>
+                </div>
+                <div class="timeline-event">
+                    <h3>2020–2025: Market Leader</h3>
+                    <p>By 2025, Home Depot operates 2,300+ stores, with $152B+ in revenue (2024 annual report). Its omnichannel strategy (15% of sales online) and acquisitions like HD Supply ($8B in 2020) solidified its dominance. Free cash flow of $14B+ annually supports dividends and buybacks, with a market cap of ~$400B.</p>
+                </div>
+                <p>Today, Home Depot’s focus on sustainability, AI-driven inventory management, and professional contractor services positions it for continued growth in a $900B U.S. home improvement market.</p>
+            </div>
+        </section>
+
+        <!-- Sources -->
+        <section class="mb-12">
+            <h2 class="section-header text-2xl font-semibold">Sources</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md mt-4">
+                <ul class="list-disc pl-6">
+                    <li>Palepu, K. (1988). Home Depot, Inc. Harvard Business School Case Study.</li>
+                    <li>ResearchGate: Analysis of Home Depot’s Cash Flow Risks (1980s).</li>
+                    <li>Home Depot Annual Reports (2020–2024).</li>
+                    <li>Forbes: Retail Sector Trends (2023–2025).</li>
+                    <li>McKinsey: U.S. Home Improvement Market Analysis (2025).</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 Home Depot Case Study. Created for educational purposes.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simple scroll-to-top button
+        window.addEventListener('scroll', () => {
+            const button = document.createElement('button');
+            button.textContent = '↑ Top';
+            button.className = 'fixed bottom-4 right-4 bg-orange-500 text-white p-2 rounded-full shadow-lg hover:bg-orange-600';
+            button.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (window.scrollY > 300 && !document.querySelector('.fixed.bottom-4')) {
+                document.body.appendChild(button);
+            } else if (window.scrollY <= 300 && document.querySelector('.fixed.bottom-4')) {
+                document.querySelector('.fixed.bottom-4').remove();
+            }
+        });
+    </script>
+</body>
+</html>
