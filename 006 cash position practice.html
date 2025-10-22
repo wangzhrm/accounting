@@ -1,0 +1,377 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit and Cash Position Quiz with Journal Entries</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6 max-w-5xl">
+        <!-- Header -->
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Profit and Cash Position Quiz</h1>
+        <p class="text-gray-600 text-center mb-8">
+            This quiz contains 20 scenarios. For each scenario, determine whether the transaction or event affects the company's <strong>profit</strong>, <strong>cash position</strong>, <strong>both</strong>, or <strong>neither</strong>. After selecting an answer, the correct answer and journal entries will be displayed.
+        </p>
+
+        <!-- Quiz Form -->
+        <section class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Answer the Following Questions</h2>
+            <form id="quizForm" class="space-y-6">
+                <!-- Question 1 -->
+                <div>
+                    <p class="font-medium text-gray-700">1. The company receives $10,000 cash from a customer for services performed last month.</p>
+                    <label class="block"><input type="radio" name="q1" value="a" class="mr-2" onclick="showAnswer(1)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q1" value="b" class="mr-2" onclick="showAnswer(1)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q1" value="c" class="mr-2" onclick="showAnswer(1)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q1" value="d" class="mr-2" onclick="showAnswer(1)"> d) Neither</label>
+                    <div id="answer1" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 2 -->
+                <div>
+                    <p class="font-medium text-gray-700">2. The company records depreciation expense of $5,000 for the month.</p>
+                    <label class="block"><input type="radio" name="q2" value="a" class="mr-2" onclick="showAnswer(2)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q2" value="b" class="mr-2" onclick="showAnswer(2)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q2" value="c" class="mr-2" onclick="showAnswer(2)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q2" value="d" class="mr-2" onclick="showAnswer(2)"> d) Neither</label>
+                    <div id="answer2" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 3 -->
+                <div>
+                    <p class="font-medium text-gray-700">3. The company pays $2,000 in cash for utility bills incurred this month.</p>
+                    <label class="block"><input type="radio" name="q3" value="a" class="mr-2" onclick="showAnswer(3)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q3" value="b" class="mr-2" onclick="showAnswer(3)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q3" value="c" class="mr-2" onclick="showAnswer(3)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q3" value="d" class="mr-2" onclick="showAnswer(3)"> d) Neither</label>
+                    <div id="answer3" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 4 -->
+                <div>
+                    <p class="font-medium text-gray-700">4. The company issues $50,000 in new stock for cash.</p>
+                    <label class="block"><input type="radio" name="q4" value="a" class="mr-2" onclick="showAnswer(4)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q4" value="b" class="mr-2" onclick="showAnswer(4)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q4" value="c" class="mr-2" onclick="showAnswer(4)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q4" value="d" class="mr-2" onclick="showAnswer(4)"> d) Neither</label>
+                    <div id="answer4" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 5 -->
+                <div>
+                    <p class="font-medium text-gray-700">5. The company performs services worth $15,000 on credit, to be paid next month.</p>
+                    <label class="block"><input type="radio" name="q5" value="a" class="mr-2" onclick="showAnswer(5)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q5" value="b" class="mr-2" onclick="showAnswer(5)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q5" value="c" class="mr-2" onclick="showAnswer(5)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q5" value="d" class="mr-2" onclick="showAnswer(5)"> d) Neither</label>
+                    <div id="answer5" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 6 -->
+                <div>
+                    <p class="font-medium text-gray-700">6. The company writes off $1,000 of uncollectible accounts receivable.</p>
+                    <label class="block"><input type="radio" name="q6" value="a" class="mr-2" onclick="showAnswer(6)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q6" value="b" class="mr-2" onclick="showAnswer(6)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q6" value="c" class="mr-2" onclick="showAnswer(6)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q6" value="d" class="mr-2" onclick="showAnswer(6)"> d) Neither</label>
+                    <div id="answer6" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 7 -->
+                <div>
+                    <p class="font-medium text-gray-700">7. The company purchases $20,000 of inventory on credit.</p>
+                    <label class="block"><input type="radio" name="q7" value="a" class="mr-2" onclick="showAnswer(7)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q7" value="b" class="mr-2" onclick="showAnswer(7)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q7" value="c" class="mr-2" onclick="showAnswer(7)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q7" value="d" class="mr-2" onclick="showAnswer(7)"> d) Neither</label>
+                    <div id="answer7" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 8 -->
+                <div>
+                    <p class="font-medium text-gray-700">8. The company pays $10,000 in cash to settle accounts payable.</p>
+                    <label class="block"><input type="radio" name="q8" value="a" class="mr-2" onclick="showAnswer(8)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q8" value="b" class="mr-2" onclick="showAnswer(8)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q8" value="c" class="mr-2" onclick="showAnswer(8)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q8" value="d" class="mr-2" onclick="showAnswer(8)"> d) Neither</label>
+                    <div id="answer8" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 9 -->
+                <div>
+                    <p class="font-medium text-gray-700">9. The company sells equipment for $8,000 cash, with a book value of $6,000.</p>
+                    <label class="block"><input type="radio" name="q9" value="a" class="mr-2" onclick="showAnswer(9)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q9" value="b" class="mr-2" onclick="showAnswer(9)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q9" value="c" class="mr-2" onclick="showAnswer(9)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q9" value="d" class="mr-2" onclick="showAnswer(9)"> d) Neither</label>
+                    <div id="answer9" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 10 -->
+                <div>
+                    <p class="font-medium text-gray-700">10. The company accrues $3,000 in interest expense for a loan, not yet paid.</p>
+                    <label class="block"><input type="radio" name="q10" value="a" class="mr-2" onclick="showAnswer(10)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q10" value="b" class="mr-2" onclick="showAnswer(10)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q10" value="c" class="mr-2" onclick="showAnswer(10)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q10" value="d" class="mr-2" onclick="showAnswer(10)"> d) Neither</label>
+                    <div id="answer10" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 11 -->
+                <div>
+                    <p class="font-medium text-gray-700">11. The company receives $5,000 in advance for services to be performed next month.</p>
+                    <label class="block"><input type="radio" name="q11" value="a" class="mr-2" onclick="showAnswer(11)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q11" value="b" class="mr-2" onclick="showAnswer(11)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q11" value="c" class="mr-2" onclick="showAnswer(11)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q11" value="d" class="mr-2" onclick="showAnswer(11)"> d) Neither</label>
+                    <div id="answer11" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 12 -->
+                <div>
+                    <p class="font-medium text-gray-700">12. The company records a $2,000 expense for prepaid insurance used this month.</p>
+                    <label class="block"><input type="radio" name="q12" value="a" class="mr-2" onclick="showAnswer(12)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q12" value="b" class="mr-2" onclick="showAnswer(12)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q12" value="c" class="mr-2" onclick="showAnswer(12)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q12" value="d" class="mr-2" onclick="showAnswer(12)"> d) Neither</label>
+                    <div id="answer12" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 13 -->
+                <div>
+                    <p class="font-medium text-gray-700">13. The company borrows $25,000 from a bank, receiving cash.</p>
+                    <label class="block"><input type="radio" name="q13" value="a" class="mr-2" onclick="showAnswer(13)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q13" value="b" class="mr-2" onclick="showAnswer(13)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q13" value="c" class="mr-2" onclick="showAnswer(13)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q13" value="d" class="mr-2" onclick="showAnswer(13)"> d) Neither</label>
+                    <div id="answer13" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 14 -->
+                <div>
+                    <p class="font-medium text-gray-700">14. The company pays $4,000 in dividends to shareholders.</p>
+                    <label class="block"><input type="radio" name="q14" value="a" class="mr-2" onclick="showAnswer(14)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q14" value="b" class="mr-2" onclick="showAnswer(14)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q14" value="c" class="mr-2" onclick="showAnswer(14)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q14" value="d" class="mr-2" onclick="showAnswer(14)"> d) Neither</label>
+                    <div id="answer14" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 15 -->
+                <div>
+                    <p class="font-medium text-gray-700">15. The company sells $12,000 of inventory for cash at cost.</p>
+                    <label class="block"><input type="radio" name="q15" value="a" class="mr-2" onclick="showAnswer(15)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q15" value="b" class="mr-2" onclick="showAnswer(15)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q15" value="c" class="mr-2" onclick="showAnswer(15)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q15" value="d" class="mr-2" onclick="showAnswer(15)"> d) Neither</label>
+                    <div id="answer15" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 16 -->
+                <div>
+                    <p class="font-medium text-gray-700">16. The company records a $7,000 gain on revaluation of land (under IFRS).</p>
+                    <label class="block"><input type="radio" name="q16" value="a" class="mr-2" onclick="showAnswer(16)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q16" value="b" class="mr-2" onclick="showAnswer(16)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q16" value="c" class="mr-2" onclick="showAnswer(16)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q16" value="d" class="mr-2" onclick="showAnswer(16)"> d) Neither</label>
+                    <div id="answer16" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 17 -->
+                <div>
+                    <p class="font-medium text-gray-700">17. The company purchases a 30-day Treasury Bill for $10,000 cash.</p>
+                    <label class="block"><input type="radio" name="q17" value="a" class="mr-2" onclick="showAnswer(17)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q17" value="b" class="mr-2" onclick="showAnswer(17)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q17" value="c" class="mr-2" onclick="showAnswer(17)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q17" value="d" class="mr-2" onclick="showAnswer(17)"> d) Neither</label>
+                    <div id="answer17" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 18 -->
+                <div>
+                    <p class="font-medium text-gray-700">18. The company recognizes $6,000 in revenue for services performed this month, paid in cash.</p>
+                    <label class="block"><input type="radio" name="q18" value="a" class="mr-2" onclick="showAnswer(18)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q18" value="b" class="mr-2" onclick="showAnswer(18)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q18" value="c" class="mr-2" onclick="showAnswer(18)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q18" value="d" class="mr-2" onclick="showAnswer(18)"> d) Neither</label>
+                    <div id="answer18" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 19 -->
+                <div>
+                    <p class="font-medium text-gray-700">19. The company adjusts an allowance for doubtful accounts by $2,500.</p>
+                    <label class="block"><input type="radio" name="q19" value="a" class="mr-2" onclick="showAnswer(19)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q19" value="b" class="mr-2" onclick="showAnswer(19)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q19" value="c" class="mr-2" onclick="showAnswer(19)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q19" value="d" class="mr-2" onclick="showAnswer(19)"> d) Neither</label>
+                    <div id="answer19" class="mt-2 text-gray-800"></div>
+                </div>
+                <!-- Question 20 -->
+                <div>
+                    <p class="font-medium text-gray-700">20. The company repays $15,000 of a bank loan principal in cash.</p>
+                    <label class="block"><input type="radio" name="q20" value="a" class="mr-2" onclick="showAnswer(20)"> a) Profit only</label>
+                    <label class="block"><input type="radio" name="q20" value="b" class="mr-2" onclick="showAnswer(20)"> b) Cash position only</label>
+                    <label class="block"><input type="radio" name="q20" value="c" class="mr-2" onclick="showAnswer(20)"> c) Both profit and cash position</label>
+                    <label class="block"><input type="radio" name="q20" value="d" class="mr-2" onclick="showAnswer(20)"> d) Neither</label>
+                    <div id="answer20" class="mt-2 text-gray-800"></div>
+                </div>
+            </form>
+        </section>
+
+        <!-- JavaScript for Immediate Feedback -->
+        <script>
+            function showAnswer(questionNumber) {
+                const answers = {
+                    q1: {
+                        correct: 'b',
+                        explanation: 'Cash position only: The revenue was recognized last month when the service was performed, so profit is unaffected. Receiving cash now increases the cash position.',
+                        journal: `Dr. Cash                  10,000\nCr. Accounts Receivable   10,000`
+                    },
+                    q2: {
+                        correct: 'a',
+                        explanation: 'Profit only: Depreciation is a non-cash expense that reduces net income but does not affect cash.',
+                        journal: `Dr. Depreciation Expense   5,000\nCr. Accumulated Depreciation 5,000`
+                    },
+                    q3: {
+                        correct: 'c',
+                        explanation: 'Both: Utility expense reduces profit, and the cash payment reduces the cash position.',
+                        journal: `Dr. Utility Expense   2,000\nCr. Cash              2,000`
+                    },
+                    q4: {
+                        correct: 'b',
+                        explanation: 'Cash position only: Issuing stock is a financing activity that increases cash but does not affect profit.',
+                        journal: `Dr. Cash                  50,000\nCr. Common Stock          50,000`
+                    },
+                    q5: {
+                        correct: 'a',
+                        explanation: 'Profit only: Revenue is recognized when earned (accrual basis), increasing profit, but no cash is received yet.',
+                        journal: `Dr. Accounts Receivable   15,000\nCr. Service Revenue       15,000`
+                    },
+                    q6: {
+                        correct: 'a',
+                        explanation: 'Profit only: Writing off uncollectible accounts increases bad debt expense, reducing profit, but no cash is involved.',
+                        journal: `Dr. Bad Debt Expense      1,000\nCr. Accounts Receivable   1,000`
+                    },
+                    q7: {
+                        correct: 'd',
+                        explanation: 'Neither: Purchasing inventory on credit increases assets and liabilities but does not affect profit or cash.',
+                        journal: `Dr. Inventory             20,000\nCr. Accounts Payable      20,000`
+                    },
+                    q8: {
+                        correct: 'b',
+                        explanation: 'Cash position only: Paying accounts payable reduces cash but does not affect profit, as the expense was recognized earlier.',
+                        journal: `Dr. Accounts Payable      10,000\nCr. Cash                  10,000`
+                    },
+                    q9: {
+                        correct: 'c',
+                        explanation: 'Both: The gain on sale ($8,000 - $6,000 = $2,000) increases profit, and the cash received increases the cash position.',
+                        journal: `Dr. Cash                  8,000\nCr. Equipment             6,000\nCr. Gain on Sale          2,000`
+                    },
+                    q10: {
+                        correct: 'a',
+                        explanation: 'Profit only: Accruing interest expense reduces profit, but no cash is paid yet.',
+                        journal: `Dr. Interest Expense      3,000\nCr. Interest Payable      3,000`
+                    },
+                    q11: {
+                        correct: 'b',
+                        explanation: 'Cash position only: Receiving cash in advance increases cash and creates a liability (unearned revenue), with no profit impact until services are performed.',
+                        journal: `Dr. Cash                  5,000\nCr. Unearned Revenue      5,000`
+                    },
+                    q12: {
+                        correct: 'a',
+                        explanation: 'Profit only: Recognizing the used portion of prepaid insurance as an expense reduces profit, but no cash is paid now.',
+                        journal: `Dr. Insurance Expense     2,000\nCr. Prepaid Insurance     2,000`
+                    },
+                    q13: {
+                        correct: 'b',
+                        explanation: 'Cash position only: Borrowing increases cash and liabilities, with no immediate profit impact.',
+                        journal: `Dr. Cash                  25,000\nCr. Notes Payable         25,000`
+                    },
+                    q14: {
+                        correct: 'b',
+                        explanation: 'Cash position only: Dividends reduce cash and retained earnings, but they do not affect profit.',
+                        journal: `Dr. Retained Earnings     4,000\nCr. Cash                  4,000`
+                    },
+                    q15: {
+                        correct: 'b',
+                        explanation: 'Cash position only: Selling inventory at cost has no profit impact (no gain or loss), but cash increases.',
+                        journal: `Dr. Cash                  12,000\nCr. Inventory             12,000`
+                    },
+                    q16: {
+                        correct: 'a',
+                        explanation: 'Profit only: Under IFRS, a revaluation gain may be recognized in profit (or equity), but no cash is involved.',
+                        journal: `Dr. Land                  7,000\nCr. Revaluation Surplus   7,000`
+                    },
+                    q17: {
+                        correct: 'd',
+                        explanation: 'Neither: Treasury Bills are cash equivalents, so purchasing them converts cash to another form of cash, with no net change in cash position or profit.',
+                        journal: `Dr. Cash Equivalents      10,000\nCr. Cash                  10,000`
+                    },
+                    q18: {
+                        correct: 'c',
+                        explanation: 'Both: Recognizing revenue increases profit, and receiving cash increases the cash position.',
+                        journal: `Dr. Cash                  6,000\nCr. Service Revenue       6,000`
+                    },
+                    q19: {
+                        correct: 'a',
+                        explanation: 'Profit only: Adjusting the allowance for doubtful accounts increases bad debt expense, reducing profit, but no cash is involved.',
+                        journal: `Dr. Bad Debt Expense      2,500\nCr. Allowance for Doubtful Accounts 2,500`
+                    },
+                    q20: {
+                        correct: 'b',
+                        explanation: 'Cash position only: Repaying loan principal reduces cash but does not affect profit.',
+                        journal: `Dr. Notes Payable         15,000\nCr. Cash                  15,000`
+                    }
+                };
+
+                const selected = document.querySelector(`input[name="q${questionNumber}"]:checked`);
+                const answerDiv = document.getElementById(`answer${questionNumber}`);
+                if (selected) {
+                    const isCorrect = selected.value === answers[`q${questionNumber}`].correct;
+                    const correctOption = { a: 'Profit only', b: 'Cash position only', c: 'Both profit and cash position', d: 'Neither' };
+                    answerDiv.innerHTML = `
+                        <p class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${isCorrect ? 'Correct!' : 'Incorrect!'}</p>
+                        <p><strong>Correct Answer:</strong> ${correctOption[answers[`q${questionNumber}`].correct]}</p>
+                        <p><strong>Explanation:</strong> ${answers[`q${questionNumber}`].explanation}</p>
+                        <p><strong>Journal Entry:</strong></p>
+                        <pre>${answers[`q${questionNumber}`].journal}</pre>
+                    `;
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>
