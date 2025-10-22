@@ -1,0 +1,201 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Equivalents in Accounting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6 max-w-4xl">
+        <!-- Header -->
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Cash Equivalents in Accounting</h1>
+
+        <!-- Introduction -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">What Are Cash Equivalents?</h2>
+            <p class="text-gray-600 mb-4">
+                Cash equivalents are short-term, highly liquid investments that meet three key criteria in accounting (under IFRS and GAAP standards):
+            </p>
+            <ul class="list-disc list-inside text-gray-600 mb-4">
+                <li><strong>Short-term</strong>: Original maturity of three months or less.</li>
+                <li><strong>Highly liquid</strong>: Readily convertible to known amounts of cash.</li>
+                <li><strong>Low risk</strong>: Subject to an insignificant risk of changes in value.</li>
+            </ul>
+            <p class="text-gray-600">
+                These assets are treated as cash in financial statements because they are stable and easily accessible for immediate use.
+            </p>
+        </section>
+
+        <!-- Common Cash Equivalents -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Common Types of Cash Equivalents</h2>
+            <p class="text-gray-600 mb-4">
+                Below are common examples of cash equivalents, along with their Chinese translations:
+            </p>
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-blue-100">
+                        <th class="p-3 text-gray-800 font-semibold">Cash Equivalent</th>
+                        <th class="p-3 text-gray-800 font-semibold">Chinese Translation</th>
+                        <th class="p-3 text-gray-800 font-semibold">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b">
+                        <td class="p-3">Treasury Bills (T-Bills)</td>
+                        <td class="p-3">短期国库券</td>
+                        <td class="p-3">Short-term government securities with maturities of less than one year, typically low risk.</td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-3">Commercial Paper</td>
+                        <td class="p-3">商业票据</td>
+                        <td class="p-3">Unsecured, short-term debt issued by corporations, usually with maturities of 30–270 days, investment-grade only.</td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-3">Money Market Funds</td>
+                        <td class="p-3">货币市场基金</td>
+                        <td class="p-3">Mutual funds investing in short-term, low-risk securities, offering high liquidity.</td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-3">Certificates of Deposit (CDs)</td>
+                        <td class="p-3">存款证</td>
+                        <td class="p-3">Short-term bank-issued CDs with maturities of three months or less, redeemable at a fixed amount.</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3">Bankers’ Acceptances</td>
+                        <td class="p-3">银行承兑汇票</td>
+                        <td class="p-3">Short-term credit instruments used in trade, guaranteed by banks, typically under 180 days.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Multiple Choice Questions -->
+        <section class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Test Your Knowledge: Multiple Choice Questions</h2>
+            <form id="quizForm" class="space-y-6">
+                <!-- Question 1 -->
+                <div>
+                    <p class="font-medium text-gray-700">1. Which of the following is a key criterion for an investment to be classified as a cash equivalent?</p>
+                    <label class="block"><input type="radio" name="q1" value="a" class="mr-2"> a) Maturity of one year or more</label>
+                    <label class="block"><input type="radio" name="q1" value="b" class="mr-2"> b) High risk of value change</label>
+                    <label class="block"><input type="radio" name="q1" value="c" class="mr-2"> c) Readily convertible to known amounts of cash</label>
+                    <label class="block"><input type="radio" name="q1" value="d" class="mr-2"> d) Issued only by small companies</label>
+                </div>
+                <!-- Question 2 -->
+                <div>
+                    <p class="font-medium text-gray-700">2. Which type of commercial paper qualifies as a cash equivalent?</p>
+                    <label class="block"><input type="radio" name="q2" value="a" class="mr-2"> a) Investment-grade with a 30-day maturity</label>
+                    <label class="block"><input type="radio" name="q2" value="b" class="mr-2"> b) Speculative-grade with a 90-day maturity</label>
+                    <label class="block"><input type="radio" name="q2" value="c" class="mr-2"> c) Investment-grade with a one-year maturity</label>
+                    <label class="block"><input type="radio" name="q2" value="d" class="mr-2"> d) Unsecured with high default risk</label>
+                </div>
+                <!-- Question 3 -->
+                <div>
+                    <p class="font-medium text-gray-700">3. What is the Chinese term for Money Market Funds?</p>
+                    <label class="block"><input type="radio" name="q3" value="a" class="mr-2"> a) 存款证</label>
+                    <label class="block"><input type="radio" name="q3" value="b" class="mr-2"> b) 货币市场基金</label>
+                    <label class="block"><input type="radio" name="q3" value="c" class="mr-2"> c) 短期国库券</label>
+                    <label class="block"><input type="radio" name="q3" value="d" class="mr-2"> d) 商业票据</label>
+                </div>
+                <!-- Question 4 -->
+                <div>
+                    <p class="font-medium text-gray-700">4. Why are stocks not considered cash equivalents?</p>
+                    <label class="block"><input type="radio" name="q4" value="a" class="mr-2"> a) They have short maturities</label>
+                    <label class="block"><input type="radio" name="q4" value="b" class="mr-2"> b) They are subject to significant price volatility</label>
+                    <label class="block"><input type="radio" name="q4" value="c" class="mr-2"> c) They are issued by banks</label>
+                    <label class="block"><input type="radio" name="q4" value="d" class="mr-2"> d) They are highly liquid</label>
+                </div>
+                <!-- Question 5 -->
+                <div>
+                    <p class="font-medium text-gray-700">5. Which of the following has a Chinese translation of 银行承兑汇票?</p>
+                    <label class="block"><input type="radio" name="q5" value="a" class="mr-2"> a) Treasury Bills</label>
+                    <label class="block"><input type="radio" name="q5" value="b" class="mr-2"> b) Certificates of Deposit</label>
+                    <label class="block"><input type="radio" name="q5" value="c" class="mr-2"> c) Bankers’ Acceptances</label>
+                    <label class="block"><input type="radio" name="q5" value="d" class="mr-2"> d) Money Market Funds</label>
+                </div>
+                <button type="button" onclick="checkAnswers()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Submit Answers</button>
+            </form>
+            <p id="result" class="mt-4 text-gray-800 font-medium"></p>
+        </section>
+
+        <!-- JavaScript for Quiz -->
+        <script>
+            function checkAnswers() {
+                const answers = {
+                    q1: 'c', // Readily convertible to known amounts of cash
+                    q2: 'a', // Investment-grade with a 30-day maturity
+                    q3: 'b', // 货币市场基金
+                    q4: 'b', // They are subject to significant price volatility
+                    q5: 'c'  // Bankers’ Acceptances
+                };
+                let score = 0;
+                let total = 5;
+                let feedback = '';
+
+                for (let i = 1; i <= total; i++) {
+                    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (selected && selected.value === answers[`q${i}`]) {
+                        score++;
+                    } else {
+                        feedback += `Question ${i}: Incorrect. `;
+                        if (i === 1) feedback += 'Cash equivalents must be readily convertible to cash.\n';
+                        if (i === 2) feedback += 'Only investment-grade commercial paper with short maturity qualifies.\n';
+                        if (i === 3) feedback += 'Money Market Funds are 货币市场基金.\n';
+                        if (i === 4) feedback += 'Stocks are volatile, unlike cash equivalents.\n';
+                        if (i === 5) feedback += 'Bankers’ Acceptances are 银行承兑汇票.\n';
+                    }
+                }
+
+                const result = document.getElementById('result');
+                result.textContent = `You scored ${score} out of ${total}! ${score === total ? 'Perfect!' : 'Review the incorrect answers below:'}\n${feedback}`;
+            }
+        </script>
+    </div>
+</body>
+</html>
