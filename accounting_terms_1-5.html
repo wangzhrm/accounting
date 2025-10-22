@@ -1,0 +1,167 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Terms</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Accounting Terms</h1>
+
+    <h2>Lecture 1</h2>
+    <ul>
+        <li>Informed decisions 知情决策</li>
+        <li>Relevance 相关性</li>
+        <li>Reliability 可靠性</li>
+        <li>Comparability 可比性</li>
+        <li>Verifiability 可验证性</li>
+        <li>Understandability 可理解性</li>
+        <li>Timeliness 及时性</li>
+    </ul>
+
+    <h2>Lecture 2</h2>
+    <ul>
+        <li>General purpose financial statements (GPFS) 通用财务报表</li>
+        <li>Disclosure 披露</li>
+        <li>Conceptual Framework 概念框架</li>
+        <li>The entity principle 实体原则</li>
+        <li>Accounting period convention 会计周期惯例</li>
+        <li>Monetary unit convention 货币单位惯例</li>
+        <li>Going concern assumption 持续经营假设</li>
+        <li>Accrual basis accounting 权责发生制会计</li>
+        <li>Assets 资产</li>
+        <li>Liabilities 负债</li>
+        <li>Equity 权益</li>
+        <li>Income 收入</li>
+        <li>Expenses 费用</li>
+        <li>Economic resources 经济资源</li>
+        <li>Past events 过去事项</li>
+        <li>Economic benefits 经济利益</li>
+        <li>Current assets 流动资产</li>
+        <li>Non-current assets 非流动资产</li>
+        <li>Tangible assets 有形资产</li>
+        <li>Intangible assets 无形资产</li>
+        <li>Current liabilities 流动负债</li>
+        <li>Non-current liabilities 非流动负债</li>
+        <li>Provisions 准备金</li>
+        <li>Contingent liabilities 或有负债</li>
+        <li>Equity 权益</li>
+        <li>Residual interest 剩余权益</li>
+        <li>Share capital 股本</li>
+        <li>Retained earnings 留存收益</li>
+        <li>Reserve 储备</li>
+        <li>Income 收入</li>
+        <li>Expenses 费用</li>
+        <li>Profit 利润</li>
+        <li>Cash 现金</li>
+        <li>Bank overdraft 银行透支</li>
+        <li>Bank loan 银行贷款</li>
+        <li>Rent payable 应付租金</li>
+        <li>Wages payable 应付工资</li>
+        <li>Inventory 存货</li>
+        <li>Sales revenue 销售收入</li>
+    </ul>
+
+    <h2>Lecture 3</h2>
+    <ul>
+        <li>Source documents 原始凭证</li>
+        <li>Journal 日记账</li>
+        <li>Ledger account 分类账账户</li>
+        <li>Trial balance 试算表</li>
+        <li>Journal entries 日记账分录</li>
+        <li>Adjusting journal entries 调整日记账分录</li>
+        <li>Closing entries 结账分录</li>
+        <li>Ledger 分类账</li>
+        <li>General ledger 总分类账</li>
+        <li>Debit 借方</li>
+        <li>Credit 贷方</li>
+        <li>Depreciation 折旧</li>
+    </ul>
+
+    <h2>Lecture 4</h2>
+    <ul>
+        <li>Balance sheet (statement of financial positions) 资产负债表</li>
+        <li>Recognition 确认</li>
+        <li>Measurement 计量</li>
+        <li>Net realizable value 可变现净值</li>
+        <li>Fair value 公允价值</li>
+        <li>Marketable securities 有价证券</li>
+        <li>Intangible assets 无形资产</li>
+    </ul>
+
+    <h2>Lecture 5</h2>
+    <ul>
+        <li>Income statement (profit and loss statement) 利润表</li>
+        <li>Creative accounting 创造性会计</li>
+        <li>Long term contract 长期合同</li>
+        <li>Control 控制</li>
+        <li>Deferred income 递延收入</li>
+        <li>Cost of goods sold 销售成本</li>
+        <li>Specific identification 特定识别法</li>
+        <li>Weighted average cost 加权平均成本法</li>
+        <li>First-in, first-out 先进先出法</li>
+        <li>Periodic inventory system 定期盘存制</li>
+        <li>Perpetual system 永续盘存制</li>
+    </ul>
+</body>
+</html>
