@@ -1,0 +1,258 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact of Transactions on Profit and Cash Position</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6 max-w-5xl">
+        <!-- Header -->
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Impact of Transactions on Profit and Cash Position</h1>
+        <p class="text-gray-600 text-center mb-8">
+            This page categorizes common business transactions and events based on their effect on a company's <strong>profit</strong> (net income) and <strong>cash position</strong> (cash and cash equivalents). Transactions are grouped into four categories: those affecting cash position only, profit only, both, or neither. Each category includes examples with descriptions and journal entries.
+        </p>
+
+        <!-- Category 1: Cash Position Only -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">1. Transactions Affecting Cash Position Only</h2>
+            <p class="text-gray-600 mb-4">
+                These transactions involve cash inflows or outflows but do not impact profit, as they are typically financing or investing activities or settlements of prior accruals.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction</th>
+                        <th>Description</th>
+                        <th>Journal Entry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Issuing stock for cash</td>
+                        <td>Company receives $50,000 cash by issuing new shares.</td>
+                        <td><pre>Dr. Cash                  50,000\nCr. Common Stock          50,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Paying accounts payable</td>
+                        <td>Company pays $10,000 in cash to settle accounts payable.</td>
+                        <td><pre>Dr. Accounts Payable      10,000\nCr. Cash                  10,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Borrowing from a bank</td>
+                        <td>Company borrows $25,000 in cash from a bank.</td>
+                        <td><pre>Dr. Cash                  25,000\nCr. Notes Payable         25,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Paying dividends</td>
+                        <td>Company pays $4,000 in cash dividends to shareholders.</td>
+                        <td><pre>Dr. Retained Earnings     4,000\nCr. Cash                  4,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Receiving cash for prior services</td>
+                        <td>Company receives $10,000 cash for services performed last month.</td>
+                        <td><pre>Dr. Cash                  10,000\nCr. Accounts Receivable   10,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Receiving advance payment</td>
+                        <td>Company receives $5,000 cash for services to be performed next month.</td>
+                        <td><pre>Dr. Cash                  5,000\nCr. Unearned Revenue      5,000</pre></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Category 2: Profit Only -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">2. Transactions Affecting Profit Only</h2>
+            <p class="text-gray-600 mb-4">
+                These transactions involve revenues, expenses, or gains/losses recognized on an accrual basis or non-cash adjustments, with no immediate cash flow.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction</th>
+                        <th>Description</th>
+                        <th>Journal Entry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Recording depreciation</td>
+                        <td>Company records $5,000 depreciation expense for the month.</td>
+                        <td><pre>Dr. Depreciation Expense   5,000\nCr. Accumulated Depreciation 5,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Performing services on credit</td>
+                        <td>Company performs $15,000 of services on credit, to be paid next month.</td>
+                        <td><pre>Dr. Accounts Receivable   15,000\nCr. Service Revenue       15,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Writing off uncollectible accounts</td>
+                        <td>Company writes off $1,000 of uncollectible accounts receivable.</td>
+                        <td><pre>Dr. Bad Debt Expense      1,000\nCr. Accounts Receivable   1,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Accruing interest expense</td>
+                        <td>Company accrues $3,000 in interest expense, not yet paid.</td>
+                        <td><pre>Dr. Interest Expense      3,000\nCr. Interest Payable      3,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Recognizing prepaid expense</td>
+                        <td>Company recognizes $2,000 of prepaid insurance used this month.</td>
+                        <td><pre>Dr. Insurance Expense     2,000\nCr. Prepaid Insurance     2,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Revaluation gain (IFRS)</td>
+                        <td>Company records a $7,000 gain on revaluation of land.</td>
+                        <td><pre>Dr. Land                  7,000\nCr. Revaluation Surplus   7,000</pre></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Category 3: Both Cash Position and Profit -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">3. Transactions Affecting Both Cash Position and Profit</h2>
+            <p class="text-gray-600 mb-4">
+                These transactions involve cash flows and simultaneously affect revenues, expenses, or gains/losses, impacting profit.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction</th>
+                        <th>Description</th>
+                        <th>Journal Entry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Paying utility bills</td>
+                        <td>Company pays $2,000 in cash for utility bills incurred this month.</td>
+                        <td><pre>Dr. Utility Expense   2,000\nCr. Cash              2,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Selling equipment with gain</td>
+                        <td>Company sells equipment for $8,000 cash, with a book value of $6,000.</td>
+                        <td><pre>Dr. Cash                  8,000\nCr. Equipment             6,000\nCr. Gain on Sale          2,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Cash sale of services</td>
+                        <td>Company recognizes $6,000 revenue for services performed, paid in cash.</td>
+                        <td><pre>Dr. Cash                  6,000\nCr. Service Revenue       6,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Paying salaries</td>
+                        <td>Company pays $10,000 in cash for salaries incurred this month.</td>
+                        <td><pre>Dr. Salary Expense        10,000\nCr. Cash                  10,000</pre></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Category 4: Neither Cash Position nor Profit -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">4. Transactions Affecting Neither Cash Position nor Profit</h2>
+            <p class="text-gray-600 mb-4">
+                These transactions affect other balance sheet accounts (assets, liabilities, or equity) but do not involve cash or profit.
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction</th>
+                        <th>Description</th>
+                        <th>Journal Entry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Purchasing inventory on credit</td>
+                        <td>Company purchases $20,000 of inventory on credit.</td>
+                        <td><pre>Dr. Inventory             20,000\nCr. Accounts Payable      20,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Purchasing a Treasury Bill</td>
+                        <td>Company purchases a 30-day Treasury Bill for $10,000 cash.</td>
+                        <td><pre>Dr. Cash Equivalents      10,000\nCr. Cash                  10,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Issuing stock for equipment</td>
+                        <td>Company issues $15,000 in stock to acquire equipment.</td>
+                        <td><pre>Dr. Equipment             15,000\nCr. Common Stock          15,000</pre></td>
+                    </tr>
+                    <tr>
+                        <td>Recording a note payable for equipment</td>
+                        <td>Company acquires $30,000 equipment by signing a note payable.</td>
+                        <td><pre>Dr. Equipment             30,000\nCr. Notes Payable         30,000</pre></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</body>
+</html>
