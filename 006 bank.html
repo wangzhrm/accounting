@@ -1,0 +1,175 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Score Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
+        <h1 class="text-2xl font-bold mb-6 text-center">Bank Score Calculator</h1>
+        <div class="space-y-6">
+            <div>
+                <label for="dealReached" class="block text-sm font-medium text-gray-700">Deal Reached with Company</label>
+                <input type="checkbox" id="dealReached" class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+            </div>
+            <div>
+                <label for="loanAmount" class="block text-sm font-medium text-gray-700">Loan Amount ($1,000 - $100,000,000)</label>
+                <input type="range" id="loanAmount" min="1000" max="100000000" value="50000000" step="1000" class="w-full h-2 bg-gray-200 rounded-lg cursor-pointer" oninput="updateLoanAmount(this.value)">
+                <span id="loanAmountValue" class="text-sm text-gray-600">$50,000,000</span>
+            </div>
+            <div>
+                <label for="interestRate" class="block text-sm font-medium text-gray-700">Interest Rate (6% - 20%)</label>
+                <input type="range" id="interestRate" min="6" max="20" value="13" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg cursor-pointer" oninput="updateInterestRate(this.value)">
+                <span id="interestRateValue" class="text-sm text-gray-600">13%</span>
+            </div>
+            <div>
+                <label for="collateralSize" class="block text-sm font-medium text-gray-700">Collateral Size ($1,000,000 - $10,000,000)</label>
+                <input type="range" id="collateralSize" min="1000000" max="10000000" value="5000000" step="1000" class="w-full h-2 bg-gray-200 rounded-lg cursor-pointer" oninput="updateCollateralSize(this.value)">
+                <span id="collateralSizeValue" class="text-sm text-gray-600">$5,000,000</span>
+            </div>
+            <div>
+                <label for="boardSeats" class="block text-sm font-medium text-gray-700">Number of Board Seats (0 - 5)</label>
+                <input type="range" id="boardSeats" min="0" max="5" value="2" step="1" class="w-full h-2 bg-gray-200 rounded-lg cursor-pointer" oninput="updateBoardSeats(this.value)">
+                <span id="boardSeatsValue" class="text-sm text-gray-600">2</span>
+            </div>
+            <div>
+                <label for="reformRadicalness" class="block text-sm font-medium text-gray-700">Reform Radicalness (0% - 100%)</label>
+                <input type="range" id="reformRadicalness" min="0" max="100" value="50" step="1" class="w-full h-2 bg-gray-200 rounded-lg cursor-pointer" oninput="updateReformRadicalness(this.value)">
+                <span id="reformRadicalnessValue" class="text-sm text-gray-600">50%</span>
+            </div>
+            <button id="calculateButton" onclick="calculateScore()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Calculate Score (<span id="timer">15</span>s)</button>
+            <div id="result" class="mt-4 text-center text-lg font-semibold">Bank Score: Not Calculated</div>
+        </div>
+    </div>
+    <script>
+        let timer = 0;
+        const cooldown = 15; // 15 seconds
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function updateLoanAmount(value) {
+            document.getElementById('loanAmountValue').innerText = `$${formatNumber(value)}`;
+        }
+
+        function updateInterestRate(value) {
+            document.getElementById('interestRateValue').innerText = `${value}%`;
+        }
+
+        function updateCollateralSize(value) {
+            document.getElementById('collateralSizeValue').innerText = `$${formatNumber(value)}`;
+        }
+
+        function updateBoardSeats(value) {
+            document.getElementById('boardSeatsValue').innerText = value;
+        }
+
+        function updateReformRadicalness(value) {
+            document.getElementById('reformRadicalnessValue').innerText = `${value}%`;
+        }
+
+        function startCooldown() {
+            const button = document.getElementById('calculateButton');
+            button.disabled = true;
+            timer = cooldown;
+            document.getElementById('timer').innerText = timer;
+            const interval = setInterval(() => {
+                timer--;
+                document.getElementById('timer').innerText = timer;
+                if (timer <= 0) {
+                    button.disabled = false;
+                    document.getElementById('timer').innerText = 'Ready';
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+
+        function calculateScore() {
+            const dealReached = document.getElementById('dealReached').checked;
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
+            const interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
+            const collateralSize = parseFloat(document.getElementById('collateralSize').value) || 0;
+            // Board seats and reform radicalness don't affect bank's score
+            const boardSeats = parseFloat(document.getElementById('boardSeats').value) || 0;
+            const reformRadicalness = parseFloat(document.getElementById('reformRadicalness').value) || 0;
+
+            let score = 0;
+            if (dealReached) {
+                const minLoan = 1000;
+                const maxLoan = 100000000;
+                const minRate = 6;
+                const maxRate = 20;
+                const minCollateral = 1000000;
+                const maxCollateral = 10000000;
+                const weight = 40; // Each term contributes up to 40 points
+
+                // Base score
+                score = 20;
+
+                // Loan amount (lower is better): 0 to 40
+                const loanScore = ((maxLoan - loanAmount) / (maxLoan - minLoan)) * weight;
+                // Interest rate (higher is better): 0 to 40
+                const rateScore = ((interestRate - minRate) / (maxRate - minRate)) * weight;
+                // Collateral size (higher is better): 0 to 40
+                const collateralScore = ((collateralSize - minCollateral) / (maxCollateral - minCollateral)) * weight;
+
+                // Total before adjustment: 20 + [0,120]
+                // Adjust to range [-20, 100]: scale [0,120] to [-40,80] by subtracting 60, then add base 20
+                score += loanScore + rateScore + collateralScore - 60;
+            }
+
+            document.getElementById('result').innerText = `Bank Score: ${score.toFixed(2)}`;
+            startCooldown();
+        }
+
+        // Initialize slider displays
+        updateLoanAmount(document.getElementById('loanAmount').value);
+        updateInterestRate(document.getElementById('interestRate').value);
+        updateCollateralSize(document.getElementById('collateralSize').value);
+        updateBoardSeats(document.getElementById('boardSeats').value);
+        updateReformRadicalness(document.getElementById('reformRadicalness').value);
+    </script>
+</body>
+</html>
