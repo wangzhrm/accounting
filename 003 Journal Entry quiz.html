@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 8: Journal Entries Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .question {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .question h3 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .options li {
+            margin: 8px 0;
+        }
+        .options label {
+            cursor: pointer;
+            display: block;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .options label:hover {
+            background-color: #f0f8ff;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        .feedback {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .explanation {
+            font-style: italic;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+        .submit-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 12px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #219150;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chapter 8: Recording Transactions in Journals – 20 MCQs</h1>
+
+    <!-- Question 1 -->
+    <div class="question">
+        <h3>1. What is the first point of entry for a business transaction into the accounting system?</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q1" value="a"> a) Ledger</label></li>
+            <li><label><input type="radio" name="q1" value="b"> b) Trial Balance</label></li>
+            <li><label><input type="radio" name="q1" value="c"> c) Journal</label></li>
+            <li><label><input type="radio" name="q1" value="d"> d) Source Document</label></li>
+        </ul>
+        <div class="feedback" id="fb1"></div>
+    </div>
+
+    <!-- Question 2 -->
+    <div class="question">
+        <h3>2. Which of the following is a source document?</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q2" value="a"> a) Trial balance</label></li>
+            <li><label><input type="radio" name="q2" value="b"> b) Invoice from a supplier</label></li>
+            <li><label><input type="radio" name="q2" value="c"> c) General ledger</label></li>
+            <li><label><input type="radio" name="q2" value="d"> d) Profit and loss summary</label></li>
+        </ul>
+        <div class="feedback" id="fb2"></div>
+    </div>
+
+    <!-- Question 3 -->
+    <div class="question">
+        <h3>3. In the expanded accounting equation, an increase in Expenses (E) is recorded as:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q3" value="a"> a) Credit</label></li>
+            <li><label><input type="radio" name="q3" value="b"> b) Debit</label></li>
+            <li><label><input type="radio" name="q3" value="c"> c) Neither</label></li>
+            <li><label><input type="radio" name="q3" value="d"> d) Both</label></li>
+        </ul>
+        <div class="feedback" id="fb3"></div>
+    </div>
+
+    <!-- Question 4 -->
+    <div class="question">
+        <h3>4. When cash is received from a customer for services already provided, the journal entry includes:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q4" value="a"> a) Debit Cash, Credit Accounts Receivable</label></li>
+            <li><label><input type="radio" name="q4" value="b"> b) Debit Accounts Receivable, Credit Cash</label></li>
+            <li><label><input type="radio" name="q4" value="c"> c) Debit Cash, Credit Service Revenue</label></li>
+            <li><label><input type="radio" name="q4" value="d"> d) Debit Service Revenue, Credit Cash</label></li>
+        </ul>
+        <div class="feedback" id="fb4"></div>
+    </div>
+
+    <!-- Question 5 -->
+    <div class="question">
+        <h3>5. Torquay Surf School provided $1,000 of lessons on 28 June 2025, not yet paid by 30 June. The adjusting entry on 30 June should:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q5" value="a"> a) Debit Cash $1,000, Credit Service Revenue $1,000</label></li>
+            <li><label><input type="radio" name="q5" value="b"> b) Debit Accounts Receivable $1,000, Credit Service Revenue $1,000</label></li>
+            <li><label><input type="radio" name="q5" value="c"> c) Debit Service Revenue $1,000, Credit Accounts Receivable $1,000</label></li>
+            <li><label><input type="radio" name="q5" value="d"> d) No entry needed until payment</label></li>
+        </ul>
+        <div class="feedback" id="fb5"></div>
+    </div>
+
+    <!-- Question 6 -->
+    <div class="question">
+        <h3>6. Carlos Ltd pays wages in arrears on Friday. Weekly wages are $10,000. 30 June is Thursday. The adjusting entry for accrued wages is:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q6" value="a"> a) Debit Wages Expense $8,000, Credit Wages Payable $8,000</label></li>
+            <li><label><input type="radio" name="q6" value="b"> b) Debit Wages Payable $8,000, Credit Wages Expense $8,000</label></li>
+            <li><label><input type="radio" name="q6" value="c"> c) Debit Wages Expense $10,000, Credit Cash $10,000</label></li>
+            <li><label><input type="radio" name="q6" value="d"> d) No entry – wait until Friday</label></li>
+        </ul>
+        <div class="feedback" id="fb6"></div>
+    </div>
+
+    <!-- Question 7 -->
+    <div class="question">
+        <h3>7. Insurance Co. receives $1,200 on 1 May 2025 for 12 months coverage. Year-end is 30 June. The adjusting entry on 30 June includes:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q7" value="a"> a) Debit Unearned Revenue $200, Credit Insurance Revenue $200</label></li>
+            <li><label><input type="radio" name="q7" value="b"> b) Debit Insurance Revenue $200, Credit Unearned Revenue $200</label></li>
+            <li><label><input type="radio" name="q7" value="c"> c) Debit Cash $200, Credit Insurance Revenue $200</label></li>
+            <li><label><input type="radio" name="q7" value="d"> d) No entry – all revenue recognised on receipt</label></li>
+        </ul>
+        <div class="feedback" id="fb7"></div>
+    </div>
+
+    <!-- Question 8 -->
+    <div class="question">
+        <h3>8. Hobart Ltd paid $120,000 rent in advance on 1 Jan 2025. Year-end 30 June. The adjusting entry on 30 June is:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q8" value="a"> a) Debit Rent Expense $60,000, Credit Prepaid Rent $60,000</label></li>
+            <li><label><input type="radio" name="q8" value="b"> b) Debit Prepaid Rent $60,000, Credit Rent Expense $60,000</label></li>
+            <li><label><input type="radio" name="q8" value="c"> c) Debit Cash $60,000, Credit Rent Expense $60,000</label></li>
+            <li><label><input type="radio" name="q8" value="d"> d) No entry – expense when paid</label></li>
+        </ul>
+        <div class="feedback" id="fb8"></div>
+    </div>
+
+    <!-- Question 9 -->
+    <div class="question">
+        <h3>9. Depreciation expense is recorded with:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q9" value="a"> a) Debit Depreciation Expense, Credit Accumulated Depreciation</label></li>
+            <li><label><input type="radio" name="q9" value="b"> b) Debit Accumulated Depreciation, Credit Depreciation Expense</label></li>
+            <li><label><input type="radio" name="q9" value="c"> c) Debit Asset, Credit Depreciation Expense</label></li>
+            <li><label><input type="radio" name="q9" value="d"> d) Debit Cash, Credit Depreciation Expense</label></li>
+        </ul>
+        <div class="feedback" id="fb9"></div>
+    </div>
+
+    <!-- Question 10 -->
+    <div class="question">
+        <h3>10. When posting from journal to ledger, a debit in the journal goes to:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q10" value="a"> a) Credit column of the ledger</label></li>
+            <li><label><input type="radio" name="q10" value="b"> b) Debit column of the ledger</label></li>
+            <li><label><input type="radio" name="q10" value="c"> c) Either, depending on account type</label></li>
+            <li><label><input type="radio" name="q10" value="d"> d) Only to asset accounts</label></li>
+        </ul>
+        <div class="feedback" id="fb10"></div>
+    </div>
+
+    <!-- Question 11 -->
+    <div class="question">
+        <h3>11. The purpose of a trial balance is to:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q11" value="a"> a) Prove debits equal credits in the ledger</label></li>
+            <li><label><input type="radio" name="q11" value="b"> b) Finalise the financial statements</label></li>
+            <li><label><input type="radio" name="q11" value="c"> c) Record daily transactions</label></li>
+            <li><label><input type="radio" name="q11" value="d"> d) Replace the need for journals</label></li>
+        </ul>
+        <div class="feedback" id="fb11"></div>
+    </div>
+
+    <!-- Question 12 -->
+    <div class="question">
+        <h3>12. Claire paid a $100 deposit on 15 Jan, picked up the phone 5 Feb, paid balance 2 March. Revenue is recognised:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q12" value="a"> a) 15 January</label></li>
+            <li><label><input type="radio" name="q12" value="b"> b) 5 February</label></li>
+            <li><label><input type="radio" name="q12" value="c"> c) 2 March</label></li>
+            <li><label><input type="radio" name="q12" value="d"> d) Evenly over all dates</label></li>
+        </ul>
+        <div class="feedback" id="fb12"></div>
+    </div>
+
+    <!-- Question 13 -->
+    <div class="question">
+        <h3>13. A credit entry increases which side of the accounting equation?</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q13" value="a"> a) Left side (A + E + D)</label></li>
+            <li><label><input type="radio" name="q13" value="b"> b) Right side (L + I + C)</label></li>
+            <li><label><input type="radio" name="q13" value="c"> c) Both sides equally</label></li>
+            <li><label><input type="radio" name="q13" value="d"> d) No effect</label></li>
+        </ul>
+        <div class="feedback" id="fb13"></div>
+    </div>
+
+    <!-- Question 14 -->
+    <div class="question">
+        <h3>14. Closing entries are made to:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q14" value="a"> a) Zero out revenue and expense accounts</label></li>
+            <li><label><input type="radio" name="q14" value="b"> b) Transfer asset balances to next period</label></li>
+            <li><label><input type="radio" name="q14" value="c"> c) Record daily sales</label></li>
+            <li><label><input type="radio" name="q14" value="d"> d) Adjust for depreciation</label></li>
+        </ul>
+        <div class="feedback" id="fb14"></div>
+    </div>
+
+    <!-- Question 15 -->
+    <div class="question">
+        <h3>15. When services are provided on credit, the initial journal entry is:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q15" value="a"> a) Debit Cash, Credit Revenue</label></li>
+            <li><label><input type="radio" name="q15" value="b"> b) Debit Accounts Receivable, Credit Revenue</label></li>
+            <li><label><input type="radio" name="q15" value="c"> c) Debit Revenue, Credit Accounts Receivable</label></li>
+            <li><label><input type="radio" name="q15" value="d"> d) No entry until cash received</label></li>
+        </ul>
+        <div class="feedback" id="fb15"></div>
+    </div>
+
+    <!-- Question 16 -->
+    <div class="question">
+        <h3>16. The narration in a journal entry:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q16" value="a"> a) Replaces the need for debits and credits</label></li>
+            <li><label><input type="radio" name="q16" value="b"> b) Provides a brief description of the transaction</label></li>
+            <li><label><input type="radio" name="q16" value="c"> c) Is only used in computer systems</label></li>
+            <li><label><input type="radio" name="q16" value="d"> d) Lists all ledger balances</label></li>
+        </ul>
+        <div class="feedback" id="fb16"></div>
+    </div>
+
+    <!-- Question 17 -->
+    <div class="question">
+        <h3>17. Prepaid rent is initially recorded as:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q17" value="a"> a) Expense</label></li>
+            <li><label><input type="radio" name="q17" value="b"> b) Liability</label></li>
+            <li><label><input type="radio" name="q17" value="c"> c) Asset</label></li>
+            <li><label><input type="radio" name="q17" value="d"> d) Revenue</label></li>
+        </ul>
+        <div class="feedback" id="fb17"></div>
+    </div>
+
+    <!-- Question 18 -->
+    <div class="question">
+        <h3>18. Which of the following requires an adjusting entry at period end?</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q18" value="a"> a) Cash sale of inventory</label></li>
+            <li><label><input type="radio" name="q18" value="b"> b) Payment of last month’s utility bill</label></li>
+            <li><label><input type="radio" name="q18" value="c"> c) Wages earned but not paid by employees</label></li>
+            <li><label><input type="radio" name="q18" value="d"> d) Purchase of equipment for cash</label></li>
+        </ul>
+        <div class="feedback" id="fb18"></div>
+    </div>
+
+    <!-- Question 19 -->
+    <div class="question">
+        <h3>19. The chart of accounts lists:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q19" value="a"> a) All possible journal entries</label></li>
+            <li><label><input type="radio" name="q19" value="b"> b) All ledger accounts in use</label></li>
+            <li><label><input type="radio" name="q19" value="c"> c) Only income and expense accounts</label></li>
+            <li><label><input type="radio" name="q19" value="d"> d) Trial balance totals</label></li>
+        </ul>
+        <div class="feedback" id="fb19"></div>
+    </div>
+
+    <!-- Question 20 -->
+    <div class="question">
+        <h3>20. After posting all entries, Cash at Bank shows total debits $15,000 and credits $5,300. The balance is:</h3>
+        <ul class="options">
+            <li><label><input type="radio" name="q20" value="a"> a) $15,000 debit</label></li>
+            <li><label><input type="radio" name="q20" value="b"> b) $5,300 credit</label></li>
+            <li><label><input type="radio" name="q20" value="c"> c) $9,700 debit</label></li>
+            <li><label><input type="radio" name="q20" value="d"> d) $9,700 credit</label></li>
+        </ul>
+        <div class="feedback" id="fb20"></div>
+    </div>
+
+    <button class="submit-btn" onclick="checkAnswers()">Check Answers</button>
+
+    <script>
+        const correctAnswers = {
+            q1: 'c', q2: 'b', q3: 'b', q4: 'a', q5: 'b',
+            q6: 'a', q7: 'a', q8: 'a', q9: 'a', q10: 'b',
+            q11: 'a', q12: 'b', q13: 'b', q14: 'a', q15: 'b',
+            q16: 'b', q17: 'c', q18: 'c', q19: 'b', q20: 'c'
+        };
+
+        const explanations = {
+            q1: 'The journal is the book of original entry where transactions are first recorded.',
+            q2: 'An invoice from a supplier is a source document providing evidence of a purchase.',
+            q3: 'Expenses are on the left side of the expanded equation; increases are debits.',
+            q4: 'Cash receipt reduces receivable; no new revenue if already earned.',
+            q5: 'Income earned but not received → Debit Receivable, Credit Revenue.',
+            q6: '4 days accrued (Mon–Thu) = 4/5 × $10,000 = $8,000.',
+            q7: '2 months earned (May–Jun) = 2/12 × $1,200 = $200 → reduce liability, recognise revenue.',
+            q8: '6 months used (Jan–Jun) = 6/12 × $120,000 = $60,000 → expense the used portion.',
+            q9: 'Depreciation expense increases expense (debit) and accumulated depreciation (credit).',
+            q10: 'Debits in journal → debit column in ledger; credits → credit column.',
+            q11: 'Trial balance tests arithmetic accuracy: total debits = total credits.',
+            q12: 'Revenue recognised when control transfers – when phone is delivered (5 Feb).',
+            q13: 'Credits increase right side: Liabilities, Income, Capital.',
+            q14: 'Closing entries reset temporary accounts (revenue, expenses) to zero.',
+            q15: 'Services on credit → increase receivable and revenue, no cash yet.',
+            q16: 'Narration explains the purpose of the journal entry.',
+            q17: 'Payment in advance for future benefit → asset (prepaid rent).',
+            q18: 'Accrued wages require adjusting entry to recognise expense and liability.',
+            q19: 'Chart of accounts is a list of all ledger accounts used by the entity.',
+            q20: 'Debit balance = $15,000 – $5,300 = $9,700 (as in lecture example).'
+        };
+
+        function checkAnswers() {
+            let allAnswered = true;
+            for (let i = 1; i <= 20; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const fb = document.getElementById(`fb${i}`);
+                if (!selected) {
+                    allAnswered = false;
+                    continue;
+                }
+                const userAnswer = selected.value;
+                const isCorrect = userAnswer === correctAnswers[`q${i}`];
+                fb.style.display = 'block';
+                fb.className = 'feedback ' + (isCorrect ? 'correct' : 'incorrect');
+                if (isCorrect) {
+                    fb.innerHTML = 'Correct! <span class="explanation">' + explanations[`q${i}`] + '</span>';
+                } else {
+                    const correctLetter = correctAnswers[`q${i}`];
+                    const correctText = document.querySelector(`input[name="q${i}"][value="${correctLetter}"]`).parentElement.textContent.trim();
+                    fb.innerHTML = `Incorrect. The correct answer is: <strong>${correctText}</strong><br><span class="explanation">${explanations[`q${i}`]}</span>`;
+                }
+            }
+            if (!allAnswered) {
+                alert('Please answer all questions before checking.');
+            }
+        }
+    </script>
+</body>
+</html>
