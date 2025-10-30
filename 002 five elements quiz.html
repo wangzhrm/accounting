@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Elements Classification Quiz</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            padding: 20px;
+            background-color: #f4f7fa;
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+        .quiz-container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+        .question {
+            margin-bottom: 28px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 22px;
+        }
+        .question h3 {
+            margin: 0 0 12px 0;
+            color: #2980b9;
+            font-size: 1.1em;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .options label {
+            display: block;
+            padding: 11px 16px;
+            margin: 7px 0;
+            background: #ecf0f1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .options label:hover {
+            background: #d5dbdb;
+            transform: translateY(-1px);
+        }
+        .options input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.1);
+        }
+        .feedback {
+            display: none;
+            margin-top: 14px;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        .correct {
+            background-color: #d5f5e3;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        .incorrect {
+            background-color: #fadbd8;
+            color: #c0392b;
+            border: 1px solid #c0392b;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .reset-btn {
+            background: #95a5a6;
+            margin-top: 12px;
+        }
+        .reset-btn:hover {
+            background: #7f8c8d;
+        }
+        .score {
+            text-align: center;
+            font-size: 1.3em;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #27ae60;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Accounting Elements Classification Quiz</h1>
+        <p class="subtitle">Classify each item into one of the five elements of the accounting equation — or determine if it won’t be recorded.</p>
+
+        <form id="quizForm">
+
+            <!-- Question 1 -->
+            <div class="question">
+                <h3>1. Cash</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q1" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q1" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q1" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q1" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q1" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q1" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb1"></div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question">
+                <h3>2. Bank overdraft</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q2" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q2" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q2" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q2" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q2" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q2" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb2"></div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question">
+                <h3>3. Building</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q3" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q3" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q3" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q3" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q3" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q3" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb3"></div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question">
+                <h3>4. Debtors (accounts receivable)</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q4" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q4" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q4" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q4" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q4" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q4" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb4"></div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="question">
+                <h3>5. Shares held in another organisation</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q5" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q5" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q5" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q5" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q5" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q5" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb5"></div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question">
+                <h3>6. River used to transport organisation’s products</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q6" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q6" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q6" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q6" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q6" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q6" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb6"></div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="question">
+                <h3>7. Employees</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q7" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q7" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q7" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q7" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q7" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q7" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb7"></div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question">
+                <h3>8. Loan from bank</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q8" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q8" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q8" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q8" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q8" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q8" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb8"></div>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="question">
+                <h3>9. Interest paid to the bank on a bank loan</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q9" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q9" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q9" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q9" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q9" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q9" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb9"></div>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="question">
+                <h3>10. Rent payable</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q10" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q10" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q10" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q10" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q10" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q10" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb10"></div>
+            </div>
+
+            <!-- Question 11 -->
+            <div class="question">
+                <h3>11. Wages payable</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q11" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q11" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q11" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q11" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q11" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q11" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb11"></div>
+            </div>
+
+            <!-- Question 12 -->
+            <div class="question">
+                <h3>12. Payment of wages</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q12" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q12" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q12" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q12" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q12" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q12" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb12"></div>
+            </div>
+
+            <!-- Question 13 -->
+            <div class="question">
+                <h3>13. Legal obligation to clean up contaminated land</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q13" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q13" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q13" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q13" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q13" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q13" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb13"></div>
+            </div>
+
+            <!-- Question 14 -->
+            <div class="question">
+                <h3>14. Contributions by the owner</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q14" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q14" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q14" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q14" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q14" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q14" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb14"></div>
+            </div>
+
+            <!-- Question 15 -->
+            <div class="question">
+                <h3>15. Sales</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q15" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q15" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q15" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q15" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q15" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q15" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb15"></div>
+            </div>
+
+            <!-- Question 16 -->
+            <div class="question">
+                <h3>16. Distributions/Drawings/Dividends</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q16" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q16" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q16" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q16" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q16" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q16" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb16"></div>
+            </div>
+
+            <!-- Question 17 -->
+            <div class="question">
+                <h3>17. Theft of inventory</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q17" value="a"> a) Asset</label></li>
+                    <li><label><input type="radio" name="q17" value="b"> b) Liability</label></li>
+                    <li><label><input type="radio" name="q17" value="c"> c) Equity</label></li>
+                    <li><label><input type="radio" name="q17" value="d"> d) Income</label></li>
+                    <li><label><input type="radio" name="q17" value="e"> e) Expense</label></li>
+                    <li><label><input type="radio" name="q17" value="f"> f) Won’t be recorded in financial reports</label></li>
+                </ul>
+                <div class="feedback" id="fb17"></div>
+            </div>
+
+            <button type="button" onclick="checkAnswers()">Submit & Check Answers</button>
+            <button type="button" class="reset-btn" onclick="resetQuiz()">Reset Quiz</button>
+        </form>
+
+        <div class="score" id="scoreDisplay"></div>
+    </div>
+
+    <script>
+        // Correct answers (a=Asset, b=Liability, c=Equity, d=Income, e=Expense, f=Not recorded)
+        const correctAnswers = {
+            q1: 'a',  // Cash → Asset
+            q2: 'b',  // Bank overdraft → Liability
+            q3: 'a',  // Building → Asset
+            q4: 'a',  // Debtors → Asset
+            q5: 'a',  // Shares held → Asset
+            q6: 'f',  // River → Not recorded
+            q7: 'f',  // Employees → Not recorded
+            q8: 'b',  // Loan from bank → Liability
+            q9: 'e',  // Interest paid → Expense
+            q10: 'b', // Rent payable → Liability
+            q11: 'b', // Wages payable → Liability
+            q12: 'e', // Payment of wages → Expense
+            q13: 'b', // Legal cleanup obligation → Liability
+            q14: 'c', // Owner contributions → Equity
+            q15: 'd', // Sales → Income
+            q16: 'c', // Distributions → Equity (reduction)
+            q17: 'e'  // Theft of inventory → Expense
+        };
+
+        const explanations = {
+            q1: 'Correct: Cash is a current asset — it represents economic resources controlled by the entity.',
+            q2: 'Correct: Bank overdraft is a liability — the company owes money to the bank.',
+            q3: 'Correct: Building is a non-current asset (property, plant, and equipment).',
+            q4: 'Correct: Debtors (accounts receivable) are assets — amounts owed to the business.',
+            q5: 'Correct: Shares held in another company are financial assets (investments).',
+            q6: 'Correct: A public river is not controlled by the entity — it is not an asset and won’t be recorded.',
+            q7: 'Correct: Employees are not owned or controlled as assets — human resources are not recorded in financial statements.',
+            q8: 'Correct: Loan from bank is a liability — a present obligation to repay.',
+            q9: 'Correct
