@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Principles Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .question {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        .question h3 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .options label {
+            display: block;
+            padding: 10px 15px;
+            margin: 8px 0;
+            background: #ecf0f1;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .options label:hover {
+            background: #d5dbdb;
+        }
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+        .feedback {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .correct {
+            background-color: #d5f5e3;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        .incorrect {
+            background-color: #fadbd8;
+            color: #c0392b;
+            border: 1px solid #c0392b;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .reset-btn {
+            background: #7f8c8d;
+            margin-top: 10px;
+        }
+        .reset-btn:hover {
+            background: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Key Financial Accounting Principles Quiz</h1>
+        <form id="quizForm">
+
+            <!-- Question 1 -->
+            <div class="question">
+                <h3>1. A sole proprietor uses the business bank account to pay for a family vacation. Which principle is violated?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q1" value="a"> a) Going concern assumption</label></li>
+                    <li><label><input type="radio" name="q1" value="b"> b) Entity principle</label></li>
+                    <li><label><input type="radio" name="q1" value="c"> c) Monetary unit convention</label></li>
+                    <li><label><input type="radio" name="q1" value="d"> d) Accrual basis accounting</label></li>
+                </ul>
+                <div class="feedback" id="fb1"></div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question">
+                <h3>2. A company reports its financial performance over a 3-year period instead of annually. Does this violate any principle?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q2" value="a"> a) Yes – Accounting period convention</label></li>
+                    <li><label><input type="radio" name="q2" value="b"> b) Yes – Going concern assumption</label></li>
+                    <li><label><input type="radio" name="q2" value="c"> c) No – It is acceptable</label></li>
+                    <li><label><input type="radio" name="q2" value="d"> d) Yes – Entity principle</label></li>
+                </ul>
+                <div class="feedback" id="fb2"></div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="question">
+                <h3>3. A factory pollutes a river but does not record any expense because no fine was issued. Which principle allows this omission?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q3" value="a"> a) Entity principle</label></li>
+                    <li><label><input type="radio" name="q3" value="b"> b) Monetary unit convention</label></li>
+                    <li><label><input type="radio" name="q3" value="c"> c) Accrual basis</label></li>
+                    <li><label><input type="radio" name="q3" value="d"> d) Going concern</label></li>
+                </ul>
+                <div class="feedback" id="fb3"></div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="question">
+                <h3>4. A company in severe financial distress values inventory at market value instead of cost, expecting liquidation. Which assumption is not being applied?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q4" value="a"> a) Accrual basis</label></li>
+                    <li><label><input type="radio" name="q4" value="b"> b) Going concern assumption</label></li>
+                    <li><label><input type="radio" name="q4" value="c"> c) Entity principle</label></li>
+                    <li><label><input type="radio" name="q4" value="d"> d) Accounting period convention</label></li>
+                </ul>
+                <div class="feedback" id="fb4"></div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="question">
+                <h3>5. Revenue from a 12-month maintenance contract is recorded only when cash is received monthly. Is this correct under accrual accounting?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q5" value="a"> a) Yes – Cash basis is acceptable</label></li>
+                    <li><label><input type="radio" name="q5" value="b"> b) No – Violates accrual basis</label></li>
+                    <li><label><input type="radio" name="q5" value="c"> c) Yes – Matches cash flow</label></li>
+                    <li><label><input type="radio" name="q5" value="d"> d) No – Violates going concern</label></li>
+                </ul>
+                <div class="feedback" id="fb5"></div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="question">
+                <h3>6. A manager delays equipment maintenance to boost current year profit. Which convention may lead to this behavior?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q6" value="a"> a) Monetary unit convention</label></li>
+                    <li><label><input type="radio" name="q6" value="b"> b) Entity principle</label></li>
+                    <li><label><input type="radio" name="q6" value="c"> c) Accounting period convention</label></li>
+                    <li><label><input type="radio" name="q6" value="d"> d) Going concern assumption</label></li>
+                </ul>
+                <div class="feedback" id="fb6"></div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="question">
+                <h3>7. The owner takes inventory home for personal use but does not record it. Which principle is violated?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q7" value="a"> a) Going concern</label></li>
+                    <li><label><input type="radio" name="q7" value="b"> b) Entity principle</label></li>
+                    <li><label><input type="radio" name="q7" value="c"> c) Accrual basis</label></li>
+                    <li><label><input type="radio" name="q7" value="d"> d) Monetary unit</label></li>
+                </ul>
+                <div class="feedback" id="fb7"></div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="question">
+                <h3>8. A company recognizes salary expense when employees work, even though payment is in the next period. This follows:</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q8" value="a"> a) Cash basis</label></li>
+                    <li><label><input type="radio" name="q8" value="b"> b) Accrual basis accounting</label></li>
+                    <li><label><input type="radio" name="q8" value="c"> c) Going concern</label></li>
+                    <li><label><input type="radio" name="q8" value="d"> d) Entity principle</label></li>
+                </ul>
+                <div class="feedback" id="fb8"></div>
+            </div>
+
+            <!-- Question 9 -->
+            <div class="question">
+                <h3>9. A startup records employee morale improvements as an asset. Is this acceptable?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q9" value="a"> a) Yes – It has future benefit</label></li>
+                    <li><label><input type="radio" name="q9" value="b"> b) No – Violates monetary unit convention</label></li>
+                    <li><label><input type="radio" name="q9" value="c"> c) Yes – If measurable</label></li>
+                    <li><label><input type="radio" name="q9" value="d"> d) No – Violates going concern</label></li>
+                </ul>
+                <div class="feedback" id="fb9"></div>
+            </div>
+
+            <!-- Question 10 -->
+            <div class="question">
+                <h3>10. A company prepares quarterly reports. This satisfies which convention?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q10" value="a"> a) Going concern</label></li>
+                    <li><label><input type="radio" name="q10" value="b"> b) Entity principle</label></li>
+                    <li><label><input type="radio" name="q10" value="c"> c) Accounting period convention</label></li>
+                    <li><label><input type="radio" name="q10" value="d"> d) Monetary unit</label></li>
+                </ul>
+                <div class="feedback" id="fb10"></div>
+            </div>
+
+            <!-- Question 11 -->
+            <div class="question">
+                <h3>11. A firm facing bankruptcy still values assets at historical cost. Is the going concern assumption applied?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q11" value="a"> a) Yes</label></li>
+                    <li><label><input type="radio" name="q11" value="b"> b) No – Should use liquidation values</label></li>
+                    <li><label><input type="radio" name="q11" value="c"> c) Yes – If management believes recovery</label></li>
+                    <li><label><input type="radio" name="q11" value="d"> d) No – Violates accrual</label></li>
+                </ul>
+                <div class="feedback" id="fb11"></div>
+            </div>
+
+            <!-- Question 12 -->
+            <div class="question">
+                <h3>12. A business ignores damage to a supplier’s reputation caused by late payments. This is consistent with:</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q12" value="a"> a) Entity principle</label></li>
+                    <li><label><input type="radio" name="q12" value="b"> b) Going concern</label></li>
+                    <li><label><input type="radio" name="q12" value="c"> c) Accrual basis</label></li>
+                    <li><label><input type="radio" name="q12" value="d"> d) Accounting period</label></li>
+                </ul>
+                <div class="feedback" id="fb12"></div>
+            </div>
+
+            <!-- Question 13 -->
+            <div class="question">
+                <h3>13. A company records a sale when the customer signs the contract, before delivery. This follows:</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q13" value="a"> a) Cash basis</label></li>
+                    <li><label><input type="radio" name="q13" value="b"> b) Accrual basis (if revenue earned)</label></li>
+                    <li><label><input type="radio" name="q13" value="c"> c) Going concern</label></li>
+                    <li><label><input type="radio" name="q13" value="d"> d) Entity principle</label></li>
+                </ul>
+                <div class="feedback" id="fb13"></div>
+            </div>
+
+            <!-- Question 14 -->
+            <div class="question">
+                <h3>14. A CEO uses company funds to renovate his private yacht. Which principle is violated?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q14" value="a"> a) Monetary unit</label></li>
+                    <li><label><input type="radio" name="q14" value="b"> b) Entity principle</label></li>
+                    <li><label><input type="radio" name="q14" value="c"> c) Accrual basis</label></li>
+                    <li><label><input type="radio" name="q14" value="d"> d) Going concern</label></li>
+                </ul>
+                <div class="feedback" id="fb14"></div>
+            </div>
+
+            <!-- Question 15 -->
+            <div class="question">
+                <h3>15. A nonprofit records volunteer time as revenue and expense at estimated wage rates. Is this acceptable?</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q15" value="a"> a) Yes – If disclosed</label></li>
+                    <li><label><input type="radio" name="q15" value="b"> b) No – Violates monetary unit convention</label></li>
+                    <li><label><input type="radio" name="q15" value="c"> c) Yes – Common in nonprofits</label></li>
+                    <li><label><input type="radio" name="q15" value="d"> d) No – Violates entity principle</label></li>
+                </ul>
+                <div class="feedback" id="fb15"></div>
+            </div>
+
+            <!-- Question 16 -->
+            <div class="question">
+                <h3>16. A company cuts R&D spending to meet annual profit targets. This may be a dysfunctional effect of:</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q16" value="a"> a) Going concern</label></li>
+                    <li><label><input type="radio" name="q16" value="b"> b) Accounting period convention</label></li>
+                    <li><label><input type="radio" name="q16" value="c"> c) Entity principle</label></li>
+                    <li><label><input type="radio" name="q16" value="d"> d) Accrual basis</label></li>
+                </ul>
+                <div class="feedback" id="fb16"></div>
+            </div>
+
+            <!-- Question 17 -->
+            <div class="question">
+                <h3>17. A business expects to operate for 50 more years. It values long-term assets at cost less depreciation. This assumes:</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q17" value="a"> a) Going concern assumption</label></li>
+                    <li><label><input type="radio" name="q17" value="b"> b) Monetary unit</label></li>
+                    <li><label><input type="radio" name="q17" value="c"> c) Accrual basis</label></li>
+                    <li><label><input type="radio" name="q17" value="d"> d) Entity principle</label></li>
+                </ul>
+                <div class="feedback" id="fb17"></div>
+            </div>
+
+            <!-- Question 18 -->
+            <div class="question">
+                <h3>18. A firm records carbon emissions as a note only, not in financial statements. This is due to:</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q18" value="a"> a) Entity principle</label></li>
+                    <li><label><input type="radio" name="q18" value="b"> b) Monetary unit convention</label></li>
+                    <li><label><input type="radio" name="q18" value="c"> c) Going concern</label></li>
+                    <li><label><input type="radio" name="q18" value="d"> d) Accrual basis</label></li>
+                </ul>
+                <div class="feedback" id="fb18"></div>
+            </div>
+
+            <!-- Question 19 -->
+            <div class="question">
+                <h3>19. A company records rent expense monthly as it accrues, though paid annually in advance. This follows:</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q19" value="a"> a) Cash basis</label></li>
+                    <li><label><input type="radio" name="q19" value="b"> b) Accrual basis accounting</label></li>
+                    <li><label><input type="radio" name="q19" value="c"> c) Going concern</label></li>
+                    <li><label><input type="radio" name="q19" value="d"> d) Entity principle</label></li>
+                </ul>
+                <div class="feedback" id="fb19"></div>
+            </div>
+
+            <!-- Question 20 -->
+            <div class="question">
+                <h3>20. A partner in a partnership records personal loan repayments in the business books. This violates:</h3>
+                <ul class="options">
+                    <li><label><input type="radio" name="q20" value="a"> a) Going concern</label></li>
+                    <li><label><input type="radio" name="q20" value="b"> b) Entity principle</label></li>
+                    <li><label><input type="radio" name="q20" value="c"> c) Monetary unit</label></li>
+                    <li><label><input type="radio" name="q20" value="d"> d) Accounting period</label></li>
+                </ul>
+                <div class="feedback" id="fb20"></div>
+            </div>
+
+            <button type="button" onclick="checkAnswers()">Submit Quiz</button>
+            <button type="button" class="reset-btn" onclick="resetQuiz()">Reset Quiz</button>
+        </form>
+    </div>
+
+    <script>
+        const correctAnswers = {
+            q1: 'b', q2: 'c', q3: 'b', q4: 'b', q5: 'b',
+            q6: 'c', q7: 'b', q8: 'b', q9: 'b', q10: 'c',
+            q11: 'b', q12: 'a', q13: 'b', q14: 'b', q15: 'b',
+            q16: 'b', q17: 'a', q18: 'b', q19: 'b', q20: 'b'
+        };
+
+        const explanations = {
+            q1: 'Correct: Entity principle. Personal transactions of owners must be kept separate from business transactions.',
+            q2: 'Correct: No violation. The accounting period convention allows reporting over any defined period (e.g., annual, quarterly), not strictly 12 months.',
+            q3: 'Correct: Monetary unit convention. Only events with measurable monetary impact are recorded; unquantified environmental damage is omitted.',
+            q4: 'Correct: Going concern assumption. When liquidation is likely, assets should be valued at realizable amounts, not historical cost.',
+            q5: 'Correct: No – Violates accrual basis. Revenue should be recognized when earned (over the contract period), not when cash is received.',
+            q6: 'Correct: Accounting period convention. Short-term focus on periodic profits can lead to sacrificing long-term health.',
+            q7: 'Correct: Entity principle. Removing assets for personal use without recording violates separation of owner and business.',
+            q8: 'Correct: Accrual basis accounting. Expenses are recognized when incurred, not when paid.',
+            q9: 'Correct: No – Violates monetary unit convention. Non-monetary benefits like morale cannot be reliably measured and recorded.',
+            q10: 'Correct: Accounting period convention. Dividing operations into regular intervals (like quarters) satisfies this convention.',
+            q11: 'Correct: No – Should use liquidation values. Going concern is inappropriate when bankruptcy is imminent.',
+            q12: 'Correct: Entity principle. Only impacts on the reporting entity’s resources/obligations are recognized.',
+            q13: 'Correct: Accrual basis (if revenue earned). Revenue is recognized when earned, not necessarily when cash is received or goods delivered (depends on revenue recognition criteria).',
+            q14: 'Correct: Entity principle. Using business funds for personal benefit breaches the separation of entity and owner.',
+            q15: 'Correct: No – Violates monetary unit convention. Volunteer time has no objective monetary exchange and is not recorded in financial statements.',
+            q16: 'Correct: Accounting period convention. Pressure to meet short-term profit goals can harm long-term strategy.',
+            q17: 'Correct: Going concern assumption. Long-term depreciation assumes the business will continue operating.',
+            q18: 'Correct: Monetary unit convention. Emissions without monetary cost are disclosed in notes, not financial statements.',
+            q19: 'Correct: Accrual basis accounting. Prepaid rent is allocated over the period to which it relates.',
+            q20: 'Correct: Entity principle. Personal transactions must not be recorded in the business’s financial records.'
+        };
+
+        function checkAnswers() {
+            let allAnswered = true;
+            for (let i = 1; i <= 20; i++) {
+                const q = 'q' + i;
+                const selected = document.querySelector(`input[name="${q}"]:checked`);
+                const fb = document.getElementById('fb' + i);
+                fb.style.display = 'block';
+                if (!selected) {
+                    allAnswered = false;
+                    fb.textContent = 'Please select an answer.';
+                    fb.className = 'feedback incorrect';
+                    continue;
+                }
+                const userAnswer = selected.value;
+                if (userAnswer === correctAnswers[q]) {
+                    fb.textContent = explanations[q];
+                    fb.className = 'feedback correct';
+                } else {
+                    fb.textContent = 'Incorrect. ' + explanations[q];
+                    fb.className = 'feedback incorrect';
+                }
+            }
+            if (!allAnswered) {
+                alert('Please answer all questions before submitting.');
+            }
+        }
+
+        function resetQuiz() {
+            document.getElementById('quizForm').reset();
+            document.querySelectorAll('.feedback').forEach(fb => {
+                fb.style.display = 'none';
+                fb.className = 'feedback';
+            });
+        }
+    </script>
+</body>
+</html>
