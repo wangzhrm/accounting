@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Qualitative Characteristics Quiz</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background: #f9f9f9; }
+        h1 { text-align: center; color: #333; }
+        .question { margin-bottom: 30px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .question h3 { margin-top: 0; color: #2c3e50; }
+        label { display: block; margin: 8px 0; cursor: pointer; }
+        input[type="radio"] { margin-right: 8px; }
+        button { display: block; margin: 30px auto; padding: 12px 24px; background: #3498db; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        button:hover { background: #2980b9; }
+        #results { margin-top: 30px; padding: 20px; background: #fff; border-radius: 8px; display: none; }
+        .correct { color: green; font-weight: bold; }
+        .incorrect { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Accounting Information Quality Quiz</h1>
+    <form id="quizForm">
+        
+        <!-- Question 1 -->
+        <div class="question">
+            <h3>1. What is accounting primarily defined as?</h3>
+            <label><input type="radio" name="q1" value="a"> a) Recording daily transactions only</label>
+            <label><input type="radio" name="q1" value="b"> b) Collecting, summarising, analysing and communicating information for decision-making</label>
+            <label><input type="radio" name="q1" value="c"> c) Preparing tax returns</label>
+            <label><input type="radio" name="q1" value="d"> d) Auditing financial statements</label>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="question">
+            <h3>2. Which of the following are the two fundamental qualitative characteristics of useful information?</h3>
+            <label><input type="radio" name="q2" value="a"> a) Comparability and timeliness</label>
+            <label><input type="radio" name="q2" value="b"> b) Relevance and reliability</label>
+            <label><input type="radio" name="q2" value="c"> c) Verifiability and understandability</label>
+            <label><input type="radio" name="q2" value="d"> d) Completeness and neutrality</label>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="question">
+            <h3>3. Information is considered relevant if it:</h3>
+            <label><input type="radio" name="q3" value="a"> a) Is free from error</label>
+            <label><input type="radio" name="q3" value="b"> b) Can change the decisions of users</label>
+            <label><input type="radio" name="q3" value="c"> c) Is comparable across years</label>
+            <label><input type="radio" name="q3" value="d"> d) Is verified by multiple people</label>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="question">
+            <h3>4. Determining what information is relevant depends on:</h3>
+            <label><input type="radio" name="q4" value="a"> a) Government regulations</label>
+            <label><input type="radio" name="q4" value="b"> b) Professional judgement</label>
+            <label><input type="radio" name="q4" value="c"> c) Company size</label>
+            <label><input type="radio" name="q4" value="d"> d) Industry standards only</label>
+        </div>
+
+        <!-- Question 5 -->
+        <div class="question">
+            <h3>5. If information is relevant, it will:</h3>
+            <label><input type="radio" name="q5" value="a"> a) Always increase profits</label>
+            <label><input type="radio" name="q5" value="b"> b) Be able to affect the financial accounts of the company</label>
+            <label><input type="radio" name="q5" value="c"> c) Be identical across all companies</label>
+            <label><input type="radio" name="q5" value="d"> d) Be released annually</label>
+        </div>
+
+        <!-- Question 6 -->
+        <div class="question">
+            <h3>6. Reliability is also known as:</h3>
+            <label><input type="radio" name="q6" value="a"> a) Faithful representation</label>
+            <label><input type="radio" name="q6" value="b"> b) Predictive value</label>
+            <label><input type="radio" name="q6" value="c"> c) Confirmatory value</label>
+            <label><input type="radio" name="q6" value="d"> d) Materiality</label>
+        </div>
+
+        <!-- Question 7 -->
+        <div class="question">
+            <h3>7. For information to be reliable, it must be free from:</h3>
+            <label><input type="radio" name="q7" value="a"> a) Error, incomplete, and biased</label>
+            <label><input type="radio" name="q7" value="b"> b) Error, complete, and neutral</label>
+            <label><input type="radio" name="q7" value="c"> c) Error, complete, and balanced (neutral)</label>
+            <label><input type="radio" name="q7" value="d"> d) Bias, timely, and verifiable</label>
+        </div>
+
+        <!-- Question 8 -->
+        <div class="question">
+            <h3>8. Which of the following is NOT one of the four enhancing qualitative characteristics?</h3>
+            <label><input type="radio" name="q8" value="a"> a) Relevance</label>
+            <label><input type="radio" name="q8" value="b"> b) Comparability</label>
+            <label><input type="radio" name="q8" value="c"> c) Verifiability</label>
+            <label><input type="radio" name="q8" value="d"> d) Understandability</label>
+        </div>
+
+        <!-- Question 9 -->
+        <div class="question">
+            <h3>9. Vertical comparability refers to:</h3>
+            <label><input type="radio" name="q9" value="a"> a) Comparison among different companies</label>
+            <label><input type="radio" name="q9" value="b"> b) Comparison among different years</label>
+            <label><input type="radio" name="q9" value="c"> c) Comparison of assets and liabilities</label>
+            <label><input type="radio" name="q9" value="d"> d) Comparison of departments within a company</label>
+        </div>
+
+        <!-- Question 10 -->
+        <div class="question">
+            <h3>10. Horizontal comparability means:</h3>
+            <label><input type="radio" name="q10" value="a"> a) Comparing performance over time within the same company</label>
+            <label><input type="radio" name="q10" value="b"> b) Comparing performance among different companies</label>
+            <label><input type="radio" name="q10" value="c"> c) Comparing budgeted vs actual results</label>
+            <label><input type="radio" name="q10" value="d"> d) Comparing financial and non-financial data</label>
+        </div>
+
+        <!-- Question 11 -->
+        <div class="question">
+            <h3>11. Verifiability means that:</h3>
+            <label><input type="radio" name="q11" value="a"> a) Information is easy to understand</label>
+            <label><input type="radio" name="q11" value="b"> b) Different people using the same data will derive the same results</label>
+            <label><input type="radio" name="q11" value="c"> c) Information is released on time</label>
+            <label><input type="radio" name="q11" value="d"> d) Information is comparable across industries</label>
+        </div>
+
+        <!-- Question 12 -->
+        <div class="question">
+            <h3>12. Which of the following supports verifiability?</h3>
+            <label><input type="radio" name="q12" value="a"> a) Professional opinion</label>
+            <label><input type="radio" name="q12" value="b"> b) Solid evidence to support the information</label>
+            <label><input type="radio" name="q12" value="c"> c) Timely reporting</label>
+            <label><input type="radio" name="q12" value="d"> d) Simplified presentation</label>
+        </div>
+
+        <!-- Question 13 -->
+        <div class="question">
+            <h3>13. Understandability requires considering:</h3>
+            <label><input type="radio" name="q13" value="a"> a) The cost of preparing information</label>
+            <label><input type="radio" name="q13" value="b"> b) The knowledge and expertise of stakeholders/users</label>
+            <label><input type="radio" name="q13" value="c"> c) The size of the company</label>
+            <label><input type="radio" name="q13" value="d"> d) The industry average</label>
+        </div>
+
+        <!-- Question 14 -->
+        <div class="question">
+            <h3>14. Timeliness means users should have access to information:</h3>
+            <label><input type="radio" name="q14" value="a"> a) Once a year</label>
+            <label><input type="radio" name="q14" value="b"> b) In time to make informed decisions</label>
+            <label><input type="radio" name="q14" value="c"> c) After the fiscal year ends</label>
+            <label><input type="radio" name="q14" value="d"> d) Only if it is verified</label>
+        </div>
+
+        <!-- Question 15 -->
+        <div class="question">
+            <h3>15. In general, the older the information is:</h3>
+            <label><input type="radio" name="q15" value="a"> a) The more accurate it becomes</label>
+            <label><input type="radio" name="q15" value="b"> b) The less useful it tends to be</label>
+            <label><input type="radio" name="q15" value="c"> c) The more comparable it is</label>
+            <label><input type="radio" name="q15" value="d"> d) The easier it is to verify</label>
+        </div>
+
+        <!-- Question 16 -->
+        <div class="question">
+            <h3>16. Which is an example of social performance measurement?</h3>
+            <label><input type="radio" name="q16" value="a"> a) CO2 emissions</label>
+            <label><input type="radio" name="q16" value="b"> b) Number of employees employed with a disability</label>
+            <label><input type="radio" name="q16" value="c"> c) Return on assets</label>
+            <label><input type="radio" name="q16" value="d"> d) Water usage</label>
+        </div>
+
+        <!-- Question 17 -->
+        <div class="question">
+            <h3>17. Which of the following is an environmental performance measure?</h3>
+            <label><input type="radio" name="q17" value="a"> a) Amount spent on training</label>
+            <label><input type="radio" name="q17" value="b"> b) Environmental compliance</label>
+            <label><input type="radio" name="q17" value="c"> c) Number of workplace injuries</label>
+            <label><input type="radio" name="q17" value="d"> d) Profits</label>
+        </div>
+
+        <!-- Question 18 -->
+        <div class="question">
+            <h3>18. Which is a financial performance measure?</h3>
+            <label><input type="radio" name="q18" value="a"> a) Types and number of workplace injuries</label>
+            <label><input type="radio" name="q18" value="b"> b) Sales</label>
+            <label><input type="radio" name="q18" value="c"> c) Water usage</label>
+            <label><input type="radio" name="q18" value="d"> d) CO2 emissions</label>
+        </div>
+
+        <!-- Question 19 -->
+        <div class="question">
+            <h3>19. Whose role is it to determine appropriate performance measures?</h3>
+            <label><input type="radio" name="q19" value="a"> a) Government regulators</label>
+            <label><input type="radio" name="q19" value="b"> b) External auditors</label>
+            <label><input type="radio" name="q19" value="c"> c) Accountants and accounting</label>
+            <label><input type="radio" name="q19" value="d"> d) Shareholders only</label>
+        </div>
+
+        <!-- Question 20 -->
+        <div class="question">
+            <h3>20. Which of the following is NOT a requirement for reliability?</h3>
+            <label><input type="radio" name="q20" value="a"> a) Free from error</label>
+            <label><input type="radio" name="q20" value="b"> b) Complete</label>
+            <label><input type="radio" name="q20" value="c"> c) Balanced (neutral)</label>
+            <label><input type="radio" name="q20" value="d"> d) Timely</label>
+        </div>
+
+        <button type="button" onclick="checkAnswers()">Submit Quiz</button>
+    </form>
+
+    <div id="results"></div>
+
+    <script>
+        function checkAnswers() {
+            const answers = {
+                q1: 'b', q2: 'b', q3: 'b', q4: 'b', q5: 'b',
+                q6: 'a', q7: 'c', q8: 'a', q9: 'b', q10: 'b',
+                q11: 'b', q12: 'b', q13: 'b', q14: 'b', q15: 'b',
+                q16: 'b', q17: 'b', q18: 'b', q19: 'c', q20: 'd'
+            };
+
+            let score = 0;
+            let resultsHTML = '<h2>Quiz Results</h2>';
+
+            for (let i = 1; i <= 20; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                const correct = answers[`q${i}`];
+                if (selected && selected.value === correct) {
+                    score++;
+                    resultsHTML += `<p><span class="correct">Question ${i}: Correct</span></p>`;
+                } else {
+                    resultsHTML += `<p><span class="incorrect">Question ${i}: Incorrect</span> (Correct: ${correct === 'a' ? 'A' : correct === 'b' ? 'B' : correct === 'c' ? 'C' : 'D'})</p>`;
+                }
+            }
+
+            resultsHTML += `<h3>You scored ${score} out of 20</h3>`;
+            document.getElementById('results').innerHTML = resultsHTML;
+            document.getElementById('results').style.display = 'block';
+            window.scrollTo(0, document.getElementById('results').offsetTop);
+        }
+    </script>
+</body>
+</html>
