@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Flow Calculation Questions</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+        }
+        .container {
+            padding: 12mm 10mm;
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 8mm;
+            border-bottom: 1px solid black;
+            padding-bottom: 4mm;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 18pt;
+            font-weight: bold;
+        }
+        .columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10mm;
+        }
+        .question {
+            margin-bottom: 14mm;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .question-number {
+            font-weight: bold;
+            font-size: 11pt;
+            margin-bottom: 2mm;
+        }
+        .question-text {
+            font-size: 10.5pt;
+            margin-bottom: 3mm;
+        }
+        .question ul {
+            margin: 3mm 0;
+            padding-left: 12mm;
+            font-size: 10.5pt;
+        }
+        .question li {
+            margin-bottom: 1.5mm;
+        }
+        .answer-space {
+            border-top: 1px solid black;
+            min-height: 40mm;
+            margin-top: 4mm;
+            padding-top: 3mm;
+        }
+        .answer {
+            margin-top: 8mm;
+            padding: 6mm;
+            background-color: #f0f7ff;
+            border-left: 4px solid #0066cc;
+            font-family: "Courier New", monospace;
+            font-size: 10pt;
+            color: #c00;
+            line-height: 1.5;
+        }
+        .answer strong {
+            color: #900;
+        }
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                padding: 10mm 8mm;
+            }
+            .columns {
+                gap: 8mm;
+            }
+            .question {
+                margin-bottom: 12mm;
+            }
+            .header h1 {
+                font-size: 16pt;
+            }
+            .question-number {
+                font-size: 10.5pt;
+            }
+            .question-text, .question ul {
+                font-size: 10pt;
+            }
+            .answer-space {
+                min-height: 35mm;
+            }
+            .answer {
+                font-size: 9.5pt;
+                padding: 5mm;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 10mm;
+            }
+            .question {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>CASH FLOWS FROM OPERATING ACTIVITIES</h1>
+    </div>
+
+    <div class="columns">
+
+        <!-- Question 1 -->
+        <div class="question">
+            <div class="question-number">Question 1</div>
+            <div class="question-text">
+                <p>Willow Ltd had the following information for the year ending 30 June 2026:</p>
+                <ul>
+                    <li>Sales revenue: $420,000 (of which $360,000 were credit sales)</li>
+                    <li>Opening accounts receivable: $95,000</li>
+                    <li>Closing accounts receivable: $110,000</li>
+                    <li>No bad debts, discounts, or sales returns</li>
+                </ul>
+                <p><strong>Calculate the cash actually received from customers during the year. Show all workings.</strong></p>
+            </div>
+            <div class="answer-space"></div>
+            <div class="answer">
+                <strong>Credit Sales</strong> = $360,000<br>
+                <strong>Opening A/R</strong> = $95,000<br>
+                <strong>Closing A/R</strong> = $110,000<br><br>
+                <strong>Cash Received = Credit Sales + Opening A/R − Closing A/R</strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= $360,000 + $95,000 − $110,000<br>
+                <strong>&nbsp;&nbsp;&nbsp;&nbsp;= $345,000</strong><br><br>
+                <em>Note: Cash sales ($60,000) are received immediately, so total cash from customers = $345,000 + $60,000 = $405,000. But only credit sales affect A/R.</em><br>
+                <strong>Final Answer: $345,000</strong> (from credit customers)
+            </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="question">
+            <div class="question-number">Question 2</div>
+            <div class="question-text">
+                <p>Oakwood Ltd reported the following for the year ending 30 June 2026:</p>
+                <ul>
+                    <li>Cost of goods sold: $580,000</li>
+                    <li>Opening inventory: $72,000</li>
+                    <li>Closing inventory: $65,000</li>
+                    <li>Opening accounts payable: $98,000</li>
+                    <li>Closing accounts payable: $105,000</li>
+                </ul>
+                <p><strong>Calculate the cash paid to trade creditors during the year. Show all workings.</strong></p>
+            </div>
+            <div class="answer-space"></div>
+            <div class="answer">
+                <strong>Step 1: Purchases</strong><br>
+                Purchases = COGS + Closing Inventory − Opening Inventory<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= $580,000 + $65,000 − $72,000<br>
+                <strong>&nbsp;&nbsp;&nbsp;&nbsp;= $573,000</strong><br><br>
+                <strong>Step 2: Cash Paid to Suppliers</strong><br>
+                Cash Paid = Purchases + Opening A/P − Closing A/P<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= $573,000 + $98,000 − $105,000<br>
+                <strong>&nbsp;&nbsp;&nbsp;&nbsp;= $566,000</strong><br><br>
+                <strong>Final Answer: $566,000</strong>
+            </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="question">
+            <div class="question-number">Question 3</div>
+            <div class="question-text">
+                <p>Pine Ltd had the following salary-related balances for the year ending 30 June 2026:</p>
+                <ul>
+                    <li>Salaries expense: $295,000</li>
+                    <li>Opening accrued salaries: $18,000</li>
+                    <li>Closing accrued salaries: $22,000</li>
+                </ul>
+                <p><strong>Calculate the actual cash paid to employees during the year. Show all workings.</strong></p>
+            </div>
+            <div class="answer-space"></div>
+            <div class="answer">
+                <strong>Cash Paid = Salaries Expense + Opening Accrued − Closing Accrued</strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= $295,000 + $18,000 − $22,000<br>
+                <strong>&nbsp;&nbsp;&nbsp;&nbsp;= $291,000</strong><br><br>
+                <em>Explanation: Opening accrued was paid this year; closing accrued will be paid next year.</em><br>
+                <strong>Final Answer: $291,000</strong>
+            </div>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="question">
+            <div class="question-number">Question 4</div>
+            <div class="question-text">
+                <p>Maple Ltd recorded the following for insurance during the year ending 30 June 2026:</p>
+                <ul>
+                    <li>Insurance expense: $48,000</li>
+                    <li>Opening prepaid insurance: $12,000</li>
+                    <li>Closing prepaid insurance: $9,000</li>
+                </ul>
+                <p><strong>Calculate the cash paid for insurance during the year. Show all workings.</strong></p>
+            </div>
+            <div class="answer-space"></div>
+            <div class="answer">
+                <strong>Cash Paid = Insurance Expense + Opening Prepaid − Closing Prepaid</strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= $48,000 + $12,000 − $9,000<br>
+                <strong>&nbsp;&nbsp;&nbsp;&nbsp;= $51,000</strong><br><br>
+                <em>Explanation: Opening prepaid was used this year (not cash); closing prepaid is cash paid this year but not yet expensed.</em><br>
+                <strong>Final Answer: $51,000</strong>
+            </div>
+        </div>
+
+        <!-- Question 5 -->
+        <div class="question">
+            <div class="question-number">Question 5</div>
+            <div class="question-text">
+                <p>Birch Ltd had total sales of $680,000, of which $550,000 were on credit. The accounts receivable balance decreased from $142,000 at the beginning of the year to $128,000 at the end. There were no bad debts or discounts allowed.</p>
+                <p><strong>Calculate the cash received from customers. Show all workings.</strong></p>
+            </div>
+            <div class="answer-space"></div>
+            <div class="answer">
+                <strong>Credit Sales</strong> = $550,000<br>
+                <strong>Opening A/R</strong> = $142,000<br>
+                <strong>Closing A/R</strong> = $128,000<br><br>
+                <strong>Cash from Credit Sales = Credit Sales + Opening A/R − Closing A/R</strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= $550,000 + $142,000 − $128,000<br>
+                <strong>&nbsp;&nbsp;&nbsp;&nbsp;= $564,000</strong><br><br>
+                <strong>Cash Sales</strong> = $680,000 − $550,000 = $130,000<br><br>
+                <strong>Total Cash Received = $564,000 + $130,000 = $694,000</strong><br><br>
+                <strong>Final Answer: $694,000</strong>
+            </div>
+        </div>
+
+        <!-- Question 6 -->
+        <div class="question">
+            <div class="question-number">Question 6</div>
+            <div class="question-text">
+                <p>Cedar Ltd reported:</p>
+                <ul>
+                    <li>Cost of goods sold: $1,050,000</li>
+                    <li>Opening inventory: $180,000</li>
+                    <li>Closing inventory: $195,000</li>
+                    <li>Opening accounts payable: $165,000</li>
+                    <li>Closing accounts payable: $152,000</li>
+                </ul>
+                <p><strong>Calculate the cash paid to suppliers during the year. Show all workings.</strong></p>
+            </div>
+            <div class="answer-space"></div>
+            <div class="answer">
+                <strong>Step 1: Purchases</strong><br>
+                Purchases = COGS + Closing Inventory − Opening Inventory<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= $1,050,000 + $195,000 − $180,000<br>
+                <strong>&nbsp;&nbsp;&nbsp;&nbsp;= $1,065,000</strong><br><br>
+                <strong>Step 2: Cash Paid</strong><br>
+                Cash Paid = Purchases + Opening A/P − Closing A/P<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= $1,065,000 + $165,000 − $152,000<br>
+                <strong>&nbsp;&nbsp;&nbsp;&nbsp;= $1,078,000</strong><br><br>
+                <strong>Final Answer: $1,078,000</strong>
+            </div>
+        </div>
+
+        <!-- Question 7 -->
+        <div class="question">
+            <div class="question-number">Question 7</div>
+            <div class="question-text">
+                <p>Elm Ltd had the following electricity expense items for the year ending 30 June 2026:</p>
+                <ul>
+                    <li>Electricity expense: $36,000</li>
+                    <li>Opening accrued electricity: $4,200</li>
+                    <li>Closing accrued electricity: $3,800</li>
+                </ul>
+                <p><strong>Calculate the cash paid for electricity during the year. Show all workings.</strong></p>
+            </div>
+            <div class="answer-space"></div>
+            <div class="answer">
+                <strong>Cash Paid = Expense + Opening Accrued − Closing Accrued</strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= $36,000 + $4,200 − $3,800<br>
+                <strong>&nbsp;&nbsp;&nbsp;&nbsp;= $36,400</strong><br><br>
+                <strong>Final Answer: $36,400</strong>
+            </div>
+        </div>
+
+        <!-- Question 8 -->
+        <div class="question">
+            <div class="question-number">Question 8</div>
+            <div class="question-text">
+                <p>Ash Ltd recorded rent expense of $180,000. Prepaid rent was $25,000 at the start of the year and $30,000 at the end of the year.</p>
+                <p><strong>Calculate the actual cash paid for rent during the year. Show all workings.</strong></p>
+            </div>
+            <div class="answer-space"></div>
+            <div class="answer">
+                <strong>Cash Paid = Rent Expense + Opening Prepaid − Closing Prepaid</strong><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;= $180,000 + $25,000 − $30,000<br>
+                <strong>&nbsp;&nbsp;&nbsp;&nbsp;= $175,000</strong><br><br>
+                <em>Explanation: $5,000 more was prepaid at year-end than at start → cash paid is less than expense.</em><br>
+                <strong>Final Answer: $175,000</strong>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
