@@ -28,6 +28,8 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
+            /* Added for the restart logic */
+            display: block; 
         }
 
         .form-group {
@@ -57,6 +59,7 @@
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s;
+            margin: 5px; /* Added margin for multiple buttons */
         }
 
         button:hover {
@@ -70,7 +73,7 @@
             gap: 20px;
             justify-content: center;
             margin-top: 20px;
-            min-height: 200px; /* Ensure space for cards */
+            min-height: 200px; 
         }
 
         .card-container {
@@ -78,13 +81,13 @@
             width: 150px;
             height: 200px;
             cursor: pointer;
-            opacity: 0.5; /* Dim inactive cards */
+            opacity: 0.5;
             transition: opacity 0.5s;
         }
 
         .card-container.active {
-            opacity: 1; /* Brighten active card */
-            box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.8); /* Shining effect */
+            opacity: 1;
+            box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.8);
             animation: pulse 1.5s infinite alternate;
         }
         
@@ -155,6 +158,16 @@
         #final-reveal-button:hover {
             background-color: #c9302c;
         }
+        
+        /* New styling for the restart button */
+        #restart-button {
+            background-color: #5cb85c; 
+            display: none;
+        }
+        
+        #restart-button:hover {
+            background-color: #4cae4c;
+        }
 
         .identity-label {
             font-size: 0.9em;
@@ -164,7 +177,7 @@
 <body>
 
     <header>
-        <h1>💸 Accounting Undercover</h1>
+        <h1>💸 Accounting Undercover Game Facilitator</h1>
     </header>
 
     <div id="setup-section">
@@ -196,6 +209,7 @@
 
     <div id="game-controls">
         <button id="final-reveal-button" onclick="finalReveal()">🏆 End Game & Reveal All Identities</button>
+        <button id="restart-button" onclick="restartGame()">🔄 Restart Game (Change Terms/Players)</button>
     </div>
 
     <script>
@@ -221,9 +235,11 @@
             for (let i = 0; i < numPlayers; i++) {
                 const div = document.createElement('div');
                 div.className = 'form-group';
+                // Use a default name or the previously stored name if available
+                const playerName = players[i] || `Player ${i + 1}`;
                 div.innerHTML = `
                     <label for="player-${i + 1}">Player ${i + 1} Name:</label>
-                    <input type="text" id="player-${i + 1}" value="Player ${i + 1}" required>
+                    <input type="text" id="player-${i + 1}" value="${playerName}" required>
                 `;
                 container.appendChild(div);
             }
@@ -231,51 +247,58 @@
 
         // Reads form data, assigns roles, and displays cards
         function startGame() {
-            const numPlayers = parseInt(document.getElementById('num-players').value);
+            const numPlayersInput = document.getElementById('num-players');
+            const numPlayers = parseInt(numPlayersInput.value);
             const civilianTerm = document.getElementById('civilian-term').value.trim();
             const undercoverTerm = document.getElementById('undercover-term').value.trim();
             
-            players = [];
+            // 1. Gather Player Names and Validation
+            const tempPlayers = [];
             for (let i = 0; i < numPlayers; i++) {
-                const name = document.getElementById(`player-${i + 1}`).value.trim();
+                const nameInput = document.getElementById(`player-${i + 1}`);
+                const name = nameInput ? nameInput.value.trim() : '';
                 if (!name) {
                     document.getElementById('setup-error').textContent = `Please enter a name for Player ${i + 1}.`;
                     return;
                 }
-                players.push(name);
+                tempPlayers.push(name);
             }
-            
+            players = tempPlayers; // Update the global players array
+
             if (!civilianTerm || !undercoverTerm) {
                  document.getElementById('setup-error').textContent = 'Please enter both the Civilian and Undercover terms.';
                 return;
             }
 
+            // 2. Create and Assign Roles (Randomly)
             // Create assignments: N-1 civilian, 1 undercover
-            assignments = Array(numPlayers).fill(civilianTerm);
+            let roles = Array(numPlayers).fill(civilianTerm);
             
             // Randomly select one player to be the Undercover
             const undercoverIndex = Math.floor(Math.random() * numPlayers);
-            assignments[undercoverIndex] = undercoverTerm;
+            roles[undercoverIndex] = undercoverTerm;
 
             // Pair names with assignments
             const finalAssignments = players.map((name, index) => ({
                 name: name,
-                identity: assignments[index],
+                identity: roles[index],
                 isUndercover: index === undercoverIndex
             }));
 
-            // Shuffle the assignments array to display cards in a random order
-            // (Important for the 'shining' sequence to be random)
+            // Shuffle the assignments array for the sequential reveal
             shuffleArray(finalAssignments);
             
             // Store the shuffled assignments globally
             assignments = finalAssignments; 
             currentCardIndex = 0;
 
-            // Hide setup, show cards
+            // 3. Update UI
             document.getElementById('setup-section').style.display = 'none';
             document.getElementById('final-reveal-button').style.display = 'block';
+            document.getElementById('restart-button').style.display = 'none'; // Hide restart button
             document.getElementById('setup-error').textContent = '';
+            document.getElementById('cards-section').style.pointerEvents = 'auto'; // Re-enable for card interaction
+
 
             displayCards();
             activateCard(0); // Start the process with the first card
@@ -374,8 +397,28 @@
             cards.forEach(card => card.classList.add('is-flipped'));
             document.getElementById('cards-section').style.pointerEvents = 'auto'; // Re-enable for the final look
             document.getElementById('final-reveal-button').style.display = 'none';
+            document.getElementById('restart-button').style.display = 'inline-block'; // SHOW THE NEW RESTART BUTTON
             document.querySelectorAll('.card-container').forEach(c => c.classList.remove('active'));
             alert("Game over! All identities are now revealed. See who won!");
+        }
+        
+        // The new function to restart the game
+        function restartGame() {
+            // 1. Clear card area
+            document.getElementById('cards-section').innerHTML = '';
+            
+            // 2. Hide control buttons
+            document.getElementById('final-reveal-button').style.display = 'none';
+            document.getElementById('restart-button').style.display = 'none';
+            
+            // 3. Show the setup section again
+            document.getElementById('setup-section').style.display = 'block';
+            
+            // 4. Update player inputs to maintain current names
+            document.getElementById('num-players').value = players.length;
+            generatePlayerInputs(); 
+            
+            alert("Game setup loaded! You can now edit player names, player count, or change the accounting terms for the new round.");
         }
 
     </script>
