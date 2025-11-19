@@ -11,11 +11,32 @@
     }
     body {
       margin: 0;
-      padding: 16px;
+      padding: 60px 16px 16px; /* Make room for floating bar */
       background-color: #f9f9fb;
       color: #333;
       line-height: 1.5;
     }
+
+    /* ===== FLOATING STATUS BAR ===== */
+    #floating-status {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      background-color: #e0f7fa; /* default: light cyan */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      z-index: 1000;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    #timer-display { color: #0277bd; }
+    #success-display { color: #2e7d32; }
+
     h1 {
       font-size: 1.8rem;
       text-align: center;
@@ -49,35 +70,8 @@
       cursor: pointer;
       margin-top: 10px;
     }
-    button:hover {
-      background: #2980b9;
-    }
-    button:disabled {
-      background: #bdc3c7;
-      cursor: not-allowed;
-    }
-
-    #timer {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #e74c3c;
-      text-align: center;
-      margin: 16px 0;
-      min-height: 28px;
-    }
-    #success-count {
-      text-align: center;
-      font-size: 1.1rem;
-      color: #27ae60;
-      margin-bottom: 8px;
-    }
-    #success-list {
-      background: #ecf0f1;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 1rem;
-    }
+    button:hover { background: #2980b9; }
+    button:disabled { background: #bdc3c7; cursor: not-allowed; }
 
     table {
       width: 100%;
@@ -99,9 +93,7 @@
       font-weight: bold;
       text-align: left;
     }
-    tr:last-child td {
-      border-bottom: none;
-    }
+    tr:last-child td { border-bottom: none; }
     td[data-value] {
       cursor: pointer;
       transition: background-color 0.2s;
@@ -109,17 +101,9 @@
     td[data-value]:hover {
       background-color: #f0f7ff;
     }
-    .highlight {
-      background-color: #fff9c4 !important;
-      animation: pulse 1.5s infinite;
-    }
     .correct {
       background-color: #d4edda !important;
       font-weight: bold;
-    }
-    @keyframes pulse {
-      0%, 100% { background-color: #fff9c4; }
-      50% { background-color: #fff176; }
     }
 
     h2 {
@@ -133,16 +117,19 @@
         padding: 10px 8px;
         font-size: 1rem;
       }
-      h1 {
-        font-size: 1.5rem;
-      }
-      h2 {
-        font-size: 1.25rem;
-      }
+      h1 { font-size: 1.5rem; }
+      h2 { font-size: 1.25rem; }
+      #floating-status { font-size: 0.85rem; }
     }
   </style>
 </head>
 <body>
+  <!-- Floating status bar -->
+  <div id="floating-status">
+    <div id="timer-display">⏱️ Waiting...</div>
+    <div id="success-display">👥 Found: 0</div>
+  </div>
+
   <h1>🔍 Find the Number!</h1>
 
   <div class="input-section">
@@ -151,10 +138,6 @@
     <button onclick="joinGame()">Join Game</button>
   </div>
 
-  <div id="timer">Waiting for teacher to start...</div>
-  <div id="success-count">Students found: 0</div>
-  <div id="success-list"></div>
-
   <h2>Balance Sheet</h2>
   <table id="balance-sheet"></table>
 
@@ -162,12 +145,15 @@
   <table id="income-statement"></table>
 
   <script>
-    // ===== LEAN CLOUD CONFIG =====
     const APP_ID = 'zKIGVAT4i80luijNDM40xZCl-gzGzoHsz';
     const APP_KEY = 'u6eipqxC1UGkkxR1nJcMR8sH';
     const BASE_URL = `https://zKIGVAT4i80luijNDM40xZCl-gzGzoHsz.lc-cn-n1-shared.com/1.1`;
 
-    // ===== FINANCIAL DATA (FULL) =====
+    // Financial data (same as before)
+    const balanceSheetData = [/* ... same full array as previous version ... */];
+    const incomeStatementData = [/* ... same full array ... */];
+
+    // Paste full data here (identical to teacher.html)
     const balanceSheetData = [
       ["Cash and cash equivalents", 16139, 16398],
       ["Short-term investments", 20424, 12696],
@@ -235,13 +221,15 @@
       ["Diluted EPS", 2.04, 4.30, 3.62]
     ];
 
-    // ===== STATE =====
     let studentName = '';
     let currentTarget = null;
     let startTime = null;
     let timerInterval = null;
+    let roundCount = 0;
 
-    // ===== RENDER TABLES =====
+    // Color palette for new rounds (soft, non-distracting)
+    const bgColors = ['#e8f5e9', '#e3f2fd', '#fff3e0', '#f3e5f5', '#e0f7fa', '#ede7f6'];
+
     function renderTable(containerId, data, prefix) {
       const container = document.getElementById(containerId);
       let headers = '<tr><th>Item</th><th>2024</th><th>2023</th>';
@@ -262,26 +250,20 @@
       container.innerHTML = headers + rows;
     }
 
-    // ===== JOIN GAME =====
     function joinGame() {
       const input = document.getElementById('student-name');
       const name = input.value.trim();
-      if (!name) {
-        alert('Please enter your name!');
-        return;
-      }
+      if (!name) return alert('Please enter your name!');
       studentName = name;
       input.disabled = true;
       document.querySelector('button').disabled = true;
 
-      // Render tables now that we're in the game
       renderTable('balance-sheet', balanceSheetData, 'bs');
       renderTable('income-statement', incomeStatementData, 'is');
 
       pollForRound();
     }
 
-    // ===== POLL FOR NEW ROUND =====
     async function pollForRound() {
       try {
         const res = await fetch(`${BASE_URL}/classes/GameRound?limit=1&order=-createdAt`, {
@@ -291,45 +273,47 @@
         if (data.results && data.results.length > 0) {
           const round = data.results[0];
           if (round.targetCellId !== currentTarget) {
+            // New round!
             currentTarget = round.targetCellId;
             startTime = new Date(round.startTime.iso);
+            roundCount++;
+
+            // Update floating bar background
+            const colorIndex = (roundCount - 1) % bgColors.length;
+            document.getElementById('floating-status').style.backgroundColor = bgColors[colorIndex];
+
             resetTimer();
             startTimer();
-            updateSuccessList(round.completedBy || []);
-
-            // Reset all highlights
-            document.querySelectorAll('td').forEach(cell => {
-              cell.classList.remove('highlight', 'correct');
-            });
-            // Highlight target
-            const targetCell = document.getElementById(currentTarget);
-            if (targetCell) targetCell.classList.add('highlight');
+            updateSuccessDisplay(round.completedBy || []);
           }
         }
       } catch (err) {
         console.error('Poll error:', err);
       }
-      setTimeout(pollForRound, 2000); // Poll every 2s
+      setTimeout(pollForRound, 2000);
     }
 
-    // ===== TIMER =====
     function startTimer() {
       clearInterval(timerInterval);
       timerInterval = setInterval(() => {
         const elapsed = Math.floor((new Date() - startTime) / 1000);
-        document.getElementById('timer').innerText = `⏱️ Time: ${elapsed} seconds`;
+        document.getElementById('timer-display').innerText = `⏱️ ${elapsed}s`;
       }, 1000);
     }
+
     function resetTimer() {
       clearInterval(timerInterval);
-      document.getElementById('timer').innerText = '🎯 Round started! Find the highlighted number...';
+      document.getElementById('timer-display').innerText = '⏱️ Round started!';
     }
 
-    // ===== HANDLE CELL CLICK =====
+    function updateSuccessDisplay(names) {
+      document.getElementById('success-display').innerText = `👥 Found: ${names.length}`;
+    }
+
+    // Handle tap: only check if correct, no visual hint from teacher
     document.addEventListener('click', async (e) => {
       if (!currentTarget || !studentName || !e.target.matches('td[data-value]')) return;
       if (e.target.id === currentTarget) {
-        e.target.classList.remove('highlight');
         e.target.classList.add('correct');
 
         // Record success
@@ -340,7 +324,7 @@
           const data = await res.json();
           if (data.results.length > 0) {
             const obj = data.results[0];
-            const completed = [...new Set([...(obj.completedBy || []), studentName])]; // avoid dupes
+            const completed = [...new Set([...(obj.completedBy || []), studentName])];
             await fetch(`${BASE_URL}/classes/GameRound/${obj.objectId}`, {
               method: 'PUT',
               headers: {
@@ -356,17 +340,6 @@
         }
       }
     });
-
-    // ===== UPDATE SUCCESS DISPLAY =====
-    function updateSuccessList(names) {
-      document.getElementById('success-count').innerText = `✅ Students found: ${names.length}`;
-      document.getElementById('success-list').innerHTML = 
-        names.length > 0 
-          ? `<strong>Found by:</strong> ${names.join(', ')}`
-          : '';
-    }
-
-    // Initial: tables are NOT rendered until student joins (to save load time)
   </script>
 </body>
 </html>
