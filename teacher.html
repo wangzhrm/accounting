@@ -197,7 +197,10 @@
       try {
         const payload = {
           targetCellId: targetCellId,
-          startTime: new Date(),
+          startTime: {
+            __type: "Date",
+            iso: new Date().toISOString()
+          },
           completedBy: []
         };
 
@@ -216,7 +219,7 @@
           currentRoundId = result.objectId;
           statusEl.textContent = `✅ Round started: ${targetCellId}`;
           statusEl.style.background = "#e8f5e8";
-          updateStudentList([]); // clear until updates come
+          updateStudentList([]);
         } else {
           throw new Error(result.error || "Unknown error");
         }
