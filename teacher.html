@@ -5,26 +5,82 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Teacher - Financial Game</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f8ff; }
-    h1 { color: #2c3e50; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    th, td { padding: 10px; text-align: right; border: 1px solid #ddd; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+      display: flex;
+      gap: 30px;
+    }
+    .tables-section { flex: 2; }
+    .students-section {
+      flex: 1;
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 300px;
+    }
+    h1, h2 { color: #2c3e50; margin-top: 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 10px;
+      text-align: right;
+      border: 1px solid #ddd;
+    }
     th { text-align: left; background: #e3f2fd; }
-    td[data-cell-id] { cursor: pointer; transition: background 0.2s; }
-    td[data-cell-id]:hover { background: #bbdefb; }
+    td[data-cell-id] {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    td[data-cell-id]:hover {
+      background: #bbdefb;
+    }
     .highlight { background: #fff9c4 !important; font-weight: bold; }
-    #status { margin-top: 10px; padding: 8px; background: #e8f5e8; border-radius: 4px; }
+    #status {
+      padding: 8px;
+      background: #e8f5e8;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    .student-list {
+      list-style: none;
+      padding: 0;
+    }
+    .student-item {
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .student-correct {
+      color: green;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h1>👩‍🏫 Teacher: Tap Any Number to Start a Round</h1>
-  <div id="status">Ready</div>
+  <div class="tables-section">
+    <h1>👩‍🏫 Teacher: Tap Any Number to Start a Round</h1>
+    <div id="status">Ready</div>
 
-  <h2>Balance Sheet</h2>
-  <table id="balance-sheet"></table>
+    <h2>Balance Sheet</h2>
+    <table id="balance-sheet"></table>
 
-  <h2>Income Statement</h2>
-  <table id="income-statement"></table>
+    <h2>Income Statement</h2>
+    <table id="income-statement"></table>
+  </div>
+
+  <div class="students-section">
+    <h2>Students Joined</h2>
+    <ul id="student-list" class="student-list">
+      <li>No students yet</li>
+    </ul>
+  </div>
 
   <script>
     const APP_ID = "zKIGVAT4i80luijNDM40xZCl-gzGzoHsz";
@@ -98,9 +154,16 @@
       ["Diluted EPS", 2.04, 4.30, 3.62]
     ];
 
+    function slugify(str) {
+      return str.toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+    }
+
     function generateCellId(prefix, rowLabel, yearIndex) {
       const years = ["2024", "2023", "2022"];
-      return `${prefix}-${rowLabel.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${years[yearIndex]}`;
+      return `${prefix}-${slugify(rowLabel)}-${years[yearIndex]}`;
     }
 
     function renderTable(containerId, data, prefix) {
@@ -127,9 +190,17 @@
     renderTable('balance-sheet', balanceSheetData, 'bs');
     renderTable('income-statement', incomeStatementData, 'is');
 
+    let currentRoundId = null;
+
     async function createGameRound(targetCellId) {
       const statusEl = document.getElementById('status');
       try {
+        const payload = {
+          targetCellId: targetCellId,
+          startTime: new Date(),
+          completedBy: []
+        };
+
         const response = await fetch(`${BASE_URL}/classes/GameRound`, {
           method: 'POST',
           headers: {
@@ -137,19 +208,17 @@
             "X-LC-Key": APP_KEY,
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-            targetCellId: targetCellId,
-            startTime: new Date().toISOString(),
-            completedBy: []
-          })
+          body: JSON.stringify(payload)
         });
 
+        const result = await response.json();
         if (response.ok) {
+          currentRoundId = result.objectId;
           statusEl.textContent = `✅ Round started: ${targetCellId}`;
           statusEl.style.background = "#e8f5e8";
+          updateStudentList([]); // clear until updates come
         } else {
-          const err = await response.text();
-          throw new Error(err);
+          throw new Error(result.error || "Unknown error");
         }
       } catch (error) {
         console.error("Failed to start round:", error);
@@ -157,6 +226,39 @@
         statusEl.style.background = "#ffebee";
       }
     }
+
+    function updateStudentList(completedNames) {
+      const listEl = document.getElementById('student-list');
+      if (completedNames.length === 0) {
+        listEl.innerHTML = '<li>No students yet</li>';
+        return;
+      }
+
+      let html = '';
+      completedNames.forEach(name => {
+        html += `<li class="student-item student-correct">${name} ✅</li>`;
+      });
+      listEl.innerHTML = html;
+    }
+
+    // Poll every 2s to show who has completed
+    setInterval(async () => {
+      if (!currentRoundId) return;
+      try {
+        const res = await fetch(`${BASE_URL}/classes/GameRound/${currentRoundId}`, {
+          headers: {
+            "X-LC-Id": APP_ID,
+            "X-LC-Key": APP_KEY
+          }
+        });
+        const round = await res.json();
+        if (round.completedBy && Array.isArray(round.completedBy)) {
+          updateStudentList(round.completedBy);
+        }
+      } catch (err) {
+        console.warn("Polling error:", err);
+      }
+    }, 2000);
 
     document.addEventListener('click', (e) => {
       if (!e.target.matches('td[data-cell-id]')) return;
