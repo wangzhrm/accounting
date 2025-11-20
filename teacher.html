@@ -1,39 +1,315 @@
-document.addEventListener('click', async (e) => {
-  if (!currentTarget || !studentName || !e.target.matches('td[data-value]')) return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tesla Financials - Teacher</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f7fa;
+      color: #333;
+      display: flex;
+      gap: 24px;
+    }
 
-  const isCorrect = (e.target.id === currentTarget);
-  const status = isCorrect ? 'correct' : 'incorrect';
+    .main-content {
+      flex: 1;
+      max-width: 900px;
+    }
 
-  try {
-    const res = await fetch(`${BASE_URL}/classes/GameRound?where={"targetCellId":"${encodeURIComponent(currentTarget)}"}&limit=1`, {
-      headers: { 'X-LC-Id': APP_ID, 'X-LC-Key': APP_KEY }
-    });
-    const data = await res.json();
-    if (data.results.length > 0) {
-      const obj = data.results[0];
-      const attempts = { ...(obj.attempts || {}) };
-      attempts[studentName] = status; // record attempt
+    .students-panel {
+      width: 280px;
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
 
-      // Also maintain completedBy for backward compatibility
-      const completedBy = isCorrect 
-        ? [...new Set([...(obj.completedBy || []), studentName])] 
-        : obj.completedBy || [];
+    .students-panel h2 {
+      margin-top: 0;
+      font-size: 1.3rem;
+      color: #2c3e50;
+    }
 
-      await fetch(`${BASE_URL}/classes/GameRound/${obj.objectId}`, {
-        method: 'PUT',
-        headers: {
-          'X-LC-Id': APP_ID,
-          'X-LC-Key': APP_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ attempts, completedBy })
-      });
+    #students-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
-      if (isCorrect) {
-        e.target.classList.add('correct');
+    #students-list li {
+      padding: 10px;
+      margin-bottom: 8px;
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      transition: background-color 0.3s;
+    }
+
+    .status-correct { background-color: #d4edda !important; }
+    .status-incorrect { background-color: #f8d7da !important; }
+    .status-default { background-color: white !important; }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      text-align: right;
+      border-bottom: 1px solid #eee;
+      font-size: 1.1rem;
+    }
+    th {
+      background-color: #f1f8ff;
+      font-weight: bold;
+      text-align: left;
+    }
+    tr:last-child td { border-bottom: none; }
+    td[data-value] {
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    td[data-value]:hover {
+      background-color: #f0f7ff;
+    }
+    .highlight {
+      background-color: #fff9c4 !important;
+      font-weight: bold;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+      .students-panel {
+        position: static;
+        width: 100%;
       }
     }
-  } catch (err) {
-    console.error('Submit error:', err);
-  }
-});
+  </style>
+</head>
+<body>
+  <div class="main-content">
+    <h1>🎯 Teacher Control – Tap Any Cell to Start a Round</h1>
+
+    <h2>Balance Sheet</h2>
+    <table id="balance-sheet"></table>
+
+    <h2>Income Statement</h2>
+    <table id="income-statement"></table>
+  </div>
+
+  <div class="students-panel">
+    <h2>👥 Joined Students (<span id="joined-count">0</span>)</h2>
+    <ul id="students-list"></ul>
+  </div>
+
+  <script>
+    const APP_ID = 'zKIGVAT4i80luijNDM40xZCl-gzGzoHsz';
+    const APP_KEY = 'u6eipqxC1UGkkxR1nJcMR8sH';
+    const BASE_URL = `https://zKIGVAT4i80luijNDM40xZCl-gzGzoHsz.lc-cn-n1-shared.com/1.1`;
+
+    const balanceSheetData = [
+      ["Cash and cash equivalents", 16139, 16398],
+      ["Short-term investments", 20424, 12696],
+      ["Accounts receivable, net", 4418, 3508],
+      ["Inventory", 12017, 13626],
+      ["Prepaid expenses and other current assets", 5362, 3388],
+      ["Total current assets", 58360, 49616],
+      ["Operating lease vehicles, net", 5581, 5989],
+      ["Solar energy systems, net", 4924, 5229],
+      ["Property, plant and equipment, net", 35836, 29725],
+      ["Operating lease right-of-use assets", 5160, 4180],
+      ["Digital assets, net", 1076, 184],
+      ["Intangible assets, net", 150, 178],
+      ["Goodwill", 244, 253],
+      ["Deferred tax assets", 6524, 6733],
+      ["Other non-current assets", 4215, 4531],
+      ["Total assets", 122070, 106618],
+      ["Accounts payable", 12474, 14431],
+      ["Accrued liabilities and other", 10723, 9080],
+      ["Deferred revenue", 3168, 2864],
+      ["Current portion of debt and finance leases", 2456, 2373],
+      ["Total current liabilities", 28821, 28748],
+      ["Debt and finance leases, net of current portion", 5757, 2857],
+      ["Deferred revenue, net of current portion", 3317, 3251],
+      ["Other long-term liabilities", 10495, 8153],
+      ["Total liabilities", 48390, 43009],
+      ["Redeemable noncontrolling interests in subsidiaries", 63, 242],
+      ["Common stock", 3, 3],
+      ["Additional paid-in capital", 38371, 34892],
+      ["Accumulated other comprehensive loss", -670, -143],
+      ["Retained earnings", 35209, 27882],
+      ["Total stockholders’ equity", 72913, 62634],
+      ["Noncontrolling interests in subsidiaries", 704, 733],
+      ["Total liabilities and equity", 122070, 106618]
+    ];
+
+    const incomeStatementData = [
+      ["Automotive sales", 72480, 78509, 67210],
+      ["Automotive regulatory credits", 2763, 1790, 1776],
+      ["Automotive leasing", 1827, 2120, 2476],
+      ["Total automotive revenues", 77070, 82419, 71462],
+      ["Energy generation and storage", 10086, 6035, 3909],
+      ["Services and other", 10534, 8319, 6091],
+      ["Total revenues", 97690, 96773, 81462],
+      ["Automotive sales cost", 61870, 65121, 49599],
+      ["Automotive leasing cost", 1003, 1268, 1509],
+      ["Total automotive cost", 62873, 66389, 51108],
+      ["Energy cost", 7446, 4894, 3621],
+      ["Services cost", 9921, 7830, 5880],
+      ["Total cost of revenues", 80240, 79113, 60609],
+      ["Gross profit", 17450, 17660, 20853],
+      ["Research and development", 4540, 3969, 3075],
+      ["Selling, general and administrative", 5150, 4800, 3946],
+      ["Restructuring and other", 684, 0, 176],
+      ["Total operating expenses", 10374, 8769, 7197],
+      ["Income from operations", 7076, 8891, 13656],
+      ["Interest income", 1569, 1066, 297],
+      ["Interest expense", -350, -156, -191],
+      ["Other income (expense), net", 695, 172, -43],
+      ["Income before income taxes", 8990, 9973, 13719],
+      ["Provision for income taxes", 1837, -5001, 1132],
+      ["Net income", 7153, 14974, 12587],
+      ["Net income attributable to common stockholders", 7091, 14997, 12556],
+      ["Basic EPS", 2.23, 4.73, 4.02],
+      ["Diluted EPS", 2.04, 4.30, 3.62]
+    ];
+
+    function renderTable(containerId, data, prefix) {
+      const container = document.getElementById(containerId);
+      let headers = '<tr><th>Item</th><th>2024</th><th>2023</th>';
+      if (data[0].length > 3) headers += '<th>2022</th>';
+      headers += '</tr>';
+      let rows = '';
+      data.forEach((row, i) => {
+        let rowHtml = `<tr><td>${row[0]}</td>`;
+        for (let j = 1; j < row.length; j++) {
+          const cellId = `${prefix}-${i}-${j}`;
+          const value = row[j];
+          const display = typeof value === 'number' ? value.toLocaleString() : value;
+          rowHtml += `<td id="${cellId}" data-value="${value}">${display}</td>`;
+        }
+        rowHtml += '</tr>';
+        rows += rowHtml;
+      });
+      container.innerHTML = headers + rows;
+    }
+
+    // Initialize tables
+    renderTable('balance-sheet', balanceSheetData, 'bs');
+    renderTable('income-statement', incomeStatementData, 'is');
+
+    // Handle teacher tap: start new round
+    document.addEventListener('click', async (e) => {
+      if (!e.target.matches('td[data-value]')) return;
+
+      const cellId = e.target.id;
+
+      // Highlight only the selected cell
+      document.querySelectorAll('td').forEach(td => td.classList.remove('highlight'));
+      e.target.classList.add('highlight');
+
+      // Create new round
+      const newRound = {
+        targetCellId: cellId,
+        startTime: new Date().toISOString(),
+        completedBy: [],
+        attempts: {}
+      };
+
+      try {
+        const res = await fetch(`${BASE_URL}/classes/GameRound`, {
+          method: 'POST',
+          headers: {
+            'X-LC-Id': APP_ID,
+            'X-LC-Key': APP_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newRound)
+        });
+        const result = await res.json();
+        console.log('New round started:', cellId, result.objectId);
+      } catch (err) {
+        console.error('Failed to start round:', err);
+      }
+    });
+
+    // Poll for student join & attempt data
+    async function pollStudentStatus() {
+      try {
+        const roundRes = await fetch(`${BASE_URL}/classes/GameRound?limit=1&order=-createdAt`, {
+          headers: { 'X-LC-Id': APP_ID, 'X-LC-Key': APP_KEY }
+        });
+        const roundData = await roundRes.json();
+        if (!roundData.results || roundData.results.length === 0) {
+          updateStudentsPanel([], []);
+          setTimeout(pollStudentStatus, 2000);
+          return;
+        }
+
+        const latestRound = roundData.results[0];
+        const allNames = new Set();
+        if (latestRound.completedBy) latestRound.completedBy.forEach(n => allNames.add(n));
+        if (latestRound.attempts) Object.keys(latestRound.attempts).forEach(n => allNames.add(n));
+
+        const studentsArray = Array.from(allNames).sort();
+        const studentStatuses = studentsArray.map(name => {
+          if (latestRound.attempts && latestRound.attempts[name]) {
+            return { name, status: latestRound.attempts[name] };
+          } else {
+            return { name, status: 'none' };
+          }
+        });
+
+        updateStudentsPanel(studentsArray, studentStatuses);
+      } catch (err) {
+        console.error('Poll error:', err);
+      }
+      setTimeout(pollStudentStatus, 2000);
+    }
+
+    function updateStudentsPanel(allNames, statuses) {
+      const listEl = document.getElementById('students-list');
+      const countEl = document.getElementById('joined-count');
+      countEl.textContent = allNames.length;
+
+      if (allNames.length === 0) {
+        listEl.innerHTML = '<li>No students joined yet</li>';
+        return;
+      }
+
+      listEl.innerHTML = statuses.map(s => {
+        let className = 'status-default';
+        if (s.status === 'correct') className = 'status-correct';
+        else if (s.status === 'incorrect') className = 'status-incorrect';
+        return `<li class="${className}">${s.name}</li>`;
+      }).join('');
+    }
+
+    // Start polling
+    pollStudentStatus();
+  </script>
+</body>
+</html>
