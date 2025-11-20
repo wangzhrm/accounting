@@ -267,7 +267,12 @@
       renderTable('balance-sheet', balanceSheetData, 'bs');
       renderTable('income-statement', incomeStatementData, 'is');
 
+      // Start polling
       pollForRound();
+
+      // Initialize timer to "0s" immediately upon joining
+      resetTimer();
+      startTimer();
     }
 
     async function pollForRound() {
@@ -278,27 +283,24 @@
         const data = await res.json();
         if (data.results && data.results.length > 0) {
           const round = data.results[0];
-          // New round if targetCellId or objectId changed
+          // New round if objectId changed
           if (round.objectId !== currentRoundId) {
             currentRoundId = round.objectId;
             currentTarget = round.targetCellId;
-            startTime = new Date(round.startTime.iso);
             hasSucceededInRound = false;
 
-            // Clear feedback & wrong highlights
+            // Clear UI feedback
             document.getElementById('feedback-message').textContent = '';
             document.querySelectorAll('.wrong-cell').forEach(el => el.classList.remove('wrong-cell'));
 
-            // Update UI
-            const colorIndex = (data.results.length - 1) % bgColors.length; // or use timestamp logic
-            document.getElementById('floating-status').style.backgroundColor = bgColors[colorIndex];
+            // Update success count
+            updateSuccessDisplay(round.completedBy || []);
 
-            // Restart timer
+            // Reset & restart timer from 0s
             resetTimer();
             startTimer();
-            updateSuccessDisplay(round.completedBy || []);
           } else {
-            // Still same round — just update success count
+            // Same round — just refresh success count
             updateSuccessDisplay(round.completedBy || []);
           }
         }
@@ -319,7 +321,8 @@
 
     function resetTimer() {
       clearInterval(timerInterval);
-      document.getElementById('timer-display').innerText = '⏱️ Round started!';
+      startTime = new Date(); // Set start time to NOW
+      document.getElementById('timer-display').innerText = '⏱️ 0s';
     }
 
     function stopTimer() {
