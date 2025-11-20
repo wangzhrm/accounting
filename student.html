@@ -55,17 +55,15 @@
     th { text-align: left; background: #f5f5f5; }
     td[data-cell-id] {
       cursor: pointer;
+      background: white;
       transition: background 0.2s;
-    }
-    td[data-cell-id]:hover {
-      background: #f0f8ff;
     }
     .wrong-cell { background: #ffebee !important; }
     .correct-cell { background: #e8f5e8 !important; }
   </style>
 </head>
 <body>
-  <div id="floating-status">🎮 Waiting for teacher to start...</div>
+  <div id="floating-status">🎮 Enter your name and wait for the teacher to start a round.</div>
 
   <div id="join-section">
     <h2>Enter Your Name to Join</h2>
@@ -205,7 +203,7 @@
     function showMessage(text, isError = false) {
       const bar = document.getElementById('floating-status');
       bar.textContent = text;
-      bar.style.color = isError ? 'red' : (text.includes('Correct') ? 'green' : '#333');
+      bar.style.color = isError ? 'red' : (text.includes('Correct') || text.includes('Well done') ? 'green' : '#333');
     }
 
     function joinGame() {
@@ -236,18 +234,22 @@
             currentTarget = round.targetCellId;
             hasWon = false;
 
+            // Clear all visual feedback when new round starts
             document.querySelectorAll('.wrong-cell, .correct-cell').forEach(el => {
               el.classList.remove('wrong-cell', 'correct-cell');
             });
 
-            showMessage("A new round has begun!");
+            showMessage("🎯 New round started! Find the hidden number.");
           }
         } else {
-          showMessage("🎮 Waiting for teacher to start...");
+          currentTarget = null;
+          currentRoundId = null;
+          hasWon = false;
+          showMessage("🕒 Waiting for teacher to start a round...");
         }
       } catch (error) {
         console.error("Fetch error:", error);
-        showMessage("⚠️ Connection issue");
+        showMessage("⚠️ Connection issue – retrying...");
       }
     }
 
@@ -273,19 +275,33 @@
     }
 
     document.addEventListener('click', async (e) => {
-      if (!studentName) return;
-      if (!e.target.matches('td[data-cell-id]') || !currentTarget || hasWon) return;
+      if (!studentName) {
+        showMessage("⚠️ Please enter your name first.");
+        return;
+      }
+
+      if (!e.target.matches('td[data-cell-id]')) return;
+
+      // Clear previous attempt feedback
+      document.querySelectorAll('.wrong-cell, .correct-cell').forEach(el => {
+        el.classList.remove('wrong-cell', 'correct-cell');
+      });
+
+      if (!currentTarget || hasWon) {
+        showMessage("🕒 No active round or already completed.");
+        return;
+      }
 
       const clickedId = e.target.dataset.cellId;
 
       if (clickedId === currentTarget) {
         e.target.classList.add('correct-cell');
-        showMessage("Correct! Congratulations!", false);
+        showMessage("🎉 Correct! Well done!", false);
         hasWon = true;
         await markAsCompleted();
       } else {
         e.target.classList.add('wrong-cell');
-        showMessage("Wrong cell! Try again.", true);
+        showMessage("❌ Wrong cell! Try again.", true);
       }
     });
 
