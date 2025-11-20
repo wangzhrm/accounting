@@ -217,21 +217,17 @@
       container.innerHTML = headers + rows;
     }
 
-    // Initialize tables
     renderTable('balance-sheet', balanceSheetData, 'bs');
     renderTable('income-statement', incomeStatementData, 'is');
 
-    // Handle teacher tap: start new round
     document.addEventListener('click', async (e) => {
       if (!e.target.matches('td[data-value]')) return;
 
       const cellId = e.target.id;
 
-      // Highlight only the selected cell
       document.querySelectorAll('td').forEach(td => td.classList.remove('highlight'));
       e.target.classList.add('highlight');
 
-      // Create new round
       const newRound = {
         targetCellId: cellId,
         startTime: new Date().toISOString(),
@@ -256,7 +252,6 @@
       }
     });
 
-    // Poll for student join & attempt data
     async function pollStudentStatus() {
       try {
         const roundRes = await fetch(`${BASE_URL}/classes/GameRound?limit=1&order=-createdAt`, {
@@ -308,7 +303,6 @@
       }).join('');
     }
 
-    // Start polling
     pollStudentStatus();
   </script>
 </body>
