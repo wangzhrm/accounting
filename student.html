@@ -27,6 +27,19 @@
       font-weight: bold;
       color: #333;
     }
+    #join-section {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 16px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 8px 12px;
+      margin: 4px;
+      font-size: 16px;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -54,6 +67,12 @@
 <body>
   <div id="floating-status">🎮 Waiting for teacher to start...</div>
 
+  <div id="join-section">
+    <h2>Enter Your Name to Join</h2>
+    <input type="text" id="student-name" placeholder="Your name" maxlength="20" />
+    <button onclick="joinGame()">Join Game</button>
+  </div>
+
   <h1>🔍 Find the Hidden Number!</h1>
 
   <h2>Balance Sheet</h2>
@@ -67,13 +86,88 @@
     const APP_KEY = "u6eipqxC1UGkkxR1nJcMR8sH";
     const BASE_URL = "https://api.leancloud.cn/1.1";
 
-    // Same data and helper functions as teacher
+    // --- DATA (same as teacher) ---
     const balanceSheetData = [/* same as above */];
     const incomeStatementData = [/* same as above */];
 
+    // Paste full data here (identical to teacher)
+    const balanceSheetData = [
+      ["Cash and cash equivalents", 16139, 16398],
+      ["Short-term investments", 20424, 12696],
+      ["Accounts receivable, net", 4418, 3508],
+      ["Inventory", 12017, 13626],
+      ["Prepaid expenses and other current assets", 5362, 3388],
+      ["Total current assets", 58360, 49616],
+      ["Operating lease vehicles, net", 5581, 5989],
+      ["Solar energy systems, net", 4924, 5229],
+      ["Property, plant and equipment, net", 35836, 29725],
+      ["Operating lease right-of-use assets", 5160, 4180],
+      ["Digital assets, net", 1076, 184],
+      ["Intangible assets, net", 150, 178],
+      ["Goodwill", 244, 253],
+      ["Deferred tax assets", 6524, 6733],
+      ["Other non-current assets", 4215, 4531],
+      ["Total assets", 122070, 106618],
+      ["Accounts payable", 12474, 14431],
+      ["Accrued liabilities and other", 10723, 9080],
+      ["Deferred revenue", 3168, 2864],
+      ["Current portion of debt and finance leases", 2456, 2373],
+      ["Total current liabilities", 28821, 28748],
+      ["Debt and finance leases, net of current portion", 5757, 2857],
+      ["Deferred revenue, net of current portion", 3317, 3251],
+      ["Other long-term liabilities", 10495, 8153],
+      ["Total liabilities", 48390, 43009],
+      ["Redeemable noncontrolling interests in subsidiaries", 63, 242],
+      ["Common stock", 3, 3],
+      ["Additional paid-in capital", 38371, 34892],
+      ["Accumulated other comprehensive loss", -670, -143],
+      ["Retained earnings", 35209, 27882],
+      ["Total stockholders’ equity", 72913, 62634],
+      ["Noncontrolling interests in subsidiaries", 704, 733],
+      ["Total liabilities and equity", 122070, 106618]
+    ];
+
+    const incomeStatementData = [
+      ["Automotive sales", 72480, 78509, 67210],
+      ["Automotive regulatory credits", 2763, 1790, 1776],
+      ["Automotive leasing", 1827, 2120, 2476],
+      ["Total automotive revenues", 77070, 82419, 71462],
+      ["Energy generation and storage", 10086, 6035, 3909],
+      ["Services and other", 10534, 8319, 6091],
+      ["Total revenues", 97690, 96773, 81462],
+      ["Automotive sales cost", 61870, 65121, 49599],
+      ["Automotive leasing cost", 1003, 1268, 1509],
+      ["Total automotive cost", 62873, 66389, 51108],
+      ["Energy cost", 7446, 4894, 3621],
+      ["Services cost", 9921, 7830, 5880],
+      ["Total cost of revenues", 80240, 79113, 60609],
+      ["Gross profit", 17450, 17660, 20853],
+      ["Research and development", 4540, 3969, 3075],
+      ["Selling, general and administrative", 5150, 4800, 3946],
+      ["Restructuring and other", 684, 0, 176],
+      ["Total operating expenses", 10374, 8769, 7197],
+      ["Income from operations", 7076, 8891, 13656],
+      ["Interest income", 1569, 1066, 297],
+      ["Interest expense", -350, -156, -191],
+      ["Other income (expense), net", 695, 172, -43],
+      ["Income before income taxes", 8990, 9973, 13719],
+      ["Provision for income taxes", 1837, -5001, 1132],
+      ["Net income", 7153, 14974, 12587],
+      ["Net income attributable to common stockholders", 7091, 14997, 12556],
+      ["Basic EPS", 2.23, 4.73, 4.02],
+      ["Diluted EPS", 2.04, 4.30, 3.62]
+    ];
+
+    function slugify(str) {
+      return str.toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+    }
+
     function generateCellId(prefix, rowLabel, yearIndex) {
       const years = ["2024", "2023", "2022"];
-      return `${prefix}-${rowLabel.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${years[yearIndex]}`;
+      return `${prefix}-${slugify(rowLabel)}-${years[yearIndex]}`;
     }
 
     function renderTable(containerId, data, prefix) {
@@ -100,34 +194,55 @@
     renderTable('balance-sheet', balanceSheetData, 'bs');
     renderTable('income-statement', incomeStatementData, 'is');
 
+    let studentName = localStorage.getItem('studentName') || '';
     let currentTarget = null;
+    let currentRoundId = null;
     let hasWon = false;
-    let lastObjectId = null;
+
+    const nameInput = document.getElementById('student-name');
+    const joinSection = document.getElementById('join-section');
+
+    if (studentName) {
+      nameInput.value = studentName;
+      joinSection.style.display = 'none';
+    }
 
     function showMessage(text, isError = false) {
       const bar = document.getElementById('floating-status');
       bar.textContent = text;
-      bar.style.color = isError ? 'red' : (text.includes('Congratulations') ? 'green' : '#333');
+      bar.style.color = isError ? 'red' : (text.includes('Correct') ? 'green' : '#333');
+    }
+
+    function joinGame() {
+      const name = nameInput.value.trim();
+      if (!name) {
+        alert("Please enter your name");
+        return;
+      }
+      studentName = name;
+      localStorage.setItem('studentName', name);
+      joinSection.style.display = 'none';
+      showMessage("Joined! Waiting for round...");
     }
 
     async function fetchLatestGameRound() {
       try {
-        const response = await fetch(`${BASE_URL}/classes/GameRound?limit=1&order=-createdAt`, {
+        const res = await fetch(`${BASE_URL}/classes/GameRound?limit=1&order=-createdAt`, {
           headers: {
             "X-LC-Id": APP_ID,
             "X-LC-Key": APP_KEY
           }
         });
-        const data = await response.json();
+        const data = await res.json();
         if (data.results && data.results.length > 0) {
           const round = data.results[0];
-          if (round.objectId !== lastObjectId) {
+          if (round.objectId !== currentRoundId) {
             // New round!
+            currentRoundId = round.objectId;
             currentTarget = round.targetCellId;
             hasWon = false;
-            lastObjectId = round.objectId;
 
-            // Clear highlights
+            // Reset all highlights
             document.querySelectorAll('.wrong-cell, .correct-cell').forEach(el => {
               el.classList.remove('wrong-cell', 'correct-cell');
             });
@@ -143,13 +258,12 @@
       }
     }
 
-    // Poll every 2 seconds
     setInterval(fetchLatestGameRound, 2000);
 
-    async function markAsCompleted(studentName = "Anonymous") {
-      if (!lastObjectId) return;
+    async function markAsCompleted() {
+      if (!currentRoundId || !studentName) return;
       try {
-        const response = await fetch(`${BASE_URL}/classes/GameRound/${lastObjectId}`, {
+        await fetch(`${BASE_URL}/classes/GameRound/${currentRoundId}`, {
           method: 'PUT',
           headers: {
             "X-LC-Id": APP_ID,
@@ -160,15 +274,13 @@
             completedBy: { "__op": "AddUnique", "objects": [studentName] }
           })
         });
-        if (!response.ok) {
-          console.warn("Failed to update completedBy");
-        }
       } catch (error) {
-        console.error("Update error:", error);
+        console.warn("Update failed:", error);
       }
     }
 
     document.addEventListener('click', async (e) => {
+      if (!studentName) return;
       if (!e.target.matches('td[data-cell-id]') || !currentTarget || hasWon) return;
 
       const clickedId = e.target.dataset.cellId;
@@ -177,15 +289,17 @@
         e.target.classList.add('correct-cell');
         showMessage("Correct! Congratulations!", false);
         hasWon = true;
-        await markAsCompleted(); // Add to completedBy
+        await markAsCompleted();
       } else {
         e.target.classList.add('wrong-cell');
-        showMessage("You got it wrong!", true);
+        showMessage("Wrong cell! Try again.", true);
       }
     });
 
     // Initial load
-    fetchLatestGameRound();
+    if (studentName) {
+      fetchLatestGameRound();
+    }
   </script>
 </body>
 </html>
