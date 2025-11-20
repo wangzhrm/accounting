@@ -11,20 +11,20 @@
     }
     body {
       margin: 0;
-      padding: 60px 16px 16px; /* Make room for floating bar */
+      padding: 60px 16px 16px; /* Space for floating bar */
       background-color: #f9f9fb;
       color: #333;
       line-height: 1.5;
     }
 
-    /* ===== FLOATING STATUS BAR ===== */
+    /* Floating Status Bar */
     #floating-status {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 50px;
-      background-color: #e0f7fa; /* default: light cyan */
+      background-color: #e8f5e9;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -58,7 +58,6 @@
       max-width: 300px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      margin-right: 8px;
     }
     button {
       font-size: 1.1rem;
@@ -124,7 +123,6 @@
   </style>
 </head>
 <body>
-  <!-- Floating status bar -->
   <div id="floating-status">
     <div id="timer-display">⏱️ Waiting...</div>
     <div id="success-display">👥 Found: 0</div>
@@ -149,11 +147,7 @@
     const APP_KEY = 'u6eipqxC1UGkkxR1nJcMR8sH';
     const BASE_URL = `https://zKIGVAT4i80luijNDM40xZCl-gzGzoHsz.lc-cn-n1-shared.com/1.1`;
 
-    // Financial data (same as before)
-    const balanceSheetData = [/* ... same full array as previous version ... */];
-    const incomeStatementData = [/* ... same full array ... */];
-
-    // Paste full data here (identical to teacher.html)
+    // ✅ Financial data defined ONLY ONCE
     const balanceSheetData = [
       ["Cash and cash equivalents", 16139, 16398],
       ["Short-term investments", 20424, 12696],
@@ -227,7 +221,6 @@
     let timerInterval = null;
     let roundCount = 0;
 
-    // Color palette for new rounds (soft, non-distracting)
     const bgColors = ['#e8f5e9', '#e3f2fd', '#fff3e0', '#f3e5f5', '#e0f7fa', '#ede7f6'];
 
     function renderTable(containerId, data, prefix) {
@@ -258,6 +251,7 @@
       input.disabled = true;
       document.querySelector('button').disabled = true;
 
+      // ✅ Now safely renders tables
       renderTable('balance-sheet', balanceSheetData, 'bs');
       renderTable('income-statement', incomeStatementData, 'is');
 
@@ -273,12 +267,10 @@
         if (data.results && data.results.length > 0) {
           const round = data.results[0];
           if (round.targetCellId !== currentTarget) {
-            // New round!
             currentTarget = round.targetCellId;
             startTime = new Date(round.startTime.iso);
             roundCount++;
 
-            // Update floating bar background
             const colorIndex = (roundCount - 1) % bgColors.length;
             document.getElementById('floating-status').style.backgroundColor = bgColors[colorIndex];
 
@@ -310,13 +302,11 @@
       document.getElementById('success-display').innerText = `👥 Found: ${names.length}`;
     }
 
-    // Handle tap: only check if correct, no visual hint from teacher
     document.addEventListener('click', async (e) => {
       if (!currentTarget || !studentName || !e.target.matches('td[data-value]')) return;
       if (e.target.id === currentTarget) {
         e.target.classList.add('correct');
 
-        // Record success
         try {
           const res = await fetch(`${BASE_URL}/classes/GameRound?where={"targetCellId":"${encodeURIComponent(currentTarget)}"}&limit=1`, {
             headers: { 'X-LC-Id': APP_ID, 'X-LC-Key': APP_KEY }
