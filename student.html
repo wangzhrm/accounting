@@ -36,6 +36,15 @@
     }
     #timer-display { color: #0277bd; }
     #success-display { color: #2e7d32; }
+    #feedback-message {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: bold;
+      color: #d32f2f;
+      text-align: center;
+      white-space: nowrap;
+    }
 
     h1 {
       font-size: 1.8rem;
@@ -104,6 +113,9 @@
       background-color: #d4edda !important;
       font-weight: bold;
     }
+    .wrong-cell {
+      background-color: #ffebee !important;
+    }
 
     h2 {
       font-size: 1.4rem;
@@ -125,6 +137,7 @@
 <body>
   <div id="floating-status">
     <div id="timer-display">⏱️ Waiting...</div>
+    <div id="feedback-message"></div>
     <div id="success-display">👥 Found: 0</div>
   </div>
 
@@ -147,7 +160,6 @@
     const APP_KEY = 'u6eipqxC1UGkkxR1nJcMR8sH';
     const BASE_URL = `https://zKIGVAT4i80luijNDM40xZCl-gzGzoHsz.lc-cn-n1-shared.com/1.1`;
 
-    // ✅ Financial data defined ONLY ONCE
     const balanceSheetData = [
       ["Cash and cash equivalents", 16139, 16398],
       ["Short-term investments", 20424, 12696],
@@ -219,7 +231,8 @@
     let currentTarget = null;
     let startTime = null;
     let timerInterval = null;
-    let roundCount = 0;
+    let hasSucceededInRound = false;
+    let currentRoundId = null;
 
     const bgColors = ['#e8f5e9', '#e3f2fd', '#fff3e0', '#f3e5f5', '#e0f7fa', '#ede7f6'];
 
@@ -251,7 +264,6 @@
       input.disabled = true;
       document.querySelector('button').disabled = true;
 
-      // ✅ Now safely renders tables
       renderTable('balance-sheet', balanceSheetData, 'bs');
       renderTable('income-statement', incomeStatementData, 'is');
 
@@ -266,16 +278,27 @@
         const data = await res.json();
         if (data.results && data.results.length > 0) {
           const round = data.results[0];
-          if (round.targetCellId !== currentTarget) {
+          // New round if targetCellId or objectId changed
+          if (round.objectId !== currentRoundId) {
+            currentRoundId = round.objectId;
             currentTarget = round.targetCellId;
             startTime = new Date(round.startTime.iso);
-            roundCount++;
+            hasSucceededInRound = false;
 
-            const colorIndex = (roundCount - 1) % bgColors.length;
+            // Clear feedback & wrong highlights
+            document.getElementById('feedback-message').textContent = '';
+            document.querySelectorAll('.wrong-cell').forEach(el => el.classList.remove('wrong-cell'));
+
+            // Update UI
+            const colorIndex = (data.results.length - 1) % bgColors.length; // or use timestamp logic
             document.getElementById('floating-status').style.backgroundColor = bgColors[colorIndex];
 
+            // Restart timer
             resetTimer();
             startTimer();
+            updateSuccessDisplay(round.completedBy || []);
+          } else {
+            // Still same round — just update success count
             updateSuccessDisplay(round.completedBy || []);
           }
         }
@@ -288,6 +311,7 @@
     function startTimer() {
       clearInterval(timerInterval);
       timerInterval = setInterval(() => {
+        if (!startTime) return;
         const elapsed = Math.floor((new Date() - startTime) / 1000);
         document.getElementById('timer-display').innerText = `⏱️ ${elapsed}s`;
       }, 1000);
@@ -298,35 +322,69 @@
       document.getElementById('timer-display').innerText = '⏱️ Round started!';
     }
 
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
     function updateSuccessDisplay(names) {
       document.getElementById('success-display').innerText = `👥 Found: ${names.length}`;
     }
 
+    function showFeedback(message, isError = true) {
+      const el = document.getElementById('feedback-message');
+      el.textContent = message;
+      el.style.color = isError ? '#d32f2f' : '#2e7d32';
+      if (isError) {
+        setTimeout(() => {
+          if (el.textContent === message) el.textContent = '';
+        }, 2000);
+      }
+    }
+
     document.addEventListener('click', async (e) => {
       if (!currentTarget || !studentName || !e.target.matches('td[data-value]')) return;
-      if (e.target.id === currentTarget) {
-        e.target.classList.add('correct');
+      if (hasSucceededInRound) return; // prevent re-submission
 
-        try {
-          const res = await fetch(`${BASE_URL}/classes/GameRound?where={"targetCellId":"${encodeURIComponent(currentTarget)}"}&limit=1`, {
-            headers: { 'X-LC-Id': APP_ID, 'X-LC-Key': APP_KEY }
+      const isCorrect = (e.target.id === currentTarget);
+
+      try {
+        const res = await fetch(`${BASE_URL}/classes/GameRound?where={"targetCellId":"${encodeURIComponent(currentTarget)}"}&limit=1`, {
+          headers: { 'X-LC-Id': APP_ID, 'X-LC-Key': APP_KEY }
+        });
+        const data = await res.json();
+        if (data.results.length > 0) {
+          const obj = data.results[0];
+          const attempts = { ...(obj.attempts || {}) };
+          attempts[studentName] = isCorrect ? 'correct' : 'incorrect';
+
+          const completedBy = isCorrect 
+            ? [...new Set([...(obj.completedBy || []), studentName])] 
+            : obj.completedBy || [];
+
+          await fetch(`${BASE_URL}/classes/GameRound/${obj.objectId}`, {
+            method: 'PUT',
+            headers: {
+              'X-LC-Id': APP_ID,
+              'X-LC-Key': APP_KEY,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ attempts, completedBy })
           });
-          const data = await res.json();
-          if (data.results.length > 0) {
-            const obj = data.results[0];
-            const completed = [...new Set([...(obj.completedBy || []), studentName])];
-            await fetch(`${BASE_URL}/classes/GameRound/${obj.objectId}`, {
-              method: 'PUT',
-              headers: {
-                'X-LC-Id': APP_ID,
-                'X-LC-Key': APP_KEY,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ completedBy: completed })
-            });
+
+          if (isCorrect) {
+            e.target.classList.add('correct');
+            hasSucceededInRound = true;
+            stopTimer();
+          } else {
+            e.target.classList.add('wrong-cell');
+            showFeedback("You got it wrong!");
           }
-        } catch (err) {
-          console.error('Submit error:', err);
+        }
+      } catch (err) {
+        console.error('Submit error:', err);
+        if (!isCorrect) {
+          e.target.classList.add('wrong-cell');
+          showFeedback("You got it wrong!");
         }
       }
     });
