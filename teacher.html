@@ -3,132 +3,33 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tesla Financials - Teacher</title>
+  <title>Teacher - Financial Game</title>
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    body {
-      margin: 0;
-      padding: 20px;
-      background-color: #f5f7fa;
-      color: #333;
-      display: flex;
-      gap: 24px;
-    }
-
-    .main-content {
-      flex: 1;
-      max-width: 900px;
-    }
-
-    .students-panel {
-      width: 280px;
-      background: white;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      height: fit-content;
-      position: sticky;
-      top: 20px;
-    }
-
-    .students-panel h2 {
-      margin-top: 0;
-      font-size: 1.3rem;
-      color: #2c3e50;
-    }
-
-    #students-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    #students-list li {
-      padding: 10px;
-      margin-bottom: 8px;
-      background: white;
-      border: 1px solid #eee;
-      border-radius: 6px;
-      transition: background-color 0.3s;
-    }
-
-    .status-correct { background-color: #d4edda !important; }
-    .status-incorrect { background-color: #f8d7da !important; }
-    .status-default { background-color: white !important; }
-
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
-      color: #2c3e50;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      margin-bottom: 24px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 12px;
-      text-align: right;
-      border-bottom: 1px solid #eee;
-      font-size: 1.1rem;
-    }
-    th {
-      background-color: #f1f8ff;
-      font-weight: bold;
-      text-align: left;
-    }
-    tr:last-child td { border-bottom: none; }
-    td[data-value] {
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    td[data-value]:hover {
-      background-color: #f0f7ff;
-    }
-    .highlight {
-      background-color: #fff9c4 !important;
-      font-weight: bold;
-    }
-
-    @media (max-width: 900px) {
-      body {
-        flex-direction: column;
-      }
-      .students-panel {
-        position: static;
-        width: 100%;
-      }
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f8ff; }
+    h1 { color: #2c3e50; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    th, td { padding: 10px; text-align: right; border: 1px solid #ddd; }
+    th { text-align: left; background: #e3f2fd; }
+    td[data-cell-id] { cursor: pointer; transition: background 0.2s; }
+    td[data-cell-id]:hover { background: #bbdefb; }
+    .highlight { background: #fff9c4 !important; font-weight: bold; }
+    #status { margin-top: 10px; padding: 8px; background: #e8f5e8; border-radius: 4px; }
   </style>
 </head>
 <body>
-  <div class="main-content">
-    <h1>🎯 Teacher Control – Tap Any Cell to Start a Round</h1>
+  <h1>👩‍🏫 Teacher: Tap Any Number to Start a Round</h1>
+  <div id="status">Ready</div>
 
-    <h2>Balance Sheet</h2>
-    <table id="balance-sheet"></table>
+  <h2>Balance Sheet</h2>
+  <table id="balance-sheet"></table>
 
-    <h2>Income Statement</h2>
-    <table id="income-statement"></table>
-  </div>
-
-  <div class="students-panel">
-    <h2>👥 Joined Students (<span id="joined-count">0</span>)</h2>
-    <ul id="students-list"></ul>
-  </div>
+  <h2>Income Statement</h2>
+  <table id="income-statement"></table>
 
   <script>
-    const APP_ID = 'zKIGVAT4i80luijNDM40xZCl-gzGzoHsz';
-    const APP_KEY = 'u6eipqxC1UGkkxR1nJcMR8sH';
-    const BASE_URL = `https://zKIGVAT4i80luijNDM40xZCl-gzGzoHsz.lc-cn-n1-shared.com/1.1`;
+    const APP_ID = "zKIGVAT4i80luijNDM40xZCl-gzGzoHsz";
+    const APP_KEY = "u6eipqxC1UGkkxR1nJcMR8sH";
+    const BASE_URL = "https://api.leancloud.cn/1.1";
 
     const balanceSheetData = [
       ["Cash and cash equivalents", 16139, 16398],
@@ -197,22 +98,28 @@
       ["Diluted EPS", 2.04, 4.30, 3.62]
     ];
 
+    function generateCellId(prefix, rowLabel, yearIndex) {
+      const years = ["2024", "2023", "2022"];
+      return `${prefix}-${rowLabel.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${years[yearIndex]}`;
+    }
+
     function renderTable(containerId, data, prefix) {
       const container = document.getElementById(containerId);
       let headers = '<tr><th>Item</th><th>2024</th><th>2023</th>';
       if (data[0].length > 3) headers += '<th>2022</th>';
       headers += '</tr>';
+
       let rows = '';
-      data.forEach((row, i) => {
-        let rowHtml = `<tr><td>${row[0]}</td>`;
+      data.forEach(row => {
+        const label = row[0];
+        rows += `<tr><td>${label}</td>`;
         for (let j = 1; j < row.length; j++) {
-          const cellId = `${prefix}-${i}-${j}`;
           const value = row[j];
           const display = typeof value === 'number' ? value.toLocaleString() : value;
-          rowHtml += `<td id="${cellId}" data-value="${value}">${display}</td>`;
+          const cellId = generateCellId(prefix, label, j - 1);
+          rows += `<td data-cell-id="${cellId}" data-value="${value}">${display}</td>`;
         }
-        rowHtml += '</tr>';
-        rows += rowHtml;
+        rows += '</tr>';
       });
       container.innerHTML = headers + rows;
     }
@@ -220,90 +127,46 @@
     renderTable('balance-sheet', balanceSheetData, 'bs');
     renderTable('income-statement', incomeStatementData, 'is');
 
-    document.addEventListener('click', async (e) => {
-      if (!e.target.matches('td[data-value]')) return;
-
-      const cellId = e.target.id;
-
-      document.querySelectorAll('td').forEach(td => td.classList.remove('highlight'));
-      e.target.classList.add('highlight');
-
-      const newRound = {
-        targetCellId: cellId,
-        startTime: new Date().toISOString(),
-        completedBy: [],
-        attempts: {}
-      };
-
+    async function createGameRound(targetCellId) {
+      const statusEl = document.getElementById('status');
       try {
-        const res = await fetch(`${BASE_URL}/classes/GameRound`, {
+        const response = await fetch(`${BASE_URL}/classes/GameRound`, {
           method: 'POST',
           headers: {
-            'X-LC-Id': APP_ID,
-            'X-LC-Key': APP_KEY,
-            'Content-Type': 'application/json'
+            "X-LC-Id": APP_ID,
+            "X-LC-Key": APP_KEY,
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify(newRound)
+          body: JSON.stringify({
+            targetCellId: targetCellId,
+            startTime: new Date().toISOString(),
+            completedBy: []
+          })
         });
-        const result = await res.json();
-        console.log('New round started:', cellId, result.objectId);
-      } catch (err) {
-        console.error('Failed to start round:', err);
-      }
-    });
 
-    async function pollStudentStatus() {
-      try {
-        const roundRes = await fetch(`${BASE_URL}/classes/GameRound?limit=1&order=-createdAt`, {
-          headers: { 'X-LC-Id': APP_ID, 'X-LC-Key': APP_KEY }
-        });
-        const roundData = await roundRes.json();
-        if (!roundData.results || roundData.results.length === 0) {
-          updateStudentsPanel([], []);
-          setTimeout(pollStudentStatus, 2000);
-          return;
+        if (response.ok) {
+          statusEl.textContent = `✅ Round started: ${targetCellId}`;
+          statusEl.style.background = "#e8f5e8";
+        } else {
+          const err = await response.text();
+          throw new Error(err);
         }
-
-        const latestRound = roundData.results[0];
-        const allNames = new Set();
-        if (latestRound.completedBy) latestRound.completedBy.forEach(n => allNames.add(n));
-        if (latestRound.attempts) Object.keys(latestRound.attempts).forEach(n => allNames.add(n));
-
-        const studentsArray = Array.from(allNames).sort();
-        const studentStatuses = studentsArray.map(name => {
-          if (latestRound.attempts && latestRound.attempts[name]) {
-            return { name, status: latestRound.attempts[name] };
-          } else {
-            return { name, status: 'none' };
-          }
-        });
-
-        updateStudentsPanel(studentsArray, studentStatuses);
-      } catch (err) {
-        console.error('Poll error:', err);
+      } catch (error) {
+        console.error("Failed to start round:", error);
+        statusEl.textContent = `❌ Error: ${error.message}`;
+        statusEl.style.background = "#ffebee";
       }
-      setTimeout(pollStudentStatus, 2000);
     }
 
-    function updateStudentsPanel(allNames, statuses) {
-      const listEl = document.getElementById('students-list');
-      const countEl = document.getElementById('joined-count');
-      countEl.textContent = allNames.length;
+    document.addEventListener('click', (e) => {
+      if (!e.target.matches('td[data-cell-id]')) return;
 
-      if (allNames.length === 0) {
-        listEl.innerHTML = '<li>No students joined yet</li>';
-        return;
-      }
+      const cellId = e.target.dataset.cellId;
+      document.querySelectorAll('td').forEach(el => el.classList.remove('highlight'));
+      e.target.classList.add('highlight');
 
-      listEl.innerHTML = statuses.map(s => {
-        let className = 'status-default';
-        if (s.status === 'correct') className = 'status-correct';
-        else if (s.status === 'incorrect') className = 'status-incorrect';
-        return `<li class="${className}">${s.name}</li>`;
-      }).join('');
-    }
-
-    pollStudentStatus();
+      createGameRound(cellId);
+    });
   </script>
 </body>
 </html>
