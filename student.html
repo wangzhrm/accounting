@@ -266,8 +266,7 @@
 
       pollForRound();
 
-      // Initialize timer state (will be overridden by first round)
-      resetTimerDisplay(); // show "Waiting..."
+      resetTimerDisplay();
     }
 
     async function pollForRound() {
@@ -281,28 +280,23 @@
           const isNewRound = round.objectId !== currentRoundId;
 
           if (isNewRound) {
-            // NEW ROUND STARTED
             currentRoundId = round.objectId;
             currentTarget = round.targetCellId;
             hasSucceededInRound = false;
 
-            // Reset UI
             document.querySelectorAll('.correct-cell, .wrong-cell').forEach(el => {
               el.classList.remove('correct-cell', 'wrong-cell');
             });
             clearFeedback();
 
-            // Start timer from 0s — use round's createdAt as reference
             const roundStartTime = new Date(round.createdAt);
             startTimerFrom(roundStartTime);
 
             updateSuccessDisplay(round.completedBy || []);
           } else {
-            // Same round — just refresh success count
             updateSuccessDisplay(round.completedBy || []);
           }
         } else {
-          // No round yet
           resetTimerDisplay();
         }
       } catch (err) {
@@ -319,11 +313,7 @@
     function startTimerFrom(startTimeRef) {
       clearInterval(timerInterval);
       startTime = startTimeRef;
-
-      // Immediate update
       updateTimer();
-
-      // Then every second
       timerInterval = setInterval(updateTimer, 1000);
     }
 
@@ -355,7 +345,7 @@
       if (!currentTarget || !studentName || !e.target.matches('td[data-value]')) return;
       if (hasSucceededInRound) return;
 
-      const isCorrect = (e.target.id === currentTarget);
+      const isCorrect = e.target.id === currentTarget;
 
       try {
         const res = await fetch(`${BASE_URL}/classes/GameRound?where={"targetCellId":"${encodeURIComponent(currentTarget)}"}&limit=1`, {
@@ -386,7 +376,6 @@
             hasSucceededInRound = true;
             stopTimer();
             showFeedback("🎉 Congratulations!", true);
-            // Optional: auto-clear after 3s
             setTimeout(() => {
               if (document.getElementById('feedback-message').textContent === "🎉 Congratulations!") {
                 clearFeedback();
@@ -400,10 +389,16 @@
         }
       } catch (err) {
         console.error('Submit error:', err);
+        // Only mark as wrong if it actually was wrong
         if (!isCorrect) {
           e.target.classList.add('wrong-cell');
           showFeedback("You got it wrong!");
           setTimeout(clearFeedback, 2000);
+        } else {
+          showFeedback("✅ Correct! (But couldn't save due to network error.)", true);
+          e.target.classList.add('correct-cell');
+          hasSucceededInRound = true;
+          stopTimer();
         }
       }
     });
