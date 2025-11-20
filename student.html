@@ -86,11 +86,6 @@
     const APP_KEY = "u6eipqxC1UGkkxR1nJcMR8sH";
     const BASE_URL = "https://api.leancloud.cn/1.1";
 
-    // --- DATA (same as teacher) ---
-    const balanceSheetData = [/* same as above */];
-    const incomeStatementData = [/* same as above */];
-
-    // Paste full data here (identical to teacher)
     const balanceSheetData = [
       ["Cash and cash equivalents", 16139, 16398],
       ["Short-term investments", 20424, 12696],
@@ -237,12 +232,10 @@
         if (data.results && data.results.length > 0) {
           const round = data.results[0];
           if (round.objectId !== currentRoundId) {
-            // New round!
             currentRoundId = round.objectId;
             currentTarget = round.targetCellId;
             hasWon = false;
 
-            // Reset all highlights
             document.querySelectorAll('.wrong-cell, .correct-cell').forEach(el => {
               el.classList.remove('wrong-cell', 'correct-cell');
             });
@@ -296,7 +289,6 @@
       }
     });
 
-    // Initial load
     if (studentName) {
       fetchLatestGameRound();
     }
