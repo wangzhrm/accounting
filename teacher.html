@@ -1,163 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Tesla Financials - Teacher</title>
-  <style>
-    table { border-collapse: collapse; margin: 10px; }
-    td, th { border: 1px solid #ccc; padding: 8px; text-align: right; }
-    .highlight { background-color: yellow; }
-    .selected { background-color: lightgreen; }
-  </style>
-</head>
-<body>
-  <h1>Teacher View</h1>
-  <div id="status">Select a cell to start a round.</div>
-  <h2>Balance Sheet</h2>
-  <table id="balance-sheet"></table>
-  <h2>Income Statement</h2>
-  <table id="income-statement"></table>
+document.addEventListener('click', async (e) => {
+  if (!currentTarget || !studentName || !e.target.matches('td[data-value]')) return;
 
-  <script>
-    // LeanCloud config
-    const APP_ID = 'zKIGVAT4i80luijNDM40xZCl-gzGzoHsz';
-    const APP_KEY = 'u6eipqxC1UGkkxR1nJcMR8sH';
-    const BASE_URL = `https://zKIGVAT4i80luijNDM40xZCl-gzGzoHsz.lc-cn-n1-shared.com/1.1`;
+  const isCorrect = (e.target.id === currentTarget);
+  const status = isCorrect ? 'correct' : 'incorrect';
 
-    // Data from your file
-    const balanceSheetData = [
-      ["Cash and cash equivalents", 16139, 16398],
-      ["Short-term investments", 20424, 12696],
-      ["Accounts receivable, net", 4418, 3508],
-      ["Inventory", 12017, 13626],
-      ["Prepaid expenses and other current assets", 5362, 3388],
-      ["Total current assets", 58360, 49616],
-      ["Operating lease vehicles, net", 5581, 5989],
-      ["Solar energy systems, net", 4924, 5229],
-      ["Property, plant and equipment, net", 35836, 29725],
-      ["Operating lease right-of-use assets", 5160, 4180],
-      ["Digital assets, net", 1076, 184],
-      ["Intangible assets, net", 150, 178],
-      ["Goodwill", 244, 253],
-      ["Deferred tax assets", 6524, 6733],
-      ["Other non-current assets", 4215, 4531],
-      ["Total assets", 122070, 106618],
-      ["Accounts payable", 12474, 14431],
-      ["Accrued liabilities and other", 10723, 9080],
-      ["Deferred revenue", 3168, 2864],
-      ["Current portion of debt and finance leases", 2456, 2373],
-      ["Total current liabilities", 28821, 28748],
-      ["Debt and finance leases, net of current portion", 5757, 2857],
-      ["Deferred revenue, net of current portion", 3317, 3251],
-      ["Other long-term liabilities", 10495, 8153],
-      ["Total liabilities", 48390, 43009],
-      ["Redeemable noncontrolling interests in subsidiaries", 63, 242],
-      ["Common stock", 3, 3],
-      ["Additional paid-in capital", 38371, 34892],
-      ["Accumulated other comprehensive loss", -670, -143],
-      ["Retained earnings", 35209, 27882],
-      ["Total stockholders’ equity", 72913, 62634],
-      ["Noncontrolling interests in subsidiaries", 704, 733],
-      ["Total liabilities and equity", 122070, 106618]
-    ];
+  try {
+    const res = await fetch(`${BASE_URL}/classes/GameRound?where={"targetCellId":"${encodeURIComponent(currentTarget)}"}&limit=1`, {
+      headers: { 'X-LC-Id': APP_ID, 'X-LC-Key': APP_KEY }
+    });
+    const data = await res.json();
+    if (data.results.length > 0) {
+      const obj = data.results[0];
+      const attempts = { ...(obj.attempts || {}) };
+      attempts[studentName] = status; // record attempt
 
-    const incomeStatementData = [
-      ["Automotive sales", 72480, 78509, 67210],
-      ["Automotive regulatory credits", 2763, 1790, 1776],
-      ["Automotive leasing", 1827, 2120, 2476],
-      ["Total automotive revenues", 77070, 82419, 71462],
-      ["Energy generation and storage", 10086, 6035, 3909],
-      ["Services and other", 10534, 8319, 6091],
-      ["Total revenues", 97690, 96773, 81462],
-      ["Automotive sales cost", 61870, 65121, 49599],
-      ["Automotive leasing cost", 1003, 1268, 1509],
-      ["Total automotive cost", 62873, 66389, 51108],
-      ["Energy cost", 7446, 4894, 3621],
-      ["Services cost", 9921, 7830, 5880],
-      ["Total cost of revenues", 80240, 79113, 60609],
-      ["Gross profit", 17450, 17660, 20853],
-      ["Research and development", 4540, 3969, 3075],
-      ["Selling, general and administrative", 5150, 4800, 3946],
-      ["Restructuring and other", 684, 0, 176],
-      ["Total operating expenses", 10374, 8769, 7197],
-      ["Income from operations", 7076, 8891, 13656],
-      ["Interest income", 1569, 1066, 297],
-      ["Interest expense", -350, -156, -191],
-      ["Other income (expense), net", 695, 172, -43],
-      ["Income before income taxes", 8990, 9973, 13719],
-      ["Provision for income taxes", 1837, -5001, 1132],
-      ["Net income", 7153, 14974, 12587],
-      ["Net income attributable to common stockholders", 7091, 14997, 12556],
-      ["Basic EPS", 2.23, 4.73, 4.02],
-      ["Diluted EPS", 2.04, 4.30, 3.62]
-    ];
+      // Also maintain completedBy for backward compatibility
+      const completedBy = isCorrect 
+        ? [...new Set([...(obj.completedBy || []), studentName])] 
+        : obj.completedBy || [];
 
-    let selectedCell = null;
-
-    // Render tables
-    function renderTable(containerId, data, prefix) {
-      const container = document.getElementById(containerId);
-      let html = '<tr><th>Item</th><th>2024</th><th>2023</th>' + (data[0].length > 3 ? '<th>2022</th>' : '') + '</tr>';
-      data.forEach((row, i) => {
-        html += `<tr>`;
-        html += `<td>${row[0]}</td>`;
-        for (let j = 1; j < row.length; j++) {
-          const year = 2025 - j;
-          const cellId = `${prefix}-${i}-${j}`;
-          html += `<td id="${cellId}" data-value="${row[j]}">${row[j].toLocaleString()}</td>`;
-        }
-        html += `</tr>`;
+      await fetch(`${BASE_URL}/classes/GameRound/${obj.objectId}`, {
+        method: 'PUT',
+        headers: {
+          'X-LC-Id': APP_ID,
+          'X-LC-Key': APP_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ attempts, completedBy })
       });
-      container.innerHTML = html;
 
-      // Add click handlers
-      container.querySelectorAll('td').forEach(cell => {
-        cell.addEventListener('click', () => {
-          if (selectedCell) selectedCell.classList.remove('selected');
-          cell.classList.add('selected');
-          selectedCell = cell;
-          startNewRound(cell.id);
-        });
-      });
-    }
-
-    // Start new round in LeanCloud
-    async function startNewRound(cellId) {
-      const now = new Date().toISOString();
-      const payload = {
-        targetCellId: cellId,
-        startTime: { __type: 'Date', iso: now },
-        completedBy: []
-      };
-
-      try {
-        // Delete old rounds
-        await fetch(`${BASE_URL}/classes/GameRound`, {
-          method: 'DELETE',
-          headers: { 'X-LC-Id': APP_ID, 'X-LC-Key': APP_KEY }
-        });
-
-        // Create new round
-        await fetch(`${BASE_URL}/classes/GameRound`, {
-          method: 'POST',
-          headers: { 
-            'X-LC-Id': APP_ID, 
-            'X-LC-Key': APP_KEY,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        document.getElementById('status').innerText = `Round started! Target: ${cellId}`;
-      } catch (err) {
-        console.error('Failed to start round:', err);
-        alert('Error starting round. Check console.');
+      if (isCorrect) {
+        e.target.classList.add('correct');
       }
     }
-
-    // Init
-    renderTable('balance-sheet', balanceSheetData, 'bs');
-    renderTable('income-statement', incomeStatementData, 'is');
-  </script>
-</body>
-</html>
+  } catch (err) {
+    console.error('Submit error:', err);
+  }
+});
