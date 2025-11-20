@@ -11,7 +11,7 @@
     }
     body {
       margin: 0;
-      padding: 60px 16px 16px; /* Space for floating bar */
+      padding: 60px 16px 16px;
       background-color: #f9f9fb;
       color: #333;
       line-height: 1.5;
@@ -41,7 +41,6 @@
       left: 50%;
       transform: translateX(-50%);
       font-weight: bold;
-      color: #d32f2f;
       text-align: center;
       white-space: nowrap;
     }
@@ -109,7 +108,7 @@
     td[data-value]:hover {
       background-color: #f0f7ff;
     }
-    .correct {
+    .correct-cell {
       background-color: #d4edda !important;
       font-weight: bold;
     }
@@ -234,8 +233,6 @@
     let hasSucceededInRound = false;
     let currentRoundId = null;
 
-    const bgColors = ['#e8f5e9', '#e3f2fd', '#fff3e0', '#f3e5f5', '#e0f7fa', '#ede7f6'];
-
     function renderTable(containerId, data, prefix) {
       const container = document.getElementById(containerId);
       let headers = '<tr><th>Item</th><th>2024</th><th>2023</th>';
@@ -267,12 +264,10 @@
       renderTable('balance-sheet', balanceSheetData, 'bs');
       renderTable('income-statement', incomeStatementData, 'is');
 
-      // Start polling
       pollForRound();
 
-      // Initialize timer to "0s" immediately upon joining
-      resetTimer();
-      startTimer();
+      // Initialize timer state (will be overridden by first round)
+      resetTimerDisplay(); // show "Waiting..."
     }
 
     async function pollForRound() {
@@ -283,26 +278,32 @@
         const data = await res.json();
         if (data.results && data.results.length > 0) {
           const round = data.results[0];
-          // New round if objectId changed
-          if (round.objectId !== currentRoundId) {
+          const isNewRound = round.objectId !== currentRoundId;
+
+          if (isNewRound) {
+            // NEW ROUND STARTED
             currentRoundId = round.objectId;
             currentTarget = round.targetCellId;
             hasSucceededInRound = false;
 
-            // Clear UI feedback
-            document.getElementById('feedback-message').textContent = '';
-            document.querySelectorAll('.wrong-cell').forEach(el => el.classList.remove('wrong-cell'));
+            // Reset UI
+            document.querySelectorAll('.correct-cell, .wrong-cell').forEach(el => {
+              el.classList.remove('correct-cell', 'wrong-cell');
+            });
+            clearFeedback();
 
-            // Update success count
+            // Start timer from 0s — use round's createdAt as reference
+            const roundStartTime = new Date(round.createdAt);
+            startTimerFrom(roundStartTime);
+
             updateSuccessDisplay(round.completedBy || []);
-
-            // Reset & restart timer from 0s
-            resetTimer();
-            startTimer();
           } else {
             // Same round — just refresh success count
             updateSuccessDisplay(round.completedBy || []);
           }
+        } else {
+          // No round yet
+          resetTimerDisplay();
         }
       } catch (err) {
         console.error('Poll error:', err);
@@ -310,19 +311,26 @@
       setTimeout(pollForRound, 2000);
     }
 
-    function startTimer() {
+    function resetTimerDisplay() {
       clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        if (!startTime) return;
-        const elapsed = Math.floor((new Date() - startTime) / 1000);
-        document.getElementById('timer-display').innerText = `⏱️ ${elapsed}s`;
-      }, 1000);
+      document.getElementById('timer-display').innerText = '⏱️ Waiting...';
     }
 
-    function resetTimer() {
+    function startTimerFrom(startTimeRef) {
       clearInterval(timerInterval);
-      startTime = new Date(); // Set start time to NOW
-      document.getElementById('timer-display').innerText = '⏱️ 0s';
+      startTime = startTimeRef;
+
+      // Immediate update
+      updateTimer();
+
+      // Then every second
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+      if (!startTime) return;
+      const elapsed = Math.floor((new Date() - startTime) / 1000);
+      document.getElementById('timer-display').innerText = `⏱️ ${elapsed}s`;
     }
 
     function stopTimer() {
@@ -333,20 +341,19 @@
       document.getElementById('success-display').innerText = `👥 Found: ${names.length}`;
     }
 
-    function showFeedback(message, isError = true) {
+    function clearFeedback() {
+      document.getElementById('feedback-message').textContent = '';
+    }
+
+    function showFeedback(message, isSuccess = false) {
       const el = document.getElementById('feedback-message');
       el.textContent = message;
-      el.style.color = isError ? '#d32f2f' : '#2e7d32';
-      if (isError) {
-        setTimeout(() => {
-          if (el.textContent === message) el.textContent = '';
-        }, 2000);
-      }
+      el.style.color = isSuccess ? '#2e7d32' : '#d32f2f';
     }
 
     document.addEventListener('click', async (e) => {
       if (!currentTarget || !studentName || !e.target.matches('td[data-value]')) return;
-      if (hasSucceededInRound) return; // prevent re-submission
+      if (hasSucceededInRound) return;
 
       const isCorrect = (e.target.id === currentTarget);
 
@@ -375,12 +382,20 @@
           });
 
           if (isCorrect) {
-            e.target.classList.add('correct');
+            e.target.classList.add('correct-cell');
             hasSucceededInRound = true;
             stopTimer();
+            showFeedback("🎉 Congratulations!", true);
+            // Optional: auto-clear after 3s
+            setTimeout(() => {
+              if (document.getElementById('feedback-message').textContent === "🎉 Congratulations!") {
+                clearFeedback();
+              }
+            }, 3000);
           } else {
             e.target.classList.add('wrong-cell');
             showFeedback("You got it wrong!");
+            setTimeout(clearFeedback, 2000);
           }
         }
       } catch (err) {
@@ -388,6 +403,7 @@
         if (!isCorrect) {
           e.target.classList.add('wrong-cell');
           showFeedback("You got it wrong!");
+          setTimeout(clearFeedback, 2000);
         }
       }
     });
