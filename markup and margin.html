@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markup and Margin Practice Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .formula {
+            font-size: 1.2em;
+            font-weight: bold;
+            background: #e7f3ff;
+            padding: 10px;
+            border-left: 5px solid #2196F3;
+            margin: 10px 0;
+        }
+        .problem {
+            margin: 15px 0;
+            font-size: 1.1em;
+        }
+        .answer-blank {
+            border-bottom: 2px solid #ccc;
+            min-height: 20px;
+            margin-left: 10px;
+            display: inline-block;
+            width: 100px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+            display: block;
+            margin: 20px auto;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #answer-key {
+            display: none;
+            background: #f9f9f9;
+            border-top: 2px solid #ddd;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+        .key-item {
+            margin: 5px 0;
+        }
+        @media print {
+            body { background: white; }
+            .section { box-shadow: none; margin: 10px 0; }
+            button { display: none; }
+            #answer-key { display: block; page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Markup and Margin Practice Test</h1>
+    
+    <div class="section">
+        <h2>Instructions</h2>
+        <p>Solve the following problems by calculating the required percentage. Round your answers to 2 decimal places. Write your answers in the blanks provided.</p>
+        <p><strong>Markup Percentage (MU%):</strong> (Selling Price - Cost Price) / Cost Price × 100%</p>
+        <p><strong>Profit Margin Percentage (MG%):</strong> (Selling Price - Cost Price) / Selling Price × 100%</p>
+        
+        <div class="formula">Markup to Margin: MG% = (MU% / (100 + MU%)) × 100</div>
+        <div class="formula">Margin to Markup: MU% = (MG% / (100 - MG%)) × 100</div>
+    </div>
+    
+    <div class="section">
+        <h2>Section 1: Markup to Margin</h2>
+        <p>Calculate the margin percentage for each given markup percentage.</p>
+        <div id="markup-problems"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Section 2: Margin to Markup</h2>
+        <p>Calculate the markup percentage for each given margin percentage.</p>
+        <div id="margin-problems"></div>
+    </div>
+    
+    <button id="toggle-key">Show Answer Key</button>
+    
+    <div id="answer-key">
+        <h2>Answer Key</h2>
+        <div id="markup-answers"></div>
+        <div id="margin-answers"></div>
+    </div>
+
+    <script>
+        function generateProblems(numProblems = 10, isMarkupToMargin = true) {
+            const problems = [];
+            const answers = [];
+            for (let i = 0; i < numProblems; i++) {
+                let given, expected;
+                if (isMarkupToMargin) {
+                    given = Math.round((Math.random() * 40 + 10) * 100) / 100; // 10% to 50%
+                    expected = Math.round((given / (100 + given)) * 100 * 100) / 100;
+                    problems.push(`If the markup is ${given}%, what is the margin? _____ %`);
+                    answers.push(`${expected}%`);
+                } else {
+                    given = Math.round((Math.random() * 40 + 10) * 100) / 100; // 10% to 50%
+                    expected = Math.round((given / (100 - given)) * 100 * 100) / 100;
+                    problems.push(`If the margin is ${given}%, what is the markup? _____ %`);
+                    answers.push(`${expected}%`);
+                }
+            }
+            return { problems, answers };
+        }
+
+        function populateSection(containerId, problemsHtml) {
+            document.getElementById(containerId).innerHTML = problemsHtml;
+        }
+
+        function createProblemsHtml(problems) {
+            return problems.map(p => `<div class="problem">${p.replace('_____ %', '<span class="answer-blank"></span>%')}</div>`).join('');
+        }
+
+        // Generate and populate problems
+        const markupData = generateProblems(10, true);
+        const marginData = generateProblems(10, false);
+
+        populateSection('markup-problems', createProblemsHtml(markupData.problems));
+        populateSection('margin-problems', createProblemsHtml(marginData.problems));
+
+        // Answer key
+        document.getElementById('markup-answers').innerHTML = `
+            <h3>Section 1 Answers:</h3>
+            ${markupData.answers.map((ans, i) => `<div class="key-item">${i+1}. ${ans}</div>`).join('')}
+        `;
+        document.getElementById('margin-answers').innerHTML = `
+            <h3>Section 2 Answers:</h3>
+            ${marginData.answers.map((ans, i) => `<div class="key-item">${i+1}. ${ans}</div>`).join('')}
+        `;
+
+        // Toggle answer key
+        document.getElementById('toggle-key').addEventListener('click', function() {
+            const key = document.getElementById('answer-key');
+            const btn = this;
+            if (key.style.display === 'none' || key.style.display === '') {
+                key.style.display = 'block';
+                btn.textContent = 'Hide Answer Key';
+            } else {
+                key.style.display = 'none';
+                btn.textContent = 'Show Answer Key';
+            }
+        });
+
+        // Auto-generate new set on reload for variety
+    </script>
+</body>
+</html>
