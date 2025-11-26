@@ -500,15 +500,19 @@
         const query = new AV.Query('Student');
         const students = await query.find();
 
-        const leaderboard = students.map(student => {
-          const bal = student.get('balance') || 10000;
-          const hold = student.get('holdings') || {};
-          let total = bal;
-          for (const [sym, q] of Object.entries(hold)) {
-            total += (marketPrices[sym] || 0) * q;
-          }
-          return { username: student.get('username'), totalValue: total };
-        }).sort((a, b) => b.totalValue - a.totalValue);
+        // ✅ Exclude "测试学生" from leaderboard
+        const leaderboard = students
+          .filter(student => student.get('username') !== '测试学生')
+          .map(student => {
+            const bal = student.get('balance') || 10000;
+            const hold = student.get('holdings') || {};
+            let total = bal;
+            for (const [sym, q] of Object.entries(hold)) {
+              total += (marketPrices[sym] || 0) * q;
+            }
+            return { username: student.get('username'), totalValue: total };
+          })
+          .sort((a, b) => b.totalValue - a.totalValue);
 
         const list = document.getElementById('leaderboardList');
         list.innerHTML = '';
