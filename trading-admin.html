@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reset Trading Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-top: 0;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover:not(:disabled) {
+      background: #c0392b;
+    }
+    button:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 15px;
+      min-height: 24px;
+      font-weight: bold;
+    }
+    .success { color: #27ae60; }
+    .error { color: #e74c3c; }
+    .info { color: #2980b9; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Reset Trading Game</h1>
+    <p>Enter admin password to reset all portfolios.</p>
+    
+    <input type="password" id="password" placeholder="Password" autocomplete="off" />
+    <button onclick="resetGame()">Reset All Portfolios</button>
+    
+    <div id="status"></div>
+  </div>
+
+  <!-- Load LeanCloud SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.13.2/dist/av-min.js"></script>
+  <script>
+    // Initialize LeanCloud
+    AV.init({
+      appId: "W9n8YEzowrs5Lzz3BqjttHiM-gzGzoHsz",
+      appKey: "5mrY6acHapGt8ngzVn0ZGBnw",
+      serverURL: "https://w9n8yezo.lc-cn-n1-shared.com"
+    });
+
+    // Helper: delay function
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function resetGame() {
+      const pwd = document.getElementById('password').value.trim();
+      const statusEl = document.getElementById('status');
+
+      if (pwd !== 'wang123') {
+        statusEl.className = 'error';
+        statusEl.textContent = '❌ Incorrect password';
+        return;
+      }
+
+      const btn = document.querySelector('button');
+      btn.disabled = true;
+      statusEl.className = 'info';
+      statusEl.textContent = '🔄 Fetching student records...';
+
+      try {
+        const query = new AV.Query('Student');
+        // Increase limit if you have >100 students (LeanCloud default = 100)
+        query.limit(1000); // adjust as needed
+        const students = await query.find();
+
+        if (students.length === 0) {
+          statusEl.className = 'error';
+          statusEl.textContent = '⚠️ No student records found.';
+          btn.disabled = false;
+          return;
+        }
+
+        statusEl.textContent = `🔄 Resetting ${students.length} portfolios (one by one)...`;
+
+        let successCount = 0;
+        for (const student of students) {
+          try {
+            student.set('balance', 1000000);
+            student.set('holdings', {});
+            await student.save();
+            successCount++;
+            
+            // Update progress
+            statusEl.textContent = `🔄 Reset ${successCount}/${students.length}...`;
+            
+            // Wait 300ms between requests to avoid 429 errors
+            await delay(300);
+          } catch (err) {
+            console.warn('Failed to reset student:', student.id, err);
+            // Continue anyway
+          }
+        }
+
+        statusEl.className = 'success';
+        statusEl.textContent = `✅ Success! ${successCount} portfolios reset.`;
+      } catch (err) {
+        console.error('Reset error:', err);
+        statusEl.className = 'error';
+        statusEl.textContent = `❌ Error: ${err.message || 'Unknown'}`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById('password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') resetGame();
+    });
+  </script>
+</body>
+</html>
