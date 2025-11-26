@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>管理员：创建学生账户</title>
+  <!-- Load LeanCloud SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.13.2/dist/av-min.js"></script>
+  <style>
+    body {
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #1890ff;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 30px;
+      font-size: 18px;
+      background: #52c41a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover:not(:disabled) {
+      background: #49a717;
+    }
+    button:disabled {
+      background: #bfbfbf;
+      cursor: not-allowed;
+    }
+    #log {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 20px;
+      height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      white-space: pre-wrap;
+      border: 1px solid #eee;
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .warn { color: orange; }
+  </style>
+</head>
+<body>
+  <h1>创建 19 名学生账户</h1>
+  <button id="run-btn">开始创建</button>
+  <div id="log">准备就绪。请确保你通过 HTTP（如 Live Server）打开本页面，而非直接双击文件。</div>
+
+  <script>
+    // 🔑 YOUR LEANCLOUD CREDENTIALS (CORRECTED)
+    const APP_ID = "W9n8YEzowrs5Lzz3BqjttHiM-gzGzoHsz";
+    const APP_KEY = "5mrY6acHapGt8ngzVn0ZGBnw";
+
+    // Initialize LeanCloud
+    AV.init({
+      appId: APP_ID,
+      appKey: APP_KEY
+    });
+
+    const students = [
+      { username: "方小灿", password: "Qlwvlp" },
+      { username: "田雪", password: "F5E30Z" },
+      { username: "陈怡诺", password: "zC4CfA" },
+      { username: "任柯嘉", password: "o2ejPQ" },
+      { username: "冯嘉熙", password: "wJyawV" },
+      { username: "于静雯", password: "sWxh0U" },
+      { username: "李书行", password: "V6VtHk" },
+      { username: "李欣霖", password: "oQZZAZ" },
+      { username: "李虹颖", password: "71oFki" },
+      { username: "易星辰", password: "Mt15Wj" },
+      { username: "范思颖", password: "X2l1mk" },
+      { username: "陈安达", password: "yuTcTe" },
+      { username: "肖喃允", password: "eEG7rF" },
+      { username: "胡雅涵", password: "wePvuR" },
+      { username: "唐晞尧", password: "kpPKvv" },
+      { username: "唐思诺", password: "s8Wf1l" },
+      { username: "柯柏宇", password: "mDd7nH" },
+      { username: "李志浩", password: "svovm0" },
+      { username: "许欣仪", password: "tjjtRs" }
+    ];
+
+    const logEl = document.getElementById('log');
+    const btn = document.getElementById('run-btn');
+
+    function log(msg, className = '') {
+      const now = new Date().toLocaleTimeString();
+      const line = document.createElement('div');
+      line.textContent = `[${now}] ${msg}`;
+      if (className) line.className = className;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    async function createStudents() {
+      btn.disabled = true;
+      log("🚀 开始创建学生账户...", "");
+
+      // Quick connectivity test
+      try {
+        const testQuery = new AV.Query('Student');
+        await testQuery.limit(1).find(); // Just test read access
+      } catch (err) {
+        log(`❌ 无法连接 LeanCloud，请检查网络或 AppKey 权限`, "error");
+        btn.disabled = false;
+        return;
+      }
+
+      let created = 0;
+      let skipped = 0;
+
+      for (const s of students) {
+        log(`处理: ${s.username}...`, "");
+        try {
+          const query = new AV.Query('Student');
+          query.equalTo('username', s.username);
+          const existing = await query.find();
+
+          if (existing.length > 0) {
+            log(`  ⚠️ 已存在，跳过`, "warn");
+            skipped++;
+          } else {
+            const student = new AV.Object('Student');
+            student.set('username', s.username);
+            student.set('password', s.password);
+            student.set('cash', 1000000);
+            student.set('portfolio', {});
+            await student.save();
+            log(`  ✅ 创建成功`, "success");
+            created++;
+          }
+        } catch (err) {
+          log(`  ❌ 失败: ${err.message}`, "error");
+          console.error("Error creating", s.username, err);
+        }
+      }
+
+      log(`\n✅ 完成！新建: ${created} 人, 已存在: ${skipped} 人`, "success");
+      btn.disabled = false;
+    }
+
+    // Attach event listener properly
+    btn.addEventListener('click', createStudents);
+  </script>
+</body>
+</html>
