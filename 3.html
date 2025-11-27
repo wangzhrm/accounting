@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classroom Trading Simulation</title>
+  <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.13.2/dist/av-min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+      color: #333;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px 20px;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+    }
+
+    h1, h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+
+    /* Login */
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4a6fa5;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover:not(:disabled) {
+      background-color: #3a5a80;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .btn-danger {
+      background-color: #e74c3c;
+    }
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+
+    #status {
+      text-align: center;
+      margin: 12px 0;
+      min-height: 22px;
+      font-weight: bold;
+    }
+    .error {
+      color: #e74c3c;
+    }
+
+    /* Market Prices – Compact Grid */
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .stock-item {
+      background: #f9fafc;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      border-left: 3px solid #4a6fa5;
+      font-size: 0.9em;
+    }
+    .stock-name {
+      color: #555;
+      font-size: 0.85em;
+      margin-bottom: 2px;
+    }
+    .stock-ticker {
+      font-weight: bold;
+      font-size: 0.95em;
+    }
+    .stock-price {
+      font-weight: bold;
+      color: #2c3e50;
+      margin-top: 4px;
+      font-size: 1.05em;
+    }
+
+    /* Portfolio Summary */
+    .portfolio-header {
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .total-value-display {
+      font-size: 1.6em;
+      font-weight: bold;
+      color: #27ae60;
+      margin: 10px 0;
+    }
+    .cash-display {
+      font-size: 1.1em;
+      color: #2980b9;
+      margin-bottom: 20px;
+    }
+
+    /* Portfolio Table */
+    .portfolio-table-wrapper {
+      overflow-x: auto;
+      width: 100%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 550px;
+    }
+    th,
+    td {
+      padding: 10px 8px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      font-size: 0.95em;
+    }
+    th {
+      background-color: #f1f3f5;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    tr:hover {
+      background-color: #f9fafb;
+    }
+
+    /* Compact Trade Controls */
+    .trade-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .qty-input {
+      width: 45px;
+      text-align: center;
+      padding: 4px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* Leaderboard */
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .rank {
+      font-weight: bold;
+      width: 30px;
+    }
+    .leader-name {
+      flex: 1;
+      text-align: left;
+      padding-left: 10px;
+    }
+    .leader-value {
+      font-weight: bold;
+      color: #27ae60;
+    }
+
+    /* Mobile Adjustments */
+    @media (max-width: 600px) {
+      .market-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .stock-item {
+        padding: 8px;
+      }
+      .stock-name {
+        font-size: 0.75em;
+      }
+      .stock-ticker {
+        font-size: 0.85em;
+      }
+      .stock-price {
+        font-size: 1em;
+      }
+      .total-value-display {
+        font-size: 1.4em;
+      }
+      .cash-display {
+        font-size: 1em;
+      }
+      h2 {
+        font-size: 1.3em;
+      }
+      button {
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="user-info" id="userInfo" style="display:none;">
+      <span id="displayName">User</span>
+      <button onclick="logout()" class="btn-danger">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="loginView" class="card">
+      <h1>Trading Simulation Login</h1>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" />
+      </div>
+      <button onclick="login()">Login</button>
+      <div id="status"></div>
+    </div>
+
+    <div id="dashboardView" style="display: none;">
+      <div class="card">
+        <h2>Market Prices</h2>
+        <div class="market-grid" id="marketGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="portfolio-header">
+          <h2>Your Portfolio</h2>
+          <div class="total-value-display" id="totalPortfolioValue">$0.00</div>
+          <div class="cash-display" id="cashBalance">Cash: $0.00</div>
+        </div>
+
+        <div class="portfolio-table-wrapper">
+          <table id="portfolioTable">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Ticker</th>
+                <th>Shares Held</th>
+                <th>Current Price</th>
+                <th>Stock Value</th>
+                <th>Trade</th>
+              </tr>
+            </thead>
+            <tbody id="portfolioBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Leaderboard</h2>
+        <div id="leaderboardList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. FMP API Key (DO NOT share this publicly)
+    const FMP_API_KEY = 'API KeypW98HtIWxb0pSK2vvjzzyJAQV7oZZ2kw'; 
+    
+    // 2. CACHING AND REFRESH SETTINGS
+    const CACHE_EXPIRATION_MINUTES = 20; // Stock price data is valid for 20 minutes
+    // Refresh interval set to 10 minutes (600,000ms) to regularly check the cache for expiration
+    const REFRESH_INTERVAL_MS = 600000; 
+
+    const COMPANIES = [
+      { name: "Apple Inc.", symbol: "AAPL" },
+      { name: "Johnson & Johnson", symbol: "JNJ" },
+      { name: "Exxon Mobil Corporation", symbol: "XOM" },
+      { name: "JPMorgan Chase & Co.", symbol: "JPM" },
+      { name: "Walmart Inc.", symbol: "WMT" },
+      { name: "The Boeing Company", symbol: "BA" },
+      { name: "The Walt Disney Company", symbol: "DIS" },
+      { name: "Caterpillar Inc.", symbol: "CAT" },
+      { name: "Procter & Gamble Co.", symbol: "PG" },
+      { name: "American Tower Corporation", symbol: "AMT" }
+    ];
+
+    let marketPrices = {};
+
+    // LeanCloud Initialization (DO NOT CHANGE)
+    AV.init({
+      appId: "W9n8YEzowrs5Lzz3BqjttHiM-gzGzoHsz",
+      appKey: "5mrY6acHapGt8ngzVn0ZGBnw",
+      serverURL: "https://w9n8yezo.lc-cn-n1-shared.com"
+    });
+
+    let currentUser = null;
+    let priceUpdateInterval;
+
+    /**
+     * Attempts to fetch prices from LeanCloud cache first.
+     * If the cache is expired (older than 20 minutes), fetches from FMP and updates the cache.
+     */
+    async function getPricesWithCache() {
+        if (FMP_API_KEY === 'YOUR_FMP_API_KEY' || FMP_API_KEY === '') {
+            showError("API Key is missing or invalid.");
+            return;
+        }
+
+        const query = new AV.Query('StockCache');
+        
+        // 1. Check LeanCloud Cache
+        try {
+            // Fetch the single StockCache record (we assume only one exists)
+            const cacheRecord = await query.first();
+            const now = new Date();
+            
+            if (cacheRecord) {
+                const updatedTime = cacheRecord.updatedAt;
+                // Calculate expiration time: Last updated time + 20 minutes
+                const expirationTime = new Date(updatedTime.getTime() + CACHE_EXPIRATION_MINUTES * 60000);
+                
+                // Check if the cache is still valid
+                if (now < expirationTime) {
+                    console.log(`Cache valid until ${expirationTime.toLocaleTimeString()}. Using cached prices.`);
+                    marketPrices = cacheRecord.get('prices');
+                    updateDashboard();
+                    return;
+                }
+            }
+            
+            // 2. Cache expired or not found: Fetch from FMP
+            console.log("Cache expired or empty. Fetching new data from FMP and updating cache...");
+            await fetchAndCachePrices(cacheRecord);
+
+        } catch (err) {
+            console.error("Cache/FMP operation failed:", err);
+            showError(`LeanCloud/API Error: ${err.message}. Prices may be unavailable.`);
+        }
+    }
+
+
+    /**
+     * Fetches prices from FMP, then stores them in LeanCloud.
+     */
+    async function fetchAndCachePrices(existingCacheRecord) {
+        const symbolsList = COMPANIES.map(c => c.symbol).join(',');
+        const url = `https://financialmodelingprep.com/api/v3/quote/${symbolsList}?apikey=${FMP_API_KEY}`;
+        const StockCache = AV.Object.extend('StockCache');
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`API response error: ${response.statusText}`);
+            
+            const data = await response.json();
+            const newPrices = {};
+
+            data.forEach(item => {
+                newPrices[item.symbol] = item.price;
+            });
+
+            marketPrices = newPrices;
+            
+            // 3. Store new prices in LeanCloud
+            let cacheRecord = existingCacheRecord || new StockCache();
+            cacheRecord.set('prices', newPrices);
+            await cacheRecord.save();
+            console.log("New prices fetched and stored in LeanCloud cache.");
+
+            updateDashboard();
+
+        } catch (err) {
+            console.error("Error fetching stock prices from FMP:", err);
+            // Fallback: If FMP fails, use the last good cached data
+            if (existingCacheRecord) {
+                marketPrices = existingCacheRecord.get('prices');
+                updateDashboard();
+                showError("FMP fetch failed. Using last cached prices.");
+            } else {
+                 showError("FMP fetch failed. No price data available.");
+            }
+        }
+    }
+    
+    /**
+     * Helper to render all dashboard components after a price update.
+     */
+    function updateDashboard() {
+        if (currentUser) {
+            renderPortfolio();
+            renderMarket();
+            fetchLeaderboard();
+        }
+    }
+
+    async function login() {
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+      if (!u || !p) return showError("Please enter username and password.");
+
+      try {
+        const query = new AV.Query('Student');
+        query.equalTo('username', u);
+        const results = await query.find();
+        if (results.length === 0) throw new Error("User not found");
+
+        const user = results[0];
+        if (user.get('password') !== p) throw new Error("Invalid password");
+
+        if (user.get('balance') === undefined) {
+          user.set('balance', 10000);
+          user.set('holdings', {});
+          await user.save();
+        }
+
+        currentUser = user;
+        document.getElementById('displayName').textContent = u;
+        document.getElementById('userInfo').style.display = 'flex';
+        document.getElementById('loginView').style.display = 'none';
+        document.getElementById('dashboardView').style.display = 'block';
+
+        // Start the caching cycle
+        clearInterval(priceUpdateInterval);
+        await getPricesWithCache(); 
+        priceUpdateInterval = setInterval(getPricesWithCache, REFRESH_INTERVAL_MS);
+
+      } catch (err) {
+        showError(err.message || "Login failed");
+      }
+    }
+
+    function showError(msg) {
+      document.getElementById('status').textContent = msg;
+      document.getElementById('status').className = 'error';
+    }
+
+    function renderMarket() {
+      const container = document.getElementById('marketGrid');
+      container.innerHTML = '';
+      COMPANIES.forEach(co => {
+        const price = marketPrices[co.symbol] || 0; 
+        const div = document.createElement('div');
+        div.className = 'stock-item';
+        div.innerHTML = `
+          <div class="stock-name">${co.name}</div>
+          <div class="stock-ticker">${co.symbol}</div>
+          <div class="stock-price">$${price.toFixed(2)}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderPortfolio() {
+      const balance = currentUser.get('balance') || 10000;
+      const holdings = currentUser.get('holdings') || {};
+      const body = document.getElementById('portfolioBody');
+      let totalValue = balance;
+
+      body.innerHTML = '';
+      document.getElementById('cashBalance').textContent = `Cash: $${balance.toFixed(2)}`;
+
+      COMPANIES.forEach(co => {
+        const qty = holdings[co.symbol] || 0;
+        const price = marketPrices[co.symbol] || 0; 
+        const stockValue = qty * price;
+        totalValue += stockValue;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${co.name}</td>
+          <td>${co.symbol}</td>
+          <td>${qty}</td>
+          <td>$${price.toFixed(2)}</td>
+          <td class="total-value">$${stockValue.toFixed(2)}</td>
+          <td>
+            <div class="trade-controls">
+              <input type="number" min="1" value="1" class="qty-input" id="qty-${co.symbol}">
+              <button onclick="trade('${co.symbol}', 'buy')">Buy</button>
+              <button class="btn-danger" onclick="trade('${co.symbol}', 'sell')">Sell</button>
+            </div>
+          </td>
+        `;
+        body.appendChild(row);
+      });
+
+      document.getElementById('totalPortfolioValue').textContent = `$${totalValue.toFixed(2)}`;
+    }
+
+    async function trade(symbol, action) {
+      const input = document.getElementById(`qty-${symbol}`);
+      const qty = parseInt(input.value);
+      if (!qty || qty <= 0) return alert("Enter a valid number of shares.");
+
+      const price = marketPrices[symbol]; 
+      if (!price || price <= 0) return alert("Price data is not available yet. Try again.");
+      
+      const total = price * qty;
+      let balance = currentUser.get('balance');
+      let holdings = { ...currentUser.get('holdings') };
+
+      try {
+        if (action === 'buy') {
+          if (balance < total) throw new Error("Insufficient cash");
+          balance -= total;
+          holdings[symbol] = (holdings[symbol] || 0) + qty;
+        } else {
+          const current = holdings[symbol] || 0;
+          if (current < qty) throw new Error("Not enough shares to sell");
+          balance += total;
+          holdings[symbol] = current - qty;
+          if (holdings[symbol] <= 0) delete holdings[symbol];
+        }
+
+        currentUser.set('balance', balance);
+        currentUser.set('holdings', holdings);
+        await currentUser.save();
+
+        renderPortfolio();
+        fetchLeaderboard();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function fetchLeaderboard() {
+      try {
+        const query = new AV.Query('Student');
+        const students = await query.find();
+
+        const leaderboard = students
+          .filter(student => student.get('username') !== '测试学生')
+          .map(student => {
+            const bal = student.get('balance') || 10000;
+            const hold = student.get('holdings') || {};
+            let total = bal;
+            for (const [sym, q] of Object.entries(hold)) {
+              total += (marketPrices[sym] || 0) * q; 
+            }
+            return { username: student.get('username'), totalValue: total };
+          })
+          .sort((a, b) => b.totalValue - a.totalValue);
+
+        const list = document.getElementById('leaderboardList');
+        list.innerHTML = '';
+        leaderboard.forEach((item, i) => {
+          const div = document.createElement('div');
+          div.className = 'leaderboard-item';
+          div.innerHTML = `
+            <div class="rank">#${i + 1}</div>
+            <div class="leader-name">${escapeHtml(item.username)}</div>
+            <div class="leader-value">$${item.totalValue.toFixed(2)}</div>
+          `;
+          list.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Leaderboard error:", err);
+      }
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, m =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])
+      );
+    }
+
+    function logout() {
+      clearInterval(priceUpdateInterval);
+      currentUser = null;
+      document.getElementById('userInfo').style.display = 'none';
+      document.getElementById('dashboardView').style.display = 'none';
+      document.getElementById('loginView').style.display = 'block';
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('status').textContent = '';
+    }
+  </script>
+</body>
+</html>
