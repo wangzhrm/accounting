@@ -1,157 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reset Trading Game</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-    }
-    .card {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-    }
-    h1 {
-      color: #2c3e50;
-      margin-top: 0;
-    }
-    input[type="password"] {
-      width: 100%;
-      padding: 12px;
-      margin: 15px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-    button {
-      background: #e74c3c;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-    }
-    button:hover:not(:disabled) {
-      background: #c0392b;
-    }
-    button:disabled {
-      background: #bdc3c7;
-      cursor: not-allowed;
-    }
-    #status {
-      margin-top: 15px;
-      min-height: 24px;
-      font-weight: bold;
-    }
-    .success { color: #27ae60; }
-    .error { color: #e74c3c; }
-    .info { color: #2980b9; }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trading Game Reset Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.13.2/dist/av-min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ed 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .reset-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+        h1 {
+            color: #c0392b;
+            margin-top: 0;
+        }
+        p {
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            color: #555;
+        }
+        #resetBtn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            width: 100%;
+        }
+        #resetBtn:hover:not(:disabled) {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+        #resetBtn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        #statusMessage {
+            margin-top: 20px;
+            font-weight: 600;
+            min-height: 20px;
+        }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Reset Trading Game</h1>
-    <p>Enter admin password to reset all portfolios.</p>
-    
-    <input type="password" id="password" placeholder="Password" autocomplete="off" />
-    <button onclick="resetGame()">Reset All Portfolios</button>
-    
-    <div id="status"></div>
-  </div>
+    <div class="reset-container">
+        <h1>⚠️ Trading Game Reset Tool</h1>
+        <p>This will **permanently** reset all users' portfolios to their starting positions:</p>
+        <ul>
+            <li>**Stocks Owned:** 0 (Holdings reset to {})</li>
+            <li>**Cash Balance:** $1,000,000.00</li>
+        </ul>
+        <button id="resetBtn" onclick="resetAllUsers()">
+            RESET GAME FOR ALL USERS
+        </button>
+        <div id="statusMessage"></div>
+    </div>
 
-  <!-- Load LeanCloud SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.13.2/dist/av-min.js"></script>
-  <script>
-    // Initialize LeanCloud
-    AV.init({
-      appId: "W9n8YEzowrs5Lzz3BqjttHiM-gzGzoHsz",
-      appKey: "5mrY6acHapGt8ngzVn0ZGBnw",
-      serverURL: "https://w9n8yezo.lc-cn-n1-shared.com"
-    });
+    <script>
+        // ✅ YOUR LEAN CLOUD CREDENTIALS (Must match your "trading" app)
+        const LEAN_CLOUD_APP_ID = "W9n8YEzowrs5Lzz3BqjttHiM-gzGzoHsz";
+        const LEAN_CLOUD_APP_KEY = "5mrY6acHapGt8ngzVn0ZGBnw";
+        const INITIAL_BALANCE = 1000000;
+        
+        // Initialize Lean Cloud
+        AV.init({
+            appId: LEAN_CLOUD_APP_ID,
+            appKey: LEAN_CLOUD_APP_KEY,
+            serverURL: "https://w9n8yezo.lc-cn-n1-shared.com"
+        });
 
-    // Helper: delay function
-    function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
+        const statusEl = document.getElementById('statusMessage');
+        const resetBtn = document.getElementById('resetBtn');
 
-    async function resetGame() {
-      const pwd = document.getElementById('password').value.trim();
-      const statusEl = document.getElementById('status');
+        /**
+         * Resets the holdings and balance for ALL users in the Student class.
+         */
+        async function resetAllUsers() {
+            if (!confirm("ABSOLUTELY SURE? This action is IRREVERSIBLE and will reset ALL user data (stocks to 0, cash to $1M).")) {
+                return;
+            }
 
-      if (pwd !== 'wang123') {
-        statusEl.className = 'error';
-        statusEl.textContent = '❌ Incorrect password';
-        return;
-      }
+            resetBtn.disabled = true;
+            resetBtn.textContent = "Processing Reset...";
+            statusEl.className = '';
+            statusEl.textContent = 'Fetching all users...';
 
-      const btn = document.querySelector('button');
-      btn.disabled = true;
-      statusEl.className = 'info';
-      statusEl.textContent = '🔄 Fetching student records...';
+            try {
+                // 1. Fetch all Student objects
+                const query = new AV.Query('Student');
+                query.limit(1000); // Set a high limit to ensure all users are fetched
+                const students = await query.find();
 
-      try {
-        const query = new AV.Query('Student');
-        // Increase limit if you have >100 students (LeanCloud default = 100)
-        query.limit(1000); // adjust as needed
-        const students = await query.find();
+                if (students.length === 0) {
+                    statusEl.className = 'success';
+                    statusEl.textContent = 'No users found in the database. Reset complete (0 users affected).';
+                    resetBtn.textContent = "RESET GAME FOR ALL USERS";
+                    resetBtn.disabled = false;
+                    return;
+                }
 
-        if (students.length === 0) {
-          statusEl.className = 'error';
-          statusEl.textContent = '⚠️ No student records found.';
-          btn.disabled = false;
-          return;
+                statusEl.textContent = `Found ${students.length} users. Preparing batch update...`;
+
+                // 2. Prepare updates for each student
+                const usersToSave = students.map(student => {
+                    // Reset holdings to empty object (0 stocks)
+                    student.set('holdings', {}); 
+                    // Reset balance to $1,000,000
+                    student.set('balance', INITIAL_BALANCE); 
+                    return student;
+                });
+
+                // 3. Save all updates in a single batch operation
+                await AV.Object.saveAll(usersToSave);
+
+                statusEl.className = 'success';
+                statusEl.textContent = `✅ Successfully reset ${students.length} users! Stocks set to 0, Cash set to $${INITIAL_BALANCE.toLocaleString()}.`;
+
+            } catch (err) {
+                statusEl.className = 'error';
+                statusEl.textContent = `❌ Reset Failed: ${err.message}`;
+                console.error("Game reset error:", err);
+
+            } finally {
+                // Re-enable the button after a delay, even if error occurred
+                setTimeout(() => {
+                    resetBtn.textContent = "RESET GAME FOR ALL USERS";
+                    resetBtn.disabled = false;
+                }, 3000);
+            }
         }
-
-        statusEl.textContent = `🔄 Resetting ${students.length} portfolios (one by one)...`;
-
-        let successCount = 0;
-        for (const student of students) {
-          try {
-            student.set('balance', 1000000);
-            student.set('holdings', {});
-            await student.save();
-            successCount++;
-            
-            // Update progress
-            statusEl.textContent = `🔄 Reset ${successCount}/${students.length}...`;
-            
-            // Wait 300ms between requests to avoid 429 errors
-            await delay(300);
-          } catch (err) {
-            console.warn('Failed to reset student:', student.id, err);
-            // Continue anyway
-          }
-        }
-
-        statusEl.className = 'success';
-        statusEl.textContent = `✅ Success! ${successCount} portfolios reset.`;
-      } catch (err) {
-        console.error('Reset error:', err);
-        statusEl.className = 'error';
-        statusEl.textContent = `❌ Error: ${err.message || 'Unknown'}`;
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    document.getElementById('password').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') resetGame();
-    });
-  </script>
+    </script>
 </body>
 </html>
