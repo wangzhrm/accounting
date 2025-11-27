@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stock Closing Prices (Previous Day)</title>
+  <script src="https://cdn.jsdelivr.net/npm/leancloud-storage/dist/av-min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .stock {
+      display: flex;
+      justify-content: space-between;
+      background: white;
+      padding: 14px;
+      margin: 8px 0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .name { font-weight: bold; color: #2c3e50; }
+    .price { color: #27ae60; font-size: 1.1em; }
+    .loading { text-align: center; color: #777; }
+    .btn-save {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-save:hover { background: #2563eb; }
+    .btn-save:disabled { background: #94a3b8; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Previous Day's Closing Stock Prices</h1>
+    <div id="stocks" class="loading">Loading closing prices...</div>
+    <button id="saveBtn" class="btn-save" onclick="saveToDatabase()">
+      Save to Database (Lean Cloud)
+    </button>
+  </div>
+
+  <script>
+    // ⚠️ REPLACE THIS WITH YOUR ACTUAL FINNHUB API KEY (REQUIRED!)
+    const FINNHUB_API_KEY = "d4jsqvpr01qgcb0vc20gd4jsqvpr01qgcb0vc210"; // 👈 REPLACE THIS!
+
+    // ✅ YOUR LEAN CLOUD CREDENTIALS (MATCHING YOUR "trading" APP)
+    const LEAN_CLOUD_APP_ID = "W9n8YEzowrs5Lzz3BqjttHiM-gzGzoHsz";
+    const LEAN_CLOUD_APP_KEY = "5mrY6acHapGt8ngzVn0ZGBnw";
+
+    // Initialize Lean Cloud (CRITICAL: MATCHES YOUR APP)
+    AV.init({
+      appId: LEAN_CLOUD_APP_ID,
+      appKey: LEAN_CLOUD_APP_KEY,
+      // ✅ CORRECTED SERVER URL to fix the CORS/Request terminated error
+      serverURL: "https://w9n8yezo.lc-cn-n1-shared.com" 
+    });
+
+    const COMPANIES = [
+      { symbol: "AAPL", name: "Apple Inc." },
+      { symbol: "JNJ", name: "Johnson & Johnson" },
+      { symbol: "XOM", name: "Exxon Mobil Corporation" },
+      { symbol: "JPM", name: "JPMorgan Chase & Co." },
+      { symbol: "WMT", name: "Walmart Inc." },
+      { symbol: "BA", name: "The Boeing Company" },
+      { symbol: "DIS", name: "The Walt Disney Company" },
+      { symbol: "CAT", name: "Caterpillar Inc." },
+      { symbol: "PG", name: "Procter & Gamble Co." },
+      { symbol: "AMT", name: "American Tower Corporation" }
+    ];
+
+    const container = document.getElementById('stocks');
+    let currentPrices = [];
+
+    async function fetchStockPrice(symbol) {
+      // Finnhub API rate limit is 30 calls/second for free tier. No slow-down needed here.
+      const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINNHUB_API_KEY}`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) return null;
+        const data = await response.json();
+        
+        return { 
+          symbol: symbol,
+          closePrice: data.pc, 
+          // Finnhub 't' is the current timestamp in UTC seconds, which we use as the fetch time.
+          fetchTimestamp: data.t
+        };
+      } catch (err) {
+        console.error(`Error fetching ${symbol}:`, err);
+        return null;
+      }
+    }
+
+    async function loadAllPrices() {
+      container.innerHTML = '<div class="loading">Fetching closing prices...</div>';
+      currentPrices = [];
+
+      // Use Promise.all to fetch all prices concurrently (faster)
+      const fetchPromises = COMPANIES.map(co => fetchStockPrice(co.symbol));
+      const results = await Promise.all(fetchPromises);
+
+      currentPrices = results.filter(data => data !== null);
+
+      container.innerHTML = '';
+      currentPrices.forEach(stock => {
+        const company = COMPANIES.find(c => c.symbol === stock.symbol);
+        const div = document.createElement('div');
+        div.className = 'stock';
+        div.innerHTML = `
+          <div class="name">${stock.symbol} - ${company ? company.name : 'Unknown'}</div>
+          <div class="price">$${Number(stock.closePrice).toFixed(2)}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    async function saveToDatabase() {
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+      
+      try {
+        const objects = currentPrices.map(price => {
+          const obj = new AV.Object('StockPrice');
+          obj.set('symbol', price.symbol);
+          obj.set('closePrice', Number(price.closePrice)); 
+          // Convert Unix timestamp (seconds) to JavaScript Date object (milliseconds)
+          obj.set('date', new Date(price.fetchTimestamp * 1000)); 
+          return obj;
+        });
+
+        // Save to Lean Cloud
+        await AV.Object.saveAll(objects);
+        
+        saveBtn.textContent = "Saved! ✅";
+        setTimeout(() => {
+          saveBtn.textContent = "Save to Database (Lean Cloud)";
+          saveBtn.disabled = false;
+        }, 2000);
+      } catch (err) {
+        alert(`Save failed: ${err.message}`);
+        saveBtn.textContent = "Save to Database (Lean Cloud)";
+        saveBtn.disabled = false;
+      }
+    }
+
+    // Load prices on startup
+    loadAllPrices();
+  </script>
+</body>
+</html>
