@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Classroom Trading Simulation</title>
+  <title>Classroom Trading Simulation - Final Fixed Version</title>
   <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.13.2/dist/av-min.js"></script>
   <style>
+    /* ------------------------------------------------------------------- */
+    /* --- CSS Styles (Unchanged) ---------------------------------------- */
+    /* ------------------------------------------------------------------- */
     * {
       box-sizing: border-box;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -98,6 +101,12 @@
     .btn-danger:hover {
       background-color: #c0392b;
     }
+    .btn-warning {
+        background-color: #f39c12;
+    }
+    .btn-warning:hover {
+        background-color: #e67e22;
+    }
 
     #status {
       text-align: center;
@@ -138,6 +147,17 @@
       margin-top: 4px;
       font-size: 1.05em;
     }
+    /* Status for price update time */
+    #priceStatus {
+        font-size: 0.8em;
+        color: #777;
+        margin-top: 5px;
+        text-align: center;
+        /* Removed the button, simplifying layout */
+        justify-content: center; 
+        margin-bottom: 10px;
+    }
+
 
     /* Portfolio Summary */
     .portfolio-header {
@@ -254,7 +274,6 @@
   </style>
 </head>
 <body>
-  <!-- Top User Bar -->
   <div class="top-bar">
     <div class="user-info" id="userInfo" style="display:none;">
       <span id="displayName">User</span>
@@ -263,7 +282,6 @@
   </div>
 
   <div class="container">
-    <!-- Login View -->
     <div id="loginView" class="card">
       <h1>Trading Simulation Login</h1>
       <div class="form-group">
@@ -278,15 +296,15 @@
       <div id="status"></div>
     </div>
 
-    <!-- Dashboard -->
     <div id="dashboardView" style="display: none;">
-      <!-- Market Prices -->
       <div class="card">
-        <h2>Market Prices</h2>
+        <h2>Market Prices (Latest Closing Price)</h2>
+        <div id="priceStatus">
+            <span>Checking historical database...</span>
+        </div>
         <div class="market-grid" id="marketGrid"></div>
       </div>
 
-      <!-- Portfolio -->
       <div class="card">
         <div class="portfolio-header">
           <h2>Your Portfolio</h2>
@@ -311,7 +329,6 @@
         </div>
       </div>
 
-      <!-- Leaderboard -->
       <div class="card">
         <h2>Leaderboard</h2>
         <div id="leaderboardList"></div>
@@ -320,10 +337,17 @@
   </div>
 
   <script>
+    // ⚠️ REMINDER: REPLACE THIS WITH YOUR ACTUAL FINNHUB API KEY (REQUIRED!)
+    const FINNHUB_API_KEY = "d4jsqvpr01qgcb0vc20gd4jsqvpr01qgcb0vc210"; 
+
+    // ✅ UPDATED CACHING TIME TO 12 HOURS
+    const CACHE_EXPIRATION_MINUTES = 720; // 12 hours * 60 minutes
+    const REFRESH_INTERVAL_MS = 60000; // Check every 1 minute
+
     const COMPANIES = [
       { name: "Apple Inc.", symbol: "AAPL" },
       { name: "Johnson & Johnson", symbol: "JNJ" },
-      { name: "Exxon Mobil Corporation", symbol: "XOM" },
+      { name: "Exxon Mobil Corporation", symbol: "XOM" }, 
       { name: "JPMorgan Chase & Co.", symbol: "JPM" },
       { name: "Walmart Inc.", symbol: "WMT" },
       { name: "The Boeing Company", symbol: "BA" },
@@ -333,38 +357,205 @@
       { name: "American Tower Corporation", symbol: "AMT" }
     ];
 
-    let marketPrices = {
-      AAPL: 175.5,
-      JNJ: 155.2,
-      XOM: 110.8,
-      JPM: 190.3,
-      WMT: 60.4,
-      BA: 180.9,
-      DIS: 95.6,
-      CAT: 320.7,
-      PG: 150.25,
-      AMT: 210.4
-    };
+    let marketPrices = {}; 
+    let currentUser = null;
+    let priceUpdateInterval;
+    let isFetching = false; 
 
+    // LeanCloud Initialization (Credentials from your trading app)
     AV.init({
       appId: "W9n8YEzowrs5Lzz3BqjttHiM-gzGzoHsz",
       appKey: "5mrY6acHapGt8ngzVn0ZGBnw",
       serverURL: "https://w9n8yezo.lc-cn-n1-shared.com"
     });
 
-    let currentUser = null;
-    let priceUpdateInterval;
+    // -------------------------------------------------------------------
+    // --- UTILITY FUNCTION: Consolidate Historical Data -----------------
+    // -------------------------------------------------------------------
+    
+    /**
+     * Consolidates a list of historical StockPrice objects into a single {symbol: price} object.
+     * Checks if the data is fresh (all records created within the last 12 hours) and complete.
+     */
+    function consolidateHistoricalPrices(pricesArray) {
+        if (pricesArray.length === 0) return null;
+        
+        const consolidated = {};
+        const now = new Date().getTime();
+        const expirationTimeMs = CACHE_EXPIRATION_MINUTES * 60000;
+        let isFresh = true;
+        
+        pricesArray.forEach(record => {
+            const symbol = record.get('symbol');
+            const price = record.get('closePrice'); 
+            
+            const recordTime = record.createdAt.getTime(); 
+            
+            if (now - recordTime > expirationTimeMs) {
+                isFresh = false; 
+            }
+            
+            if (price !== undefined && price > 0 && symbol) {
+                 consolidated[symbol] = Number(price); 
+            }
+        });
+        
+        // Check if we have all 10 companies AND the data is fresh
+        if (isFresh && Object.keys(consolidated).length === COMPANIES.length) {
+            return consolidated;
+        }
+        
+        return null;
+    }
 
-    function simulatePriceUpdates() {
-      Object.keys(marketPrices).forEach(sym => {
-        const change = (Math.random() - 0.5) * 2;
-        marketPrices[sym] = Math.max(1, parseFloat((marketPrices[sym] + change).toFixed(2)));
-      });
-      if (currentUser) {
-        renderPortfolio();
-        renderMarket();
-        fetchLeaderboard();
-      }
+
+    // -------------------------------------------------------------------
+    // --- PRICE FETCHING LOGIC ------------------------------------------
+    // -------------------------------------------------------------------
+
+    /**
+     * Checks the StockPrice class for recent data. If stale/missing, fetches from Finnhub.
+     */
+    async function fetchAndCachePrices() {
+        if (isFetching) return;
+        isFetching = true;
+
+        const statusEl = document.getElementById('priceStatus').querySelector('span');
+        statusEl.textContent = "Checking historical database (StockPrice)...";
+        
+        let cachedPrices = null;
+
+        try {
+            // 1. Fetch latest historical data
+            const historicalQuery = new AV.Query('StockPrice');
+            historicalQuery.descending('createdAt');
+            historicalQuery.limit(COMPANIES.length * 2); 
+            historicalQuery.select(['symbol', 'closePrice', 'createdAt']);
+            
+            const historicalRecords = await historicalQuery.find();
+            
+            // Filter to get the absolute latest unique record for each symbol
+            const latestRecordsMap = new Map();
+            historicalRecords.forEach(record => {
+                const symbol = record.get('symbol');
+                if (!latestRecordsMap.has(symbol)) {
+                    latestRecordsMap.set(symbol, record);
+                }
+            });
+            
+            const latestRecords = Array.from(latestRecordsMap.values());
+
+            // 2. Consolidate and check if the latest records are fresh (less than 12 hours old)
+            cachedPrices = consolidateHistoricalPrices(latestRecords);
+
+            // 3. CACHE HIT: Found fresh, complete data in StockPrice
+            if (cachedPrices) {
+                marketPrices = cachedPrices;
+                const lastUpdateTime = latestRecords[0] ? latestRecords[0].createdAt.toLocaleTimeString() : 'N/A';
+                statusEl.textContent = `Prices loaded from database (as of ${lastUpdateTime}).`;
+            }
+
+        } catch (readError) {
+             if (readError.message.includes("404")) {
+                 console.warn("StockPrice class not found. Proceeding to Finnhub fetch.");
+             } else {
+                 console.error("Historical data read failed:", readError);
+             }
+        }
+        
+        // 4. CACHE MISS: Data was stale, incomplete, or read failed - Fetch from Finnhub
+        if (!cachedPrices) {
+             statusEl.textContent = "Data stale or missing (over 12 hours old). Fetching new data from Finnhub...";
+             try {
+                await fetchPricesFromFinnhub(); 
+             } catch (fetchError) {
+                 statusEl.textContent = `Error fetching prices: ${fetchError.message}. Prices unavailable.`;
+             }
+        }
+        
+        isFetching = false;
+        return marketPrices;
+    }
+
+    /**
+     * Executes the direct fetch from Finnhub and updates the StockPrice class.
+     */
+    async function fetchPricesFromFinnhub() {
+        if (FINNHUB_API_KEY === "YOUR_FINNHUB_API_KEY") {
+             throw new Error("Finnhub API Key is missing. Cannot fetch live prices.");
+        }
+        
+        const StockPrice = AV.Object.extend('StockPrice'); 
+        const updatedPrices = {}; 
+
+        const statusEl = document.getElementById('priceStatus').querySelector('span');
+        
+        // Use Promise.all to fetch all 10 stocks concurrently
+        const fetchPromises = COMPANIES.map(co => {
+            const url = `https://finnhub.io/api/v1/quote?symbol=${co.symbol}&token=${FINNHUB_API_KEY}`;
+            return fetch(url).then(r => r.json()).catch(err => {
+                console.error(`Finnhub fetch failed for ${co.symbol}:`, err);
+                return null;
+            });
+        });
+
+        const results = await Promise.all(fetchPromises);
+        let successfulFetches = 0;
+        const objectsToSave = [];
+
+        results.forEach((data, index) => {
+            const symbol = COMPANIES[index].symbol;
+            
+            if (data && data.pc !== undefined && data.pc > 0) {
+                const price = data.pc;
+                
+                // 1. Prepare for saving to the HISTORICAL StockPrice class
+                const historicalObj = new StockPrice();
+                historicalObj.set('symbol', symbol);
+                historicalObj.set('closePrice', Number(price)); 
+                objectsToSave.push(historicalObj);
+
+                // 2. Update the consolidated price set
+                updatedPrices[symbol] = Number(price);
+                successfulFetches++;
+            } else {
+                updatedPrices[symbol] = 0; 
+                console.warn(`Could not get valid data for ${symbol}. Using 0.`);
+            }
+        });
+
+        if (successfulFetches === 0) {
+            throw new Error("Failed to fetch price data for any stock from Finnhub.");
+        }
+
+        // 3. Save ALL new individual records to the StockPrice class (Historical Update)
+        await AV.Object.saveAll(objectsToSave);
+        
+        // 4. Update the global prices
+        marketPrices = updatedPrices;
+
+        statusEl.textContent = `Prices updated from Finnhub (Success: ${successfulFetches}/10) and saved to database.`;
+    }
+
+    // -------------------------------------------------------------------
+    // --- MAIN APP LOGIC (Unchanged) ------------------------------------
+    // -------------------------------------------------------------------
+
+    function startPriceUpdates() {
+        updateDashboardData();
+        
+        clearInterval(priceUpdateInterval);
+        // The interval check is important because it runs the 12-hour check periodically.
+        priceUpdateInterval = setInterval(updateDashboardData, REFRESH_INTERVAL_MS); 
+    }
+
+    async function updateDashboardData() {
+        await fetchAndCachePrices();
+        if (currentUser) {
+            renderMarket();
+            renderPortfolio();
+            fetchLeaderboard();
+        }
     }
 
     async function login() {
@@ -393,12 +584,8 @@
         document.getElementById('loginView').style.display = 'none';
         document.getElementById('dashboardView').style.display = 'block';
 
-        clearInterval(priceUpdateInterval);
-        priceUpdateInterval = setInterval(simulatePriceUpdates, 10000);
+        startPriceUpdates(); 
 
-        renderMarket();
-        renderPortfolio();
-        fetchLeaderboard();
       } catch (err) {
         showError(err.message || "Login failed");
       }
@@ -413,7 +600,7 @@
       const container = document.getElementById('marketGrid');
       container.innerHTML = '';
       COMPANIES.forEach(co => {
-        const price = marketPrices[co.symbol] || 0;
+        const price = marketPrices[co.symbol] || 0; 
         const div = document.createElement('div');
         div.className = 'stock-item';
         div.innerHTML = `
@@ -467,6 +654,8 @@
       if (!qty || qty <= 0) return alert("Enter a valid number of shares.");
 
       const price = marketPrices[symbol];
+      if (!price || price === 0) return alert("Cannot trade. Price data is currently unavailable.");
+
       const total = price * qty;
       let balance = currentUser.get('balance');
       let holdings = { ...currentUser.get('holdings') };
@@ -500,7 +689,6 @@
         const query = new AV.Query('Student');
         const students = await query.find();
 
-        // ✅ Exclude "测试学生" from leaderboard
         const leaderboard = students
           .filter(student => student.get('username') !== '测试学生')
           .map(student => {
@@ -547,6 +735,9 @@
       document.getElementById('password').value = '';
       document.getElementById('status').textContent = '';
     }
+    
+    // Initial call to start the price process
+    fetchAndCachePrices(); 
   </script>
 </body>
 </html>
