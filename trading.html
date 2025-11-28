@@ -153,7 +153,6 @@
         color: #777;
         margin-top: 5px;
         text-align: center;
-        /* Removed the button, simplifying layout */
         justify-content: center; 
         margin-bottom: 10px;
     }
@@ -538,14 +537,13 @@
     }
 
     // -------------------------------------------------------------------
-    // --- MAIN APP LOGIC (Unchanged) ------------------------------------
+    // --- MAIN APP LOGIC (Unchanged except trade function) --------------
     // -------------------------------------------------------------------
 
     function startPriceUpdates() {
         updateDashboardData();
         
         clearInterval(priceUpdateInterval);
-        // The interval check is important because it runs the 12-hour check periodically.
         priceUpdateInterval = setInterval(updateDashboardData, REFRESH_INTERVAL_MS); 
     }
 
@@ -648,6 +646,7 @@
       document.getElementById('totalPortfolioValue').textContent = `$${totalValue.toFixed(2)}`;
     }
 
+    // ✅ UPDATED: Now tracks transaction count
     async function trade(symbol, action) {
       const input = document.getElementById(`qty-${symbol}`);
       const qty = parseInt(input.value);
@@ -673,8 +672,14 @@
           if (holdings[symbol] <= 0) delete holdings[symbol];
         }
 
+        // ✅ Increment transaction count
+        let transactionCount = currentUser.get('transactionCount') || 0;
+        transactionCount += 1;
+
         currentUser.set('balance', balance);
         currentUser.set('holdings', holdings);
+        currentUser.set('transactionCount', transactionCount); // Store in DB
+
         await currentUser.save();
 
         renderPortfolio();
