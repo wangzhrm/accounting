@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Classroom Trading Simulation - Final Fixed Version</title>
   <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.13.2/dist/av-min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script> 
   <style>
     /* ------------------------------------------------------------------- */
     /* --- CSS Styles (Unchanged) ---------------------------------------- */
@@ -162,17 +163,40 @@
     .portfolio-header {
       margin-bottom: 15px;
       text-align: center;
+      /* Flex container for the chart and table */
+      display: flex;
+      flex-direction: column; 
+      align-items: center;
+    }
+    .portfolio-value-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .value-label {
+        font-size: 1.1em;
+        color: #555;
+        font-weight: 500;
+        margin-bottom: 5px;
     }
     .total-value-display {
-      font-size: 1.6em;
+      font-size: 1.8em; /* Made slightly larger */
       font-weight: bold;
       color: #27ae60;
-      margin: 10px 0;
+      margin: 0 0 10px 0;
     }
     .cash-display {
-      font-size: 1.1em;
+      font-size: 1.2em;
       color: #2980b9;
       margin-bottom: 20px;
+    }
+    
+    /* Chart Container */
+    #chartContainer {
+        width: 100%;
+        max-width: 400px; /* Constrain chart size */
+        margin: 20px auto 30px auto;
     }
 
     /* Portfolio Table */
@@ -307,9 +331,19 @@
       <div class="card">
         <div class="portfolio-header">
           <h2>Your Portfolio</h2>
-          <div class="total-value-display" id="totalPortfolioValue">$0.00</div>
-          <div class="cash-display" id="cashBalance">Cash: $0.00</div>
-        </div>
+          
+          <div class="portfolio-value-container">
+            <span class="value-label">Total Portfolio Value:</span>
+            <div class="total-value-display" id="totalPortfolioValue">$0.00</div>
+            
+            <span class="value-label">Cash Position:</span>
+            <div class="cash-display" id="cashBalance">Cash: $0.00</div>
+          </div>
+          
+          <div id="chartContainer">
+            <canvas id="portfolioChart"></canvas>
+          </div>
+          </div>
 
         <div class="portfolio-table-wrapper">
           <table id="portfolioTable">
@@ -360,6 +394,7 @@
     let currentUser = null;
     let priceUpdateInterval;
     let isFetching = false; 
+    let portfolioChart = null; // Global Chart instance
 
     // LeanCloud Initialization (Credentials from your trading app)
     AV.init({
@@ -537,7 +572,7 @@
     }
 
     // -------------------------------------------------------------------
-    // --- MAIN APP LOGIC (Unchanged except trade function) --------------
+    // --- MAIN APP LOGIC ------------------------------------------------
     // -------------------------------------------------------------------
 
     function startPriceUpdates() {
@@ -570,9 +605,14 @@
         const user = results[0];
         if (user.get('password') !== p) throw new Error("Invalid password");
 
+        // Initialize new fields if necessary on first login
         if (user.get('balance') === undefined) {
           user.set('balance', 10000);
           user.set('holdings', {});
+          user.set('transactionCount', 0);
+          user.set('totalTransactedAmount', 0);
+          user.set('earlyMorningTrades', 0);
+          user.set('lateNightTrades', 0);
           await user.save();
         }
 
@@ -615,15 +655,33 @@
       const holdings = currentUser.get('holdings') || {};
       const body = document.getElementById('portfolioBody');
       let totalValue = balance;
+      
+      const chartLabels = ["Cash"];
+      const chartData = [balance];
+      const chartColors = ["#2980b9"]; // Blue for Cash
+      
+      // Define a palette for stocks (10 colors)
+      const stockPalette = [
+        '#2ecc71', '#f1c40f', '#e67e22', '#3498db', '#9b59b6',
+        '#1abc9c', '#e74c3c', '#c0392b', '#7f8c8d', '#2c3e50'
+      ];
+      let colorIndex = 0;
 
       body.innerHTML = '';
-      document.getElementById('cashBalance').textContent = `Cash: $${balance.toFixed(2)}`;
+      document.getElementById('cashBalance').textContent = `$${balance.toFixed(2)}`;
 
       COMPANIES.forEach(co => {
         const qty = holdings[co.symbol] || 0;
         const price = marketPrices[co.symbol] || 0;
         const stockValue = qty * price;
         totalValue += stockValue;
+
+        if (stockValue > 0) {
+            chartLabels.push(co.symbol);
+            chartData.push(stockValue);
+            chartColors.push(stockPalette[colorIndex % stockPalette.length]);
+            colorIndex++;
+        }
 
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -644,9 +702,65 @@
       });
 
       document.getElementById('totalPortfolioValue').textContent = `$${totalValue.toFixed(2)}`;
+      
+      // ----------------------------------------------------
+      // --- Render Pie Chart ---
+      // ----------------------------------------------------
+      if (portfolioChart) {
+        portfolioChart.destroy(); // Destroy existing chart before creating a new one
+      }
+
+      const ctx = document.getElementById('portfolioChart').getContext('2d');
+      portfolioChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            data: chartData,
+            backgroundColor: chartColors,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                font: {
+                    size: 14
+                }
+              }
+            },
+            title: {
+              display: true,
+              text: 'Portfolio Asset Distribution',
+              font: {
+                  size: 16
+              }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed !== null) {
+                            const value = context.parsed;
+                            const percentage = (value / totalValue * 100).toFixed(1);
+                            label += `$${value.toFixed(2)} (${percentage}%)`;
+                        }
+                        return label;
+                    }
+                }
+            }
+          }
+        }
+      });
     }
 
-    // ✅ UPDATED: Now tracks transaction count
+    // ✅ FIXED trade() function with all missing set() calls
     async function trade(symbol, action) {
       const input = document.getElementById(`qty-${symbol}`);
       const qty = parseInt(input.value);
@@ -658,6 +772,12 @@
       const total = price * qty;
       let balance = currentUser.get('balance');
       let holdings = { ...currentUser.get('holdings') };
+
+      // Initialize/Retrieve new tracking fields
+      let totalTransactedAmount = currentUser.get('totalTransactedAmount') || 0;
+      let earlyMorningTrades = currentUser.get('earlyMorningTrades') || 0;
+      let lateNightTrades = currentUser.get('lateNightTrades') || 0;
+      let transactionCount = currentUser.get('transactionCount') || 0;
 
       try {
         if (action === 'buy') {
@@ -672,14 +792,32 @@
           if (holdings[symbol] <= 0) delete holdings[symbol];
         }
 
-        // ✅ Increment transaction count
-        let transactionCount = currentUser.get('transactionCount') || 0;
+        // 1. Add absolute transaction value to total transacted amount
+        totalTransactedAmount += total;
+
+        // 2 & 3. Determine local hour and classify trade time window
+        const now = new Date(); // Local browser time
+        const hour = now.getHours();
+
+        if (hour >= 5 && hour < 9) {
+          earlyMorningTrades += 1;
+        } else if (hour >= 21 || hour < 5) {
+          lateNightTrades += 1;
+        }
+
+        // Increment total transaction count
         transactionCount += 1;
 
+        // Save all fields to LeanCloud Student object
         currentUser.set('balance', balance);
         currentUser.set('holdings', holdings);
-        currentUser.set('transactionCount', transactionCount); // Store in DB
-
+        currentUser.set('transactionCount', transactionCount);
+        
+        // 🔥 FIX APPLIED HERE: Must call set() for the new fields to persist them
+        currentUser.set('totalTransactedAmount', totalTransactedAmount);
+        currentUser.set('earlyMorningTrades', earlyMorningTrades);
+        currentUser.set('lateNightTrades', lateNightTrades);
+        
         await currentUser.save();
 
         renderPortfolio();
@@ -732,6 +870,10 @@
 
     function logout() {
       clearInterval(priceUpdateInterval);
+      if (portfolioChart) {
+          portfolioChart.destroy(); // Destroy chart on logout
+          portfolioChart = null;
+      }
       currentUser = null;
       document.getElementById('userInfo').style.display = 'none';
       document.getElementById('dashboardView').style.display = 'none';
