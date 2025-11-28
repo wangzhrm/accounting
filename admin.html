@@ -52,6 +52,11 @@
     </table>
   </div>
 
+  <!-- Clear All Marks -->
+  <div class="section">
+    <button onclick="clearAllMarks()" style="background-color: #ffcccc; color: darkred;">⚠️ Remove All Marks</button>
+  </div>
+
   <script>
     let students = [];
     let criteria = [];
@@ -214,6 +219,26 @@
         row.insertCell(1).textContent = scores.join(', ');
         row.insertCell(2).textContent = avg;
       });
+    }
+
+    // === CLEAR ALL MARKS ===
+    async function clearAllMarks() {
+      if (!confirm("Are you sure you want to delete ALL feedback/marks? This cannot be undone.")) {
+        return;
+      }
+
+      try {
+        const query = new AV.Query('Feedback');
+        const feedbacks = await query.find();
+        if (feedbacks.length > 0) {
+          await AV.Object.destroyAll(feedbacks);
+        }
+        alert(`Successfully deleted ${feedbacks.length} mark(s).`);
+        loadResults(); // Refresh the results table
+      } catch (error) {
+        alert("Failed to delete marks: " + error.message);
+        console.error(error);
+      }
     }
 
     // Init
