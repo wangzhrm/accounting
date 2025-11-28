@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Stock Price Charts</title>
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        /* Container for all charts - uses Flexbox */
+        .charts-container {
+            display: flex;
+            flex-wrap: wrap; /* Allows charts to wrap to the next line */
+            gap: 20px; /* Space between charts */
+            justify-content: center; /* Center the charts horizontally */
+            max-width: 1300px; /* Limit max width for better viewing on ultra-wide screens */
+            margin: 0 auto;
+        }
+
+        /* Individual chart item styling */
+        .chart-item {
+            width: 100%; /* Default: Take up full width for mobile */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+
+        .chart-item h2 {
+            margin-top: 0;
+            color: #555;
+            font-size: 1.2em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Make the iframe responsive within its container */
+        .chart-item iframe {
+            display: block;
+            width: 100%; /* The iframe will take up the full width of its parent (.chart-item) */
+            height: 400px; /* Set a consistent height */
+            border: none;
+        }
+
+        /* Media Query for larger screens (e.g., computers/tablets) */
+        @media (min-width: 768px) {
+            .chart-item {
+                /* For 2 charts per row: (100% - gap) / 2 */
+                /* The gap is 20px, so we subtract 20px for the space between the two items */
+                width: calc(50% - 10px); 
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Stock Price Charts - Dow Components & American Tower</h1>
+    
+    <div class="charts-container">
+        
+        <div class="chart-item">
+            <h2>Apple</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=6408&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>Johnson & Johnson</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=8177&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>Exxon Mobil</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=7888&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>JP Morgan Chase</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=267&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>Walmart</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=7997&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>Boeing</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=238&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>Walt Disney</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=258&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>Caterpillar</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=247&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>Procter & Gamble</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=8952&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>American Tower Corporation</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=8036&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
+        </div>
+        
+    </div>
+
+</body>
+</html>
