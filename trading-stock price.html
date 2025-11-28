@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Stock Price Charts</title>
+    <title>Stocks & Latest News Dashboard</title>
+
     <style>
-        /* Basic styling */
+        /* === CHART SECTION STYLES === */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -19,20 +20,18 @@
             margin-bottom: 30px;
         }
 
-        /* Container for all charts - uses Flexbox */
         .charts-container {
             display: flex;
-            flex-wrap: wrap; /* Allows charts to wrap to the next line */
-            gap: 20px; /* Space between charts */
-            justify-content: center; /* Center the charts horizontally */
-            max-width: 1300px; /* Limit max width for better viewing on ultra-wide screens */
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            max-width: 1300px;
             margin: 0 auto;
         }
 
-        /* Individual chart item styling */
         .chart-item {
-            width: 100%; /* Default: Take up full width for mobile */
-            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            width: 100%;
+            box-sizing: border-box;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -48,31 +47,45 @@
             margin-bottom: 10px;
         }
 
-        /* Make the iframe responsive within its container */
         .chart-item iframe {
             display: block;
-            width: 100%; /* The iframe will take up the full width of its parent (.chart-item) */
-            height: 400px; /* Set a consistent height */
+            width: 100%;
+            height: 400px;
             border: none;
         }
 
-        /* Media Query for larger screens (e.g., computers/tablets) */
         @media (min-width: 768px) {
             .chart-item {
-                /* For 2 charts per row: (100% - gap) / 2 */
-                /* The gap is 20px, so we subtract 20px for the space between the two items */
-                width: calc(50% - 10px); 
+                width: calc(50% - 10px);
             }
         }
 
+        /* === NEWS SECTION STYLES === */
+        #news-section-title {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 28px;
+            color: #2a4d8f;
+        }
+
+        h2 {
+            margin-top: 40px;
+            color: #2a4d8f;
+        }
+
+        .news-item {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
+
 <body>
 
+    <!-- ===== STOCK CHART SECTION ===== -->
     <h1>Stock Price Charts - Dow Components & American Tower</h1>
-    
+
     <div class="charts-container">
-        
+
         <div class="chart-item">
             <h2>Apple</h2>
             <iframe src="https://ssltvc.investing.com/?pair_ID=6408&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
@@ -122,8 +135,94 @@
             <h2>American Tower Corporation</h2>
             <iframe src="https://ssltvc.investing.com/?pair_ID=8036&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
         </div>
-        
+
     </div>
+
+    <!-- ===== NEWS SECTION ===== -->
+    <h1 id="news-section-title">Latest News for My Companies</h1>
+    <div id="news"></div>
+
+    <script>
+        const companies = [
+            "Apple Inc.", "Johnson & Johnson", "Exxon Mobil Corporation",
+            "JPMorgan Chase & Co.", "Walmart Inc.", "The Boeing Company",
+            "The Walt Disney Company", "Caterpillar Inc.",
+            "Procter & Gamble Co.", "American Tower Corporation"
+        ];
+
+        const REUTERS_FEED =
+            "https://api.allorigins.win/get?url=" +
+            encodeURIComponent("http://feeds.reuters.com/reuters/businessNews");
+
+        async function getNewsForCompany(company) {
+            try {
+                const r = await fetch(REUTERS_FEED);
+                const data = await r.json();
+
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(data.contents, "text/xml");
+
+                const items = [...xml.querySelectorAll("item")];
+                const filtered = items.filter(i =>
+                    i.querySelector("title").textContent.toLowerCase()
+                        .includes(company.toLowerCase().split(" ")[0])
+                );
+
+                if (filtered.length > 0) {
+                    return filtered.slice(0, 5).map(item => ({
+                        title: item.querySelector("title").textContent,
+                        link: item.querySelector("link").textContent
+                    }));
+                }
+            } catch (e) {
+                console.log("Reuters failed:", company, e);
+            }
+
+            // fallback: Google News RSS search
+            const googleRSS =
+                "https://api.allorigins.win/get?url=" +
+                encodeURIComponent(
+                    `https://news.google.com/rss/search?q=${encodeURIComponent(company)}&hl=en-US&gl=US&ceid=US:en`
+                );
+
+            const r2 = await fetch(googleRSS);
+            const data2 = await r2.json();
+
+            const parser2 = new DOMParser();
+            const xml2 = parser2.parseFromString(data2.contents, "text/xml");
+
+            const items2 = [...xml2.querySelectorAll("item")];
+
+            return items2.slice(0, 5).map(item => ({
+                title: item.querySelector("title").textContent,
+                link: item.querySelector("link").textContent
+            }));
+        }
+
+        async function generateNews() {
+            const container = document.getElementById("news");
+
+            for (const company of companies) {
+                container.innerHTML += `<h2>${company}</h2>`;
+
+                const newsItems = await getNewsForCompany(company);
+
+                if (newsItems.length === 0) {
+                    container.innerHTML += "<p>No news found.</p>";
+                    continue;
+                }
+
+                newsItems.forEach(n => {
+                    container.innerHTML += `
+                    <div class="news-item">
+                        <a href="${n.link}" target="_blank">${n.title}</a>
+                    </div>`;
+                });
+            }
+        }
+
+        generateNews();
+    </script>
 
 </body>
 </html>
