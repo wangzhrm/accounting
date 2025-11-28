@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script> 
   <style>
     /* ------------------------------------------------------------------- */
-    /* --- CSS Styles (Unchanged) ---------------------------------------- */
+    /* --- CSS Styles ---------------------------------------------------- */
     /* ------------------------------------------------------------------- */
     * {
       box-sizing: border-box;
@@ -148,6 +148,7 @@
       margin-top: 4px;
       font-size: 1.05em;
     }
+
     /* Status for price update time */
     #priceStatus {
         font-size: 0.8em;
@@ -158,12 +159,10 @@
         margin-bottom: 10px;
     }
 
-
     /* Portfolio Summary */
     .portfolio-header {
       margin-bottom: 15px;
       text-align: center;
-      /* Flex container for the chart and table */
       display: flex;
       flex-direction: column; 
       align-items: center;
@@ -181,7 +180,7 @@
         margin-bottom: 5px;
     }
     .total-value-display {
-      font-size: 1.8em; /* Made slightly larger */
+      font-size: 1.8em;
       font-weight: bold;
       color: #27ae60;
       margin: 0 0 10px 0;
@@ -195,7 +194,7 @@
     /* Chart Container */
     #chartContainer {
         width: 100%;
-        max-width: 400px; /* Constrain chart size */
+        max-width: 400px;
         margin: 20px auto 30px auto;
     }
 
@@ -263,13 +262,13 @@
       color: #27ae60;
     }
 
-    /* Source info at bottom */
+    /* ✅ UPDATED: Smaller and lighter source info */
     #dataSourceInfo {
-      font-size: 0.7em;
-      color: #aaa;
+      font-size: 0.65em;       /* Smaller */
+      color: #ccc;             /* Lighter grey */
       text-align: center;
-      margin-top: 10px;
-      padding-top: 10px;
+      margin-top: 8px;
+      padding-top: 8px;
       border-top: 1px solid #eee;
     }
 
@@ -354,7 +353,7 @@
           <div id="chartContainer">
             <canvas id="portfolioChart"></canvas>
           </div>
-          </div>
+        </div>
 
         <div class="portfolio-table-wrapper">
           <table id="portfolioTable">
@@ -381,12 +380,11 @@
   </div>
 
   <script>
-    // ⚠️ REMINDER: REPLACE THIS WITH YOUR ACTUAL FINNHUB API KEY (REQUIRED!)
+    // ⚠️ REPLACE THIS WITH YOUR ACTUAL FINNHUB API KEY
     const FINNHUB_API_KEY = "d4jsqvpr01qgcb0vc20gd4jsqvpr01qgcb0vc210"; 
 
-    // ✅ UPDATED CACHING TIME TO 10 MINUTES
-    const CACHE_EXPIRATION_MINUTES = 10; // Changed from 720 to 10 minutes
-    const REFRESH_INTERVAL_MS = 600000; // Check every 10 minutes (600,000 ms)
+    const CACHE_EXPIRATION_MINUTES = 2;
+    const REFRESH_INTERVAL_MS = 120000;
 
     const COMPANIES = [
       { name: "Apple Inc.", symbol: "AAPL" },
@@ -405,23 +403,14 @@
     let currentUser = null;
     let priceUpdateInterval;
     let isFetching = false; 
-    let portfolioChart = null; // Global Chart instance
+    let portfolioChart = null;
 
-    // LeanCloud Initialization (Credentials from your trading app)
     AV.init({
       appId: "W9n8YEzowrs5Lzz3BqjttHiM-gzGzoHsz",
       appKey: "5mrY6acHapGt8ngzVn0ZGBnw",
       serverURL: "https://w9n8yezo.lc-cn-n1-shared.com"
     });
 
-    // -------------------------------------------------------------------
-    // --- UTILITY FUNCTION: Consolidate Historical Data -----------------
-    // -------------------------------------------------------------------
-    
-    /**
-     * Consolidates a list of historical StockPrice objects into a single {symbol: price} object.
-     * Checks if the data is fresh (all records created within the last 10 minutes) and complete.
-     */
     function consolidateHistoricalPrices(pricesArray) {
         if (pricesArray.length === 0) return null;
         
@@ -433,7 +422,6 @@
         pricesArray.forEach(record => {
             const symbol = record.get('symbol');
             const price = record.get('closePrice'); 
-            
             const recordTime = record.createdAt.getTime(); 
             
             if (now - recordTime > expirationTimeMs) {
@@ -445,7 +433,6 @@
             }
         });
         
-        // Check if we have all 10 companies AND the data is fresh
         if (isFresh && Object.keys(consolidated).length === COMPANIES.length) {
             return consolidated;
         }
@@ -453,14 +440,6 @@
         return null;
     }
 
-
-    // -------------------------------------------------------------------
-    // --- PRICE FETCHING LOGIC ------------------------------------------
-    // -------------------------------------------------------------------
-
-    /**
-     * Checks the StockPrice class for recent data. If stale/missing, fetches from Finnhub.
-     */
     async function fetchAndCachePrices() {
         if (isFetching) return;
         isFetching = true;
@@ -468,12 +447,11 @@
         const statusEl = document.getElementById('priceStatus').querySelector('span');
         const dataSourceEl = document.getElementById('dataSourceInfo');
         statusEl.textContent = "Checking historical database (StockPrice)...";
-        dataSourceEl.textContent = ""; // Clear previous source info
+        dataSourceEl.textContent = "";
         
         let cachedPrices = null;
 
         try {
-            // 1. Fetch latest historical data
             const historicalQuery = new AV.Query('StockPrice');
             historicalQuery.descending('createdAt');
             historicalQuery.limit(COMPANIES.length * 2); 
@@ -481,7 +459,6 @@
             
             const historicalRecords = await historicalQuery.find();
             
-            // Filter to get the absolute latest unique record for each symbol
             const latestRecordsMap = new Map();
             historicalRecords.forEach(record => {
                 const symbol = record.get('symbol');
@@ -491,11 +468,8 @@
             });
             
             const latestRecords = Array.from(latestRecordsMap.values());
-
-            // 2. Consolidate and check if the latest records are fresh (less than 10 minutes old)
             cachedPrices = consolidateHistoricalPrices(latestRecords);
 
-            // 3. CACHE HIT: Found fresh, complete data in StockPrice
             if (cachedPrices) {
                 marketPrices = cachedPrices;
                 const lastUpdateTime = latestRecords[0] ? latestRecords[0].createdAt.toLocaleTimeString() : 'N/A';
@@ -511,15 +485,14 @@
              }
         }
         
-        // 4. CACHE MISS: Data was stale, incomplete, or read failed - Fetch from Finnhub
         if (!cachedPrices) {
-             statusEl.textContent = "Data stale or missing (over 10 minutes old). Fetching new data from Finnhub...";
+             statusEl.textContent = "Data stale or missing (over 2 minutes old). Fetching new data from Finnhub...";
              try {
-                await fetchPricesFromFinnhub(); 
-                dataSourceEl.textContent = "Stock prices fetched from Finnhub";
+                const successMessage = await fetchPricesFromFinnhub(); 
+                dataSourceEl.textContent = successMessage;
              } catch (fetchError) {
                 statusEl.textContent = `Error fetching prices: ${fetchError.message}. Prices unavailable.`;
-                dataSourceEl.textContent = "Failed to fetch prices";
+                dataSourceEl.textContent = "Failed to fetch stock prices";
              }
         }
         
@@ -527,9 +500,6 @@
         return marketPrices;
     }
 
-    /**
-     * Executes the direct fetch from Finnhub and updates the StockPrice class.
-     */
     async function fetchPricesFromFinnhub() {
         if (FINNHUB_API_KEY === "YOUR_FINNHUB_API_KEY") {
              throw new Error("Finnhub API Key is missing. Cannot fetch live prices.");
@@ -540,7 +510,6 @@
 
         const statusEl = document.getElementById('priceStatus').querySelector('span');
         
-        // Use Promise.all to fetch all 10 stocks concurrently
         const fetchPromises = COMPANIES.map(co => {
             const url = `https://finnhub.io/api/v1/quote?symbol=${co.symbol}&token=${FINNHUB_API_KEY}`;
             return fetch(url).then(r => r.json()).catch(err => {
@@ -556,16 +525,14 @@
         results.forEach((data, index) => {
             const symbol = COMPANIES[index].symbol;
             
-            if (data && data.c !== undefined && data.c > 0) { // Use 'c' for current price instead of 'pc'
+            if (data && data.c !== undefined && data.c > 0) {
                 const price = data.c;
                 
-                // 1. Prepare for saving to the HISTORICAL StockPrice class
                 const historicalObj = new StockPrice();
                 historicalObj.set('symbol', symbol);
                 historicalObj.set('closePrice', Number(price)); 
                 objectsToSave.push(historicalObj);
 
-                // 2. Update the consolidated price set
                 updatedPrices[symbol] = Number(price);
                 successfulFetches++;
             } else {
@@ -578,22 +545,16 @@
             throw new Error("Failed to fetch price data for any stock from Finnhub.");
         }
 
-        // 3. Save ALL new individual records to the StockPrice class (Historical Update)
         await AV.Object.saveAll(objectsToSave);
-        
-        // 4. Update the global prices
         marketPrices = updatedPrices;
 
-        statusEl.textContent = `Prices updated from Finnhub (Success: ${successfulFetches}/10) and saved to database.`;
+        const message = `Prices updated from Finnhub (Success: ${successfulFetches}/10) and saved to database.`;
+        statusEl.textContent = message;
+        return message;
     }
-
-    // -------------------------------------------------------------------
-    // --- MAIN APP LOGIC ------------------------------------------------
-    // -------------------------------------------------------------------
 
     function startPriceUpdates() {
         updateDashboardData();
-        
         clearInterval(priceUpdateInterval);
         priceUpdateInterval = setInterval(updateDashboardData, REFRESH_INTERVAL_MS); 
     }
@@ -621,7 +582,6 @@
         const user = results[0];
         if (user.get('password') !== p) throw new Error("Invalid password");
 
-        // Initialize new fields if necessary on first login
         if (user.get('balance') === undefined) {
           user.set('balance', 10000);
           user.set('holdings', {});
@@ -639,7 +599,6 @@
         document.getElementById('dashboardView').style.display = 'block';
 
         startPriceUpdates(); 
-
       } catch (err) {
         showError(err.message || "Login failed");
       }
@@ -674,9 +633,8 @@
       
       const chartLabels = ["Cash"];
       const chartData = [balance];
-      const chartColors = ["#2980b9"]; // Blue for Cash
+      const chartColors = ["#2980b9"];
       
-      // Define a palette for stocks (10 colors)
       const stockPalette = [
         '#2ecc71', '#f1c40f', '#e67e22', '#3498db', '#9b59b6',
         '#1abc9c', '#e74c3c', '#c0392b', '#7f8c8d', '#2c3e50'
@@ -719,11 +677,8 @@
 
       document.getElementById('totalPortfolioValue').textContent = `$${totalValue.toFixed(2)}`;
       
-      // ----------------------------------------------------
-      // --- Render Pie Chart ---
-      // ----------------------------------------------------
       if (portfolioChart) {
-        portfolioChart.destroy(); // Destroy existing chart before creating a new one
+        portfolioChart.destroy();
       }
 
       const ctx = document.getElementById('portfolioChart').getContext('2d');
@@ -743,25 +698,19 @@
             legend: {
               position: 'top',
               labels: {
-                font: {
-                    size: 14
-                }
+                font: { size: 14 }
               }
             },
             title: {
               display: true,
               text: 'Portfolio Asset Distribution',
-              font: {
-                  size: 16
-              }
+              font: { size: 16 }
             },
             tooltip: {
                 callbacks: {
                     label: function(context) {
                         let label = context.label || '';
-                        if (label) {
-                            label += ': ';
-                        }
+                        if (label) label += ': ';
                         if (context.parsed !== null) {
                             const value = context.parsed;
                             const percentage = (value / totalValue * 100).toFixed(1);
@@ -776,7 +725,6 @@
       });
     }
 
-    // ✅ FIXED trade() function with all missing set() calls
     async function trade(symbol, action) {
       const input = document.getElementById(`qty-${symbol}`);
       const qty = parseInt(input.value);
@@ -789,7 +737,6 @@
       let balance = currentUser.get('balance');
       let holdings = { ...currentUser.get('holdings') };
 
-      // Initialize/Retrieve new tracking fields
       let totalTransactedAmount = currentUser.get('totalTransactedAmount') || 0;
       let earlyMorningTrades = currentUser.get('earlyMorningTrades') || 0;
       let lateNightTrades = currentUser.get('lateNightTrades') || 0;
@@ -808,28 +755,15 @@
           if (holdings[symbol] <= 0) delete holdings[symbol];
         }
 
-        // 1. Add absolute transaction value to total transacted amount
         totalTransactedAmount += total;
-
-        // 2 & 3. Determine local hour and classify trade time window
-        const now = new Date(); // Local browser time
-        const hour = now.getHours();
-
-        if (hour >= 5 && hour < 9) {
-          earlyMorningTrades += 1;
-        } else if (hour >= 21 || hour < 5) {
-          lateNightTrades += 1;
-        }
-
-        // Increment total transaction count
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 9) earlyMorningTrades += 1;
+        else if (hour >= 21 || hour < 5) lateNightTrades += 1;
         transactionCount += 1;
 
-        // Save all fields to LeanCloud Student object
         currentUser.set('balance', balance);
         currentUser.set('holdings', holdings);
         currentUser.set('transactionCount', transactionCount);
-        
-        // 🔥 FIX APPLIED HERE: Must call set() for the new fields to persist them
         currentUser.set('totalTransactedAmount', totalTransactedAmount);
         currentUser.set('earlyMorningTrades', earlyMorningTrades);
         currentUser.set('lateNightTrades', lateNightTrades);
@@ -887,7 +821,7 @@
     function logout() {
       clearInterval(priceUpdateInterval);
       if (portfolioChart) {
-          portfolioChart.destroy(); // Destroy chart on logout
+          portfolioChart.destroy();
           portfolioChart = null;
       }
       currentUser = null;
@@ -899,9 +833,7 @@
       document.getElementById('status').textContent = '';
     }
     
-    // Initial call to start the price process
     fetchAndCachePrices(); 
   </script>
 </body>
 </html>
-
