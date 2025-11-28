@@ -263,6 +263,16 @@
       color: #27ae60;
     }
 
+    /* Source info at bottom */
+    #dataSourceInfo {
+      font-size: 0.7em;
+      color: #aaa;
+      text-align: center;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+
     /* Mobile Adjustments */
     @media (max-width: 600px) {
       .market-grid {
@@ -321,11 +331,12 @@
 
     <div id="dashboardView" style="display: none;">
       <div class="card">
-        <h2>Market Prices (Latest Closing Price)</h2>
+        <h2>Market Prices (Real-time)</h2>
         <div id="priceStatus">
             <span>Checking historical database...</span>
         </div>
         <div class="market-grid" id="marketGrid"></div>
+        <div id="dataSourceInfo"></div>
       </div>
 
       <div class="card">
@@ -373,9 +384,9 @@
     // ⚠️ REMINDER: REPLACE THIS WITH YOUR ACTUAL FINNHUB API KEY (REQUIRED!)
     const FINNHUB_API_KEY = "d4jsqvpr01qgcb0vc20gd4jsqvpr01qgcb0vc210"; 
 
-    // ✅ UPDATED CACHING TIME TO 12 HOURS
-    const CACHE_EXPIRATION_MINUTES = 720; // 12 hours * 60 minutes
-    const REFRESH_INTERVAL_MS = 60000; // Check every 1 minute
+    // ✅ UPDATED CACHING TIME TO 10 MINUTES
+    const CACHE_EXPIRATION_MINUTES = 10; // Changed from 720 to 10 minutes
+    const REFRESH_INTERVAL_MS = 600000; // Check every 10 minutes (600,000 ms)
 
     const COMPANIES = [
       { name: "Apple Inc.", symbol: "AAPL" },
@@ -409,7 +420,7 @@
     
     /**
      * Consolidates a list of historical StockPrice objects into a single {symbol: price} object.
-     * Checks if the data is fresh (all records created within the last 12 hours) and complete.
+     * Checks if the data is fresh (all records created within the last 10 minutes) and complete.
      */
     function consolidateHistoricalPrices(pricesArray) {
         if (pricesArray.length === 0) return null;
@@ -455,7 +466,9 @@
         isFetching = true;
 
         const statusEl = document.getElementById('priceStatus').querySelector('span');
+        const dataSourceEl = document.getElementById('dataSourceInfo');
         statusEl.textContent = "Checking historical database (StockPrice)...";
+        dataSourceEl.textContent = ""; // Clear previous source info
         
         let cachedPrices = null;
 
@@ -479,7 +492,7 @@
             
             const latestRecords = Array.from(latestRecordsMap.values());
 
-            // 2. Consolidate and check if the latest records are fresh (less than 12 hours old)
+            // 2. Consolidate and check if the latest records are fresh (less than 10 minutes old)
             cachedPrices = consolidateHistoricalPrices(latestRecords);
 
             // 3. CACHE HIT: Found fresh, complete data in StockPrice
@@ -487,6 +500,7 @@
                 marketPrices = cachedPrices;
                 const lastUpdateTime = latestRecords[0] ? latestRecords[0].createdAt.toLocaleTimeString() : 'N/A';
                 statusEl.textContent = `Prices loaded from database (as of ${lastUpdateTime}).`;
+                dataSourceEl.textContent = "Stock prices obtained from database";
             }
 
         } catch (readError) {
@@ -499,11 +513,13 @@
         
         // 4. CACHE MISS: Data was stale, incomplete, or read failed - Fetch from Finnhub
         if (!cachedPrices) {
-             statusEl.textContent = "Data stale or missing (over 12 hours old). Fetching new data from Finnhub...";
+             statusEl.textContent = "Data stale or missing (over 10 minutes old). Fetching new data from Finnhub...";
              try {
                 await fetchPricesFromFinnhub(); 
+                dataSourceEl.textContent = "Stock prices fetched from Finnhub";
              } catch (fetchError) {
-                 statusEl.textContent = `Error fetching prices: ${fetchError.message}. Prices unavailable.`;
+                statusEl.textContent = `Error fetching prices: ${fetchError.message}. Prices unavailable.`;
+                dataSourceEl.textContent = "Failed to fetch prices";
              }
         }
         
@@ -540,8 +556,8 @@
         results.forEach((data, index) => {
             const symbol = COMPANIES[index].symbol;
             
-            if (data && data.pc !== undefined && data.pc > 0) {
-                const price = data.pc;
+            if (data && data.c !== undefined && data.c > 0) { // Use 'c' for current price instead of 'pc'
+                const price = data.c;
                 
                 // 1. Prepare for saving to the HISTORICAL StockPrice class
                 const historicalObj = new StockPrice();
