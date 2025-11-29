@@ -148,6 +148,10 @@
       margin-top: 4px;
       font-size: 1.05em;
     }
+    .stock-price.na {
+      color: #999;
+      font-style: italic;
+    }
 
     /* Status for price update time */
     #priceStatus {
@@ -386,6 +390,7 @@
     const CACHE_EXPIRATION_MINUTES = 2;
     const REFRESH_INTERVAL_MS = 120000;
 
+   
     const COMPANIES = [
       { name: "Apple Inc.", symbol: "AAPL" },
       { name: "Johnson & Johnson", symbol: "JNJ" },
@@ -396,7 +401,11 @@
       { name: "The Walt Disney Company", symbol: "DIS" },
       { name: "Caterpillar Inc.", symbol: "CAT" },
       { name: "Procter & Gamble Co.", symbol: "PG" },
-      { name: "American Tower Corporation", symbol: "AMT" }
+      { name: "American Tower Corporation", symbol: "AMT" },
+      { name: "CSI 300 ETF (ASHR)", symbol: "ASHR" },
+      { name: "U.S. Treasury Bond ETF (GOVT)", symbol: "GOVT" },  // ✅ FIXED: GVOT → GOVT
+      { name: "SPDR Gold Shares (GLD)", symbol: "GLD" },        // ✅ Gold ETF
+      { name: "U.S. Copper Index Fund (CPER)", symbol: "CPER" } // ✅ Copper ETF
     ];
 
     let marketPrices = {}; 
@@ -410,6 +419,11 @@
       appKey: "5mrY6acHapGt8ngzVn0ZGBnw",
       serverURL: "https://w9n8yezo.lc-cn-n1-shared.com"
     });
+
+    // ✅ Helper: Check if price is valid (non-zero, positive number)
+    function isValidPrice(price) {
+      return price !== undefined && price !== null && typeof price === 'number' && price > 0;
+    }
 
     function consolidateHistoricalPrices(pricesArray) {
         if (pricesArray.length === 0) return null;
@@ -428,7 +442,7 @@
                 isFresh = false; 
             }
             
-            if (price !== undefined && price > 0 && symbol) {
+            if (isValidPrice(price) && symbol) {
                  consolidated[symbol] = Number(price); 
             }
         });
@@ -525,7 +539,7 @@
         results.forEach((data, index) => {
             const symbol = COMPANIES[index].symbol;
             
-            if (data && data.c !== undefined && data.c > 0) {
+            if (data && data.c !== undefined && isValidPrice(data.c)) {
                 const price = data.c;
                 
                 const historicalObj = new StockPrice();
@@ -536,7 +550,7 @@
                 updatedPrices[symbol] = Number(price);
                 successfulFetches++;
             } else {
-                updatedPrices[symbol] = 0; 
+                updatedPrices[symbol] = 0; // Mark as invalid (will show N/A)
                 console.warn(`Could not get valid data for ${symbol}. Using 0.`);
             }
         });
@@ -548,7 +562,7 @@
         await AV.Object.saveAll(objectsToSave);
         marketPrices = updatedPrices;
 
-        const message = `Prices updated from Finnhub (Success: ${successfulFetches}/10) and saved to database.`;
+        const message = `Prices updated from Finnhub (Success: ${successfulFetches}/14) and saved to database.`;
         statusEl.textContent = message;
         return message;
     }
@@ -613,13 +627,15 @@
       const container = document.getElementById('marketGrid');
       container.innerHTML = '';
       COMPANIES.forEach(co => {
-        const price = marketPrices[co.symbol] || 0; 
+        const price = marketPrices[co.symbol];
+        const isValid = isValidPrice(price);
+        const displayPrice = isValid ? `$${price.toFixed(2)}` : "N/A";
         const div = document.createElement('div');
         div.className = 'stock-item';
         div.innerHTML = `
           <div class="stock-name">${co.name}</div>
           <div class="stock-ticker">${co.symbol}</div>
-          <div class="stock-price">$${price.toFixed(2)}</div>
+          <div class="stock-price ${!isValid ? 'na' : ''}">${displayPrice}</div>
         `;
         container.appendChild(div);
       });
@@ -637,7 +653,8 @@
       
       const stockPalette = [
         '#2ecc71', '#f1c40f', '#e67e22', '#3498db', '#9b59b6',
-        '#1abc9c', '#e74c3c', '#c0392b', '#7f8c8d', '#2c3e50'
+        '#1abc9c', '#e74c3c', '#c0392b', '#7f8c8d', '#2c3e50',
+        '#8e44ad', '#34495e', '#d35400', '#27ae60'
       ];
       let colorIndex = 0;
 
@@ -646,8 +663,9 @@
 
       COMPANIES.forEach(co => {
         const qty = holdings[co.symbol] || 0;
-        const price = marketPrices[co.symbol] || 0;
-        const stockValue = qty * price;
+        const price = marketPrices[co.symbol];
+        const isValid = isValidPrice(price);
+        const stockValue = isValid ? qty * price : 0;
         totalValue += stockValue;
 
         if (stockValue > 0) {
@@ -658,17 +676,20 @@
         }
 
         const row = document.createElement('tr');
+        const displayPrice = isValid ? `$${price.toFixed(2)}` : "N/A";
+        const canTrade = isValid;
+
         row.innerHTML = `
           <td>${co.name}</td>
           <td>${co.symbol}</td>
           <td>${qty}</td>
-          <td>$${price.toFixed(2)}</td>
+          <td>${displayPrice}</td>
           <td class="total-value">$${stockValue.toFixed(2)}</td>
           <td>
             <div class="trade-controls">
               <input type="number" min="1" value="1" class="qty-input" id="qty-${co.symbol}">
-              <button onclick="trade('${co.symbol}', 'buy')">Buy</button>
-              <button class="btn-danger" onclick="trade('${co.symbol}', 'sell')">Sell</button>
+              <button ${!canTrade ? 'disabled' : ''} onclick="trade('${co.symbol}', 'buy')">Buy</button>
+              <button class="btn-danger" ${!canTrade ? 'disabled' : ''} onclick="trade('${co.symbol}', 'sell')">Sell</button>
             </div>
           </td>
         `;
@@ -731,7 +752,10 @@
       if (!qty || qty <= 0) return alert("Enter a valid number of shares.");
 
       const price = marketPrices[symbol];
-      if (!price || price === 0) return alert("Cannot trade. Price data is currently unavailable.");
+      // ✅ BLOCK TRADE IF PRICE IS INVALID
+      if (!isValidPrice(price)) {
+        return alert("Cannot trade. Price data is currently unavailable for this asset.");
+      }
 
       const total = price * qty;
       let balance = currentUser.get('balance');
@@ -789,7 +813,10 @@
             const hold = student.get('holdings') || {};
             let total = bal;
             for (const [sym, q] of Object.entries(hold)) {
-              total += (marketPrices[sym] || 0) * q;
+              const price = marketPrices[sym];
+              if (isValidPrice(price)) {
+                total += price * q;
+              }
             }
             return { username: student.get('username'), totalValue: total };
           })
