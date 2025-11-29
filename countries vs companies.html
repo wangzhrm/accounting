@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Country GDP vs. Company Revenue Comparison (Top 50)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+  <style>
+    /* ------------------------------------------------------------------- */
+    /* --- General Styles ------------------------------------------------ */
+    /* ------------------------------------------------------------------- */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 20px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      max-width: 1000px;
+      width: 95%;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 2em;
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* --- Control & Legend Styles --------------------------------------- */
+    /* ------------------------------------------------------------------- */
+    .controls-and-legend {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 15px;
+    }
+
+    #filterButton {
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-size: 1em;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    #filterButton:hover {
+        background-color: #229954;
+        transform: translateY(-1px);
+    }
+    
+    .legend-container {
+        display: flex;
+        justify-content: flex-end; /* Align right to counterbalance the button */
+        gap: 25px;
+        font-size: 1em;
+        font-weight: 500;
+        color: #444;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .legend-color-box {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .color-country { background-color: #3498db; }
+    .color-company { background-color: #f39c12; }
+
+    /* ------------------------------------------------------------------- */
+    /* --- Chart Styles -------------------------------------------------- */
+    /* ------------------------------------------------------------------- */
+    #chartWrapper {
+      position: relative;
+      height: 1200px; /* Increased height for 50 entries */
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* For responsiveness */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.6em;
+      }
+      .container {
+        padding: 20px;
+      }
+      #chartWrapper {
+        height: 800px; /* Adjust height for smaller screens */
+      }
+      .controls-and-legend {
+          flex-direction: column;
+          align-items: center;
+      }
+      .legend-container {
+          justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Global Economic Power: Countries vs. Companies</h1>
+    
+    <div class="controls-and-legend">
+        <button id="filterButton" onclick="toggleFilter()">Show Ranks 21-50 Only</button>
+        <div class="legend-container">
+            <div class="legend-item">
+                <span class="legend-color-box color-country"></span>
+                <span>Country GDP</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color-box color-company"></span>
+                <span>Company Revenue</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="chartWrapper">
+      <canvas id="comparisonChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // Data list updated to Top 50 and excluding Taiwan
+    const originalData = [
+        // Top 20 Countries by GDP
+        { name: "United States", type: "Country", value: 27.97 },
+        { name: "China", type: "Country", value: 17.80 },
+        { name: "Germany", type: "Country", value: 4.43 },
+        { name: "Japan", type: "Country", value: 4.29 },
+        { name: "India", type: "Country", value: 3.70 },
+        { name: "United Kingdom", type: "Country", value: 3.33 },
+        { name: "France", type: "Country", value: 3.05 },
+        { name: "Brazil", type: "Country", value: 2.33 },
+        { name: "Italy", type: "Country", value: 2.19 },
+        { name: "Canada", type: "Country", value: 2.15 },
+        { name: "Russia", type: "Country", value: 1.86 },
+        { name: "Mexico", type: "Country", value: 1.81 },
+        { name: "South Korea", type: "Country", value: 1.77 },
+        { name: "Australia", type: "Country", value: 1.75 },
+        { name: "Spain", type: "Country", value: 1.59 },
+        { name: "Indonesia", type: "Country", value: 1.42 },
+        { name: "Türkiye", type: "Country", value: 1.15 },
+        { name: "Saudi Arabia", type: "Country", value: 1.11 },
+        { name: "Netherlands", type: "Country", value: 1.10 },
+        { name: "Switzerland", type: "Country", value: 0.90 }, 
+        
+        // Next Countries and Largest Companies
+        { name: "Walmart", type: "Company", value: 0.648 },
+        { name: "Amazon", type: "Company", value: 0.575 },
+        { name: "Poland", type: "Country", value: 0.78 },
+        { name: "Argentina", type: "Country", value: 0.63 },
+        { name: "Sweden", type: "Country", value: 0.60 },
+        { name: "Belgium", type: "Country", value: 0.60 },
+        { name: "Thailand", type: "Country", value: 0.57 },
+        { name: "Austria", type: "Country", value: 0.52 },
+        { name: "Norway", type: "Country", value: 0.51 },
+        { name: "United Arab Emirates", type: "Country", value: 0.50 },
+        { name: "Nigeria", type: "Country", value: 0.50 },
+        { name: "Apple", type: "Company", value: 0.383 },
+        { name: "UnitedHealth Group", type: "Company", value: 0.372 },
+        { name: "Berkshire Hathaway", type: "Company", value: 0.364 },
+        { name: "CVS Health", type: "Company", value: 0.358 },
+        { name: "Exxon Mobil", type: "Company", value: 0.345 },
+        { name: "Shell", type: "Company", value: 0.316 },
+        { name: "Alphabet (Google)", type: "Company", value: 0.305 },
+        { name: "McKesson", type: "Company", value: 0.277 },
+        { name: "Toyota Motor", type: "Company", value: 0.271 },
+        { name: "Volkswagen", type: "Company", value: 0.270 },
+        { name: "TotalEnergies", type: "Company", value: 0.263 },
+        { name: "PetroChina", type: "Company", value: 0.245 },
+        { name: "Sinopec Group", type: "Company", value: 0.240 },
+        { name: "Samsung Electronics", type: "Company", value: 0.234 },
+        { name: "Microsoft", type: "Company", value: 0.228 },
+        { name: "AmerisourceBergen", type: "Company", value: 0.216 },
+        { name: "China State Construction", type: "Company", value: 0.207 },
+        { name: "Chevron", type: "Company", value: 0.206 },
+        { name: "CNOOC", type: "Company", value: 0.198 }
+    ];
+
+    // Re-sort the original data based on value in descending order
+    originalData.sort((a, b) => b.value - a.value);
+
+    let comparisonChart = null;
+    let isFiltered = false;
+    const filterButton = document.getElementById('filterButton');
+
+    // --- Chart Data Preparation ---
+    function prepareData(dataToUse) {
+        const labels = dataToUse.map((item, index) => `#${index + (isFiltered ? 21 : 1)} ${item.name}`);
+        const values = dataToUse.map(item => item.value);
+        const backgroundColors = dataToUse.map(item => item.type === "Country" ? '#3498db' : '#f39c12');
+        const borderColors = dataToUse.map(item => item.type === "Country" ? '#2980b9' : '#e67e22');
+        
+        return { labels, values, backgroundColors, borderColors };
+    }
+
+    // --- Chart Initialization and Update ---
+    function renderChart() {
+        if (comparisonChart) {
+            comparisonChart.destroy();
+        }
+
+        const dataToUse = isFiltered ? originalData.slice(20, 50) : originalData.slice(0, 50);
+        const processedData = prepareData(dataToUse);
+        
+        const ctx = document.getElementById('comparisonChart').getContext('2d');
+        const chartHeight = dataToUse.length * 24; // Base height adjustment
+        document.getElementById('chartWrapper').style.height = `${Math.max(400, chartHeight)}px`;
+
+        comparisonChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: processedData.labels,
+                datasets: [{
+                    data: processedData.values,
+                    backgroundColor: processedData.backgroundColors,
+                    borderColor: processedData.borderColors,
+                    borderWidth: 1,
+                    // Hover colors for the special effect
+                    hoverBackgroundColor: (context) => {
+                        const index = context.dataIndex;
+                        const actualIndex = isFiltered ? index + 20 : index;
+                        return originalData[actualIndex].type === "Company" ? '#ffc14d' : processedData.backgroundColors[index];
+                    },
+                    hoverBorderColor: (context) => {
+                        const index = context.dataIndex;
+                        const actualIndex = isFiltered ? index + 20 : index;
+                        return originalData[actualIndex].type === "Company" ? '#e67e22' : processedData.borderColors[index];
+                    }
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: `Global Economic Power: Ranks ${isFiltered ? '21-50' : '1-50'} (Trillions USD)`,
+                        font: { size: 18, weight: 'bold' },
+                        color: '#2c3e50'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const index = context[0].dataIndex;
+                                const actualIndex = isFiltered ? index + 20 : index;
+                                return originalData[actualIndex].name;
+                            },
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const actualIndex = isFiltered ? index + 20 : index;
+                                const item = originalData[actualIndex];
+                                return `${item.type}: $${item.value.toFixed(2)} Trillion`;
+                            }
+                        },
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        padding: 10,
+                        cornerRadius: 5
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Value (Trillions USD)',
+                            font: { size: 14, weight: 'bold' },
+                            color: '#444'
+                        },
+                        ticks: {
+                            callback: (value) => `$${value}T`,
+                            color: '#555'
+                        },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    y: {
+                        ticks: { color: '#555' },
+                        grid: { color: 'rgba(0,0,0,0.02)' }
+                    }
+                },
+                // Special effect for companies on hover (using shadow)
+                onHover: (event, elements, chart) => {
+                    if (elements.length) {
+                        const index = elements[0].index;
+                        const actualIndex = isFiltered ? index + 20 : index;
+                        const itemType = originalData[actualIndex].type;
+                        const bar = elements[0].element;
+
+                        if (itemType === "Company") {
+                            bar.options.shadowBlur = 15;
+                            bar.options.shadowColor = 'rgba(243, 156, 18, 0.7)';
+                            bar.options.shadowOffsetX = 0;
+                            bar.options.shadowOffsetY = 0;
+                        } else {
+                            bar.options.shadowBlur = 0;
+                        }
+                    } else {
+                        // Reset all bars if no element is hovered
+                        chart.data.datasets[0].data.forEach((_, i) => {
+                            const meta = chart.getDatasetMeta(0).data[i];
+                            if (meta) {
+                                meta.options.shadowBlur = 0;
+                            }
+                        });
+                    }
+                    chart.update();
+                }
+            }
+        });
+    }
+
+    // --- Toggle Functionality ---
+    function toggleFilter() {
+        isFiltered = !isFiltered;
+        if (isFiltered) {
+            filterButton.textContent = "Show All Ranks 1-50";
+            filterButton.style.backgroundColor = '#e74c3c'; // Red/danger color when filtering
+        } else {
+            filterButton.textContent = "Show Ranks 21-50 Only";
+            filterButton.style.backgroundColor = '#27ae60'; // Green/success color when showing all
+        }
+        renderChart();
+    }
+
+    // Initial render when the page loads
+    window.onload = renderChart;
+  </script>
+</body>
+</html>
