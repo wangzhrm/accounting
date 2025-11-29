@@ -82,7 +82,7 @@
 <body>
 
     <!-- ===== STOCK CHART SECTION ===== -->
-    <h1>Stock Price Charts - Dow Components & American Tower</h1>
+    <h1>Stock Price Charts - Dow Components, American Tower & More</h1>
 
     <div class="charts-container">
 
@@ -136,6 +136,27 @@
             <iframe src="https://ssltvc.investing.com/?pair_ID=8036&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=22"></iframe>
         </div>
 
+        <!-- === NEW ASSETS === -->
+        <div class="chart-item">
+            <h2>ASHR (Xtrackers Harvest CSI 300 China A-Shares ETF)</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=941434&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=7"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>GOVT (iShares U.S. Treasury Bond ETF)</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=45136&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=7"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>GLD (SPDR Gold Shares)</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=9227&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=7"></iframe>
+        </div>
+
+        <div class="chart-item">
+            <h2>CPER (United States Copper Index Fund)</h2>
+            <iframe src="https://ssltvc.investing.com/?pair_ID=44787&height=480&width=650&interval=1800&plotStyle=area&domain_ID=1&lang_ID=1&timezone_ID=7"></iframe>
+        </div>
+
     </div>
 
     <!-- ===== NEWS SECTION ===== -->
@@ -144,10 +165,20 @@
 
     <script>
         const companies = [
-            "Apple Inc.", "Johnson & Johnson", "Exxon Mobil Corporation",
-            "JPMorgan Chase & Co.", "Walmart Inc.", "The Boeing Company",
-            "The Walt Disney Company", "Caterpillar Inc.",
-            "Procter & Gamble Co.", "American Tower Corporation"
+            "Apple Inc.",
+            "Johnson & Johnson",
+            "Exxon Mobil Corporation",
+            "JPMorgan Chase & Co.",
+            "Walmart Inc.",
+            "The Boeing Company",
+            "The Walt Disney Company",
+            "Caterpillar Inc.",
+            "Procter & Gamble Co.",
+            "American Tower Corporation",
+            "Xtrackers Harvest CSI 300 China A-Shares ETF", // ASHR
+            "iShares U.S. Treasury Bond ETF",              // GOVT
+            "SPDR Gold Shares",                            // GLD
+            "United States Copper Index Fund"              // CPER
         ];
 
         const REUTERS_FEED =
@@ -185,18 +216,23 @@
                     `https://news.google.com/rss/search?q=${encodeURIComponent(company)}&hl=en-US&gl=US&ceid=US:en`
                 );
 
-            const r2 = await fetch(googleRSS);
-            const data2 = await r2.json();
+            try {
+                const r2 = await fetch(googleRSS);
+                const data2 = await r2.json();
 
-            const parser2 = new DOMParser();
-            const xml2 = parser2.parseFromString(data2.contents, "text/xml");
+                const parser2 = new DOMParser();
+                const xml2 = parser2.parseFromString(data2.contents, "text/xml");
 
-            const items2 = [...xml2.querySelectorAll("item")];
+                const items2 = [...xml2.querySelectorAll("item")];
 
-            return items2.slice(0, 5).map(item => ({
-                title: item.querySelector("title").textContent,
-                link: item.querySelector("link").textContent
-            }));
+                return items2.slice(0, 5).map(item => ({
+                    title: item.querySelector("title").textContent,
+                    link: item.querySelector("link").textContent
+                }));
+            } catch (e) {
+                console.log("Google News failed:", company, e);
+                return [];
+            }
         }
 
         async function generateNews() {
