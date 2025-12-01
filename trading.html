@@ -403,9 +403,9 @@
       { name: "Procter & Gamble Co.", symbol: "PG" },
       { name: "American Tower Corporation", symbol: "AMT" },
       { name: "CSI 300 ETF (ASHR)", symbol: "ASHR" },
-      { name: "U.S. Treasury Bond ETF (GOVT)", symbol: "GOVT" },  // ✅ FIXED: GVOT → GOVT
-      { name: "SPDR Gold Shares (GLD)", symbol: "GLD" },        // ✅ Gold ETF
-      { name: "U.S. Copper Index Fund (CPER)", symbol: "CPER" } // ✅ Copper ETF
+      { name: "U.S. Treasury Bond ETF (GOVT)", symbol: "GOVT" },
+      { name: "SPDR Gold Shares (GLD)", symbol: "GLD" },
+      { name: "U.S. Copper Index Fund (CPER)", symbol: "CPER" }
     ];
 
     let marketPrices = {}; 
@@ -515,15 +515,15 @@
     }
 
     async function fetchPricesFromFinnhub() {
-        if (FINNHUB_API_KEY === "YOUR_FINNHUB_API_KEY") {
-             throw new Error("Finnhub API Key is missing. Cannot fetch live prices.");
+        if (FINNHUB_API_KEY === "replace mannually") {
+            throw new Error("Finnhub API Key is missing. Cannot fetch live prices.");
         }
         
-        const StockPrice = AV.Object.extend('StockPrice'); 
-        const updatedPrices = {}; 
-
+        const StockPrice = AV.Object.extend('StockPrice');
+        const updatedPrices = {};
         const statusEl = document.getElementById('priceStatus').querySelector('span');
-        
+
+        // Step 1: Fetch from Finnhub
         const fetchPromises = COMPANIES.map(co => {
             const url = `https://finnhub.io/api/v1/quote?symbol=${co.symbol}&token=${FINNHUB_API_KEY}`;
             return fetch(url).then(r => r.json()).catch(err => {
@@ -538,19 +538,16 @@
 
         results.forEach((data, index) => {
             const symbol = COMPANIES[index].symbol;
-            
             if (data && data.c !== undefined && isValidPrice(data.c)) {
                 const price = data.c;
-                
                 const historicalObj = new StockPrice();
                 historicalObj.set('symbol', symbol);
-                historicalObj.set('closePrice', Number(price)); 
+                historicalObj.set('closePrice', Number(price));
                 objectsToSave.push(historicalObj);
-
                 updatedPrices[symbol] = Number(price);
                 successfulFetches++;
             } else {
-                updatedPrices[symbol] = 0; // Mark as invalid (will show N/A)
+                updatedPrices[symbol] = 0;
                 console.warn(`Could not get valid data for ${symbol}. Using 0.`);
             }
         });
@@ -559,10 +556,53 @@
             throw new Error("Failed to fetch price data for any stock from Finnhub.");
         }
 
+        // Step 2: Save new records
         await AV.Object.saveAll(objectsToSave);
         marketPrices = updatedPrices;
 
-        const message = `Prices updated from Finnhub (Success: ${successfulFetches}/14) and saved to database.`;
+        // Step 3: CLEANUP — Keep only latest 500 records
+        try {
+            const countQuery = new AV.Query('StockPrice');
+            const totalCount = await countQuery.count();
+
+            if (totalCount > 500) {
+                statusEl.textContent = `Cleaning up old records (${totalCount} total)...`;
+
+                const allIds = [];
+                let skip = 0;
+                const limit = 1000;
+
+                while (allIds.length < totalCount) {
+                    const idQuery = new AV.Query('StockPrice');
+                    idQuery.descending('createdAt');
+                    idQuery.limit(limit);
+                    idQuery.skip(skip);
+                    idQuery.select([]);
+                    const batch = await idQuery.find();
+                    if (batch.length === 0) break;
+                    batch.forEach(obj => allIds.push(obj.id));
+                    skip += limit;
+                }
+
+                const idsToDelete = allIds.slice(500);
+                if (idsToDelete.length > 0) {
+                    const objectsToDelete = idsToDelete.map(id => {
+                        const obj = new StockPrice();
+                        obj.id = id;
+                        return obj;
+                    });
+
+                    for (let i = 0; i < objectsToDelete.length; i += 50) {
+                        const chunk = objectsToDelete.slice(i, i + 50);
+                        await AV.Object.destroyAll(chunk);
+                    }
+                }
+            }
+        } catch (cleanupErr) {
+            console.warn("Cleanup failed (non-fatal):", cleanupErr);
+        }
+
+        const message = `Prices updated from Finnhub (${successfulFetches}/14) and saved. Old records cleaned.`;
         statusEl.textContent = message;
         return message;
     }
@@ -752,7 +792,6 @@
       if (!qty || qty <= 0) return alert("Enter a valid number of shares.");
 
       const price = marketPrices[symbol];
-      // ✅ BLOCK TRADE IF PRICE IS INVALID
       if (!isValidPrice(price)) {
         return alert("Cannot trade. Price data is currently unavailable for this asset.");
       }
