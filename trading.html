@@ -719,6 +719,7 @@
         const displayPrice = isValid ? `$${price.toFixed(2)}` : "N/A";
         const canTrade = isValid;
 
+        // ✅ FIXED: Removed value="1", added placeholder="Qty"
         row.innerHTML = `
           <td>${co.name}</td>
           <td>${co.symbol}</td>
@@ -727,7 +728,7 @@
           <td class="total-value">$${stockValue.toFixed(2)}</td>
           <td>
             <div class="trade-controls">
-              <input type="number" min="1" value="1" class="qty-input" id="qty-${co.symbol}">
+              <input type="number" min="1" placeholder="Qty" class="qty-input" id="qty-${co.symbol}">
               <button ${!canTrade ? 'disabled' : ''} onclick="trade('${co.symbol}', 'buy')">Buy</button>
               <button class="btn-danger" ${!canTrade ? 'disabled' : ''} onclick="trade('${co.symbol}', 'sell')">Sell</button>
             </div>
