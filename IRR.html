@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NPV vs Discount Rate (Two IRRs)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .chart-container {
+      position: relative;
+      height: 500px;
+      width: 100%;
+    }
+    .info {
+      background: #e9f7ef;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>NPV vs Discount Rate</h1>
+    <div class="subtitle">NPV(r) = -1600 + 10000/(1+r) - 10000/(1+r)²</div>
+    <div class="chart-container">
+      <canvas id="npvChart"></canvas>
+    </div>
+    <div class="info">
+      <strong>IRR Solutions:</strong> NPV = 0 at <strong>r = 25%</strong> and <strong>r = 400%</strong>.
+      This occurs due to non-conventional cash flows (– → + → –), leading to multiple IRRs.
+    </div>
+  </div>
+
+  <script>
+    // NPV function
+    function npv(r) {
+      if (1 + r <= 0) return NaN; // Avoid division by zero or negative base issues
+      return -1600 + 10000 / (1 + r) - 10000 / Math.pow(1 + r, 2);
+    }
+
+    // Generate data from r = -0.5 (-50%) to r = 5.0 (500%)
+    const data = [];
+    const labels = [];
+    const step = 0.01; // 1% increments
+
+    for (let r = -0.5; r <= 5.0; r += step) {
+      const npvVal = npv(r);
+      // Skip invalid values (e.g., near r = -1)
+      if (!isNaN(npvVal) && isFinite(npvVal)) {
+        labels.push((r * 100).toFixed(0) + "%");
+        data.push(npvVal);
+      } else {
+        labels.push((r * 100).toFixed(0) + "%");
+        data.push(null); // Chart.js will skip nulls
+      }
+    }
+
+    // Find approximate zero-crossings for annotation (optional)
+    // We know roots are at 0.25 and 4.0
+
+    const ctx = document.getElementById('npvChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'NPV(r)',
+          data: data,
+          borderColor: '#1f77b4',
+          backgroundColor: 'rgba(31, 119, 180, 0.1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              title: function(tooltipItems) {
+                const rPercent = parseFloat(tooltipItems[0].label);
+                return `Discount Rate: ${rPercent}%`;
+              },
+              label: function(context) {
+                return `NPV: $${context.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 2})}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Discount Rate (r)'
+            },
+            ticks: {
+              callback: function(value, index, ticks) {
+                // Show fewer labels to avoid clutter
+                if (index % 50 === 0) return this.getLabelForValue(value);
+                return '';
+              }
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'NPV ($)'
+            },
+            grid: {
+              drawBorder: false
+            }
+          }
+        },
+        interaction: {
+          mode: 'index',
+          intersect: false
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
+
