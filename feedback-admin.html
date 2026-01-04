@@ -64,6 +64,7 @@
     // === STUDENTS ===
     async function loadStudents() {
       const query = new AV.Query('Student');
+      query.limit(1000); // ✅ FIX: Load up to 1000 students
       const res = await query.find();
       students = res.map(s => ({ id: s.id, name: s.get('name') }));
       renderStudents();
@@ -103,6 +104,7 @@
     // === CRITERIA ===
     async function loadCriteria() {
       const query = new AV.Query('Criterion');
+      query.limit(1000); // Safe even though criteria are few
       const res = await query.find();
       criteria = res.map(c => ({
         id: c.id,
@@ -189,21 +191,28 @@
 
     // === RESULTS ===
     async function loadResults() {
-      // Get all students
+      // Get all students (up to 1000)
       const studentQuery = new AV.Query('Student');
+      studentQuery.limit(1000); // ✅ CRITICAL FIX
       const studentObjs = await studentQuery.find();
       const studentMap = {};
       studentObjs.forEach(s => studentMap[s.id] = s.get('name'));
 
-      // Get all feedbacks
+      // Get all feedbacks (up to 1000)
       const fbQuery = new AV.Query('Feedback');
+      fbQuery.limit(1000); // ✅ Also important if >100 feedbacks
       fbQuery.include('targetStudent');
       const feedbacks = await fbQuery.find();
 
       // Group by student
       const scoreGroups = {};
       feedbacks.forEach(fb => {
-        const sid = fb.get('targetStudent').id;
+        const target = fb.get('targetStudent');
+        if (!target) {
+          console.warn("Feedback missing targetStudent:", fb.id);
+          return;
+        }
+        const sid = target.id;
         if (!scoreGroups[sid]) scoreGroups[sid] = [];
         scoreGroups[sid].push(fb.get('total'));
       });
@@ -229,12 +238,13 @@
 
       try {
         const query = new AV.Query('Feedback');
+        query.limit(1000); // Ensure we get all to delete
         const feedbacks = await query.find();
         if (feedbacks.length > 0) {
           await AV.Object.destroyAll(feedbacks);
         }
         alert(`Successfully deleted ${feedbacks.length} mark(s).`);
-        loadResults(); // Refresh the results table
+        loadResults();
       } catch (error) {
         alert("Failed to delete marks: " + error.message);
         console.error(error);
