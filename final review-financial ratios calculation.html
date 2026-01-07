@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Financial Analysis Review - Company ABC</title>
+    <style>
+        body { font-family: 'Times New Roman', serif; line-height: 1.4; color: #1a1a1a; max-width: 1100px; margin: 0 auto; padding: 40px; background-color: #f5f5f5; }
+        .document-container { background: white; padding: 50px; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid #ddd; }
+        h1, h2 { text-align: center; text-transform: uppercase; margin-bottom: 5px; }
+        h3 { border-bottom: 2px solid #000; margin-top: 30px; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; }
+        th, td { border: 1px solid #000; padding: 6px 12px; text-align: left; }
+        .num { text-align: right; width: 150px; }
+        .formula-section { background: #f9f9f9; border: 2px dashed #666; padding: 20px; margin: 30px 0; }
+        .student-tasks { background: #fffde7; border: 1px solid #fbc02d; padding: 20px; }
+        .note { font-style: italic; font-weight: bold; color: #d32f2f; }
+    </style>
+</head>
+<body>
+
+<div class="document-container">
+    <h1>Final Review: Financial Ratio Calculation</h1>
+    <h2>Company ABC</h2>
+    <p style="text-align: center;">For the Year Ended December 31, 2025 (All figures in $'000)</p>
+
+    <h3>Profit & Loss Statement (Income Statement) - 2025</h3>
+    <table>
+        <tr><th>Account Item</th><th class="num">Amount ($)</th></tr>
+        <tr><td><strong>Sales Revenue</strong></td><td class="num">1,500</td></tr>
+        <tr><td>Other Income (Interest Received)</td><td class="num">15</td></tr>
+        <tr><td style="padding-left: 20px;"><em>Total Revenue</em></td><td class="num"><em>1,515</em></td></tr>
+        <tr><td><strong>Cost of Sales</strong></td><td class="num">900</td></tr>
+        <tr style="background:#eee;"><td><strong>Gross Earnings</strong></td><td class="num"><strong>600</strong></td></tr>
+        <tr><td>Administrative and Selling Expenses</td><td class="num">300</td></tr>
+        <tr><td>Depreciation Expense</td><td class="num">80</td></tr>
+        <tr><td>Research and Development Expense</td><td class="num">50</td></tr>
+        <tr style="background:#eee;"><td><strong>Operating Profit</strong></td><td class="num"><strong>170</strong></td></tr>
+        <tr><td>Finance Costs</td><td class="num">40</td></tr>
+        <tr style="background:#eee;"><td><strong>Net Earnings (Net Profit)</strong></td><td class="num"><strong>130</strong></td></tr>
+    </table>
+
+    <h3>Balance Sheet as at December 31, 2025</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Items</th>
+                <th class="num">Beginning of 2025</th>
+                <th class="num">End of 2025</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="font-weight:bold;"><td colspan="3">Current Assets</td></tr>
+            <tr><td>Cash and Cash Equivalents</td><td class="num">150</td><td class="num">200</td></tr>
+            <tr><td>Trade Receivables</td><td class="num">200</td><td class="num">250</td></tr>
+            <tr><td>Stock (Inventory)</td><td class="num">300</td><td class="num">350</td></tr>
+            <tr><td>Prepaid Insurance</td><td class="num">20</td><td class="num">25</td></tr>
+            <tr><td>Short-term Investments</td><td class="num">50</td><td class="num">60</td></tr>
+            <tr style="font-weight:bold;"><td>Total Current Assets</td><td class="num">720</td><td class="num">885</td></tr>
+            
+            <tr style="font-weight:bold;"><td colspan="3">Non-Current Assets</td></tr>
+            <tr><td>Property, Plant and Equipment (at cost)</td><td class="num">1,800</td><td class="num">2,000</td></tr>
+            <tr><td>Less: Accumulated Depreciation</td><td class="num">(600)</td><td class="num">(680)</td></tr>
+            <tr><td>Property, Plant and Equipment (net)</td><td class="num">1,200</td><td class="num">1,320</td></tr>
+            <tr><td>Intangible Assets (Goodwill)</td><td class="num">100</td><td class="num">100</td></tr>
+            <tr><td>Long-term Investments</td><td class="num">80</td><td class="num">95</td></tr>
+            <tr style="font-weight:bold;"><td>Total Non-Current Assets</td><td class="num">1,380</td><td class="num">1,515</td></tr>
+            <tr style="background:#eee; font-weight:bold;"><td>TOTAL ASSETS</td><td class="num">2,100</td><td class="num">2,400</td></tr>
+
+            <tr style="font-weight:bold;"><td colspan="3">Liabilities</td></tr>
+            <tr><td>Trade Payables</td><td class="num">300</td><td class="num">400</td></tr>
+            <tr><td>Accrued Expenses</td><td class="num">50</td><td class="num">60</td></tr>
+            <tr><td>Short-term Borrowings</td><td class="num">100</td><td class="num">120</td></tr>
+            <tr><td>Borrowings (Long-Term)</td><td class="num">500</td><td class="num">600</td></tr>
+            <tr><td>Deferred Tax Liability</td><td class="num">30</td><td class="num">35</td></tr>
+            <tr style="font-weight:bold;"><td>Total Liabilities</td><td class="num">980</td><td class="num">1,215</td></tr>
+
+            <tr style="font-weight:bold;"><td colspan="3">Equity</td></tr>
+            <tr><td>Share Capital</td><td class="num">800</td><td class="num">800</td></tr>
+            <tr><td>Retained Earnings</td><td class="num">320</td><td class="num">385</td></tr>
+            <tr style="background:#eee; font-weight:bold;"><td>Shareholders' Funds (Total Equity)</td><td class="num">1,120</td><td class="num">1,185</td></tr>
+        </tbody>
+    </table>
+
+    <div class="formula-section">
+        <h3>Formulas Provided</h3>
+        <ul>
+            <li><strong>Gross Profit Ratio</strong> = (Gross profit / Sales Revenue) × 100</li>
+            <li><strong>Net Profit Ratio</strong> = (Net profit / Sales Revenue) × 100</li>
+            <li><strong>Assets Turnover Ratio</strong> = Sales Revenue / Total Assets</li>
+            <li><strong>Assets to Equity Ratio</strong> = Total Assets / Total equity</li>
+            <li><strong>Return on Equity (ROE)</strong> = (Net profit / Total equity) × 100</li>
+        </ul>
+        <p class="note">Requirement: Use end-of-year balances unless an average is specifically requested.</p>
+    </div>
+
+    <div class="student-tasks">
+        <h3>Student Assignment</h3>
+        <p>Using the data from the Financial Statements above, calculate the following ratios for 2025:</p>
+        <ol>
+            <li>Calculate the <strong>Gross Profit Ratio</strong> for 2025.</li>
+            <li>Calculate the <strong>Net Profit Ratio</strong> for 2025.</li>
+            <li>Calculate the <strong>Assets Turnover Ratio</strong> for 2025.</li>
+            <li>Calculate the <strong>Assets to Equity Ratio</strong> for 2025.</li>
+            <li>Calculate the <strong>Return on Equity (ROE)</strong> for 2025.</li>
+        </ol>
+    </div>
+</div>
+
+</body>
+</html>
