@@ -3,97 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧮Undercover</title>
+    <title>🧮 Undercover</title>
     <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #5bc0de;
+            --warning: #f0ad4e;
+            --danger: #d9534f;
+            --bg-color: #eef2f5;
+            --text-color: #2c3e50;
+            --card-bg: #ffffff;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
 
         header {
             text-align: center;
-            padding: 15px;
-            background-color: #4CAF50;
+            padding: 20px 10px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
         }
 
         /* --- Setup Form Styles --- */
         #setup-section {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-            /* Added for the restart logic */
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            max-width: 500px;
+            margin: 0 auto 30px auto;
             display: block; 
         }
 
+        h2 {
+            margin-top: 0;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            color: var(--primary-dark);
+        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
         input[type="number"], input[type="text"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
         }
 
         button {
-            background-color: #4CAF50;
+            width: 100%;
+            background-color: var(--primary);
             color: white;
-            padding: 10px 20px;
+            padding: 14px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-            margin: 5px; /* Added margin for multiple buttons */
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 10px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         /* --- Cards Display Styles --- */
         #cards-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 20px;
-            min-height: 200px; 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 10px;
         }
 
         .card-container {
             perspective: 1000px;
-            width: 150px;
-            height: 200px;
+            aspect-ratio: 3/4;
             cursor: pointer;
-            opacity: 0.5;
-            transition: opacity 0.5s;
+            opacity: 0.6;
+            transition: opacity 0.5s, transform 0.3s;
         }
 
         .card-container.active {
             opacity: 1;
-            box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.8);
-            animation: pulse 1.5s infinite alternate;
+            transform: scale(1.05);
         }
         
         @keyframes pulse {
-            from { box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.8); }
-            to { box-shadow: 0 0 25px 8px rgba(255, 165, 0, 1); }
+            from { box-shadow: 0 0 10px var(--warning); }
+            to { box-shadow: 0 0 25px var(--warning); }
+        }
+
+        .card-container.active .card {
+            animation: pulse 1.5s infinite alternate;
+            border: 2px solid var(--warning);
         }
 
         .card {
@@ -101,10 +148,10 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            transition: transform 0.6s;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
         }
 
         .card.is-flipped {
@@ -120,57 +167,68 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 15px;
             box-sizing: border-box;
         }
 
         .card-front {
-            background-color: #5bc0de;
+            background: linear-gradient(45deg, var(--secondary), #2980b9);
             color: white;
-            font-size: 1.2em;
-            font-weight: bold;
+        }
+
+        .card-front p {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            word-break: break-word;
         }
 
         .card-back {
-            background-color: #f0ad4e;
+            background-color: white;
             color: #333;
             transform: rotateY(180deg);
+            border: 2px solid #eee;
         }
 
         .card-back p {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin: 5px 0;
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin: 10px 0;
+            text-transform: uppercase;
         }
 
-        /* --- Game Start & Reveal Styles --- */
+        /* --- Game Controls --- */
         #game-controls {
-            text-align: center;
-            margin-top: 30px;
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 0 10px;
         }
 
         #final-reveal-button {
-            background-color: #d9534f;
+            background-color: var(--danger);
             display: none;
         }
 
-        #final-reveal-button:hover {
-            background-color: #c9302c;
-        }
-        
-        /* New styling for the restart button */
         #restart-button {
-            background-color: #5cb85c; 
+            background-color: #607d8b; 
             display: none;
-        }
-        
-        #restart-button:hover {
-            background-color: #4cae4c;
         }
 
         .identity-label {
-            font-size: 0.9em;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 480px) {
+            #cards-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            header h1 { font-size: 1.5rem; }
+            #setup-section { padding: 15px; }
         }
     </style>
 </head>
@@ -183,43 +241,41 @@
     <div id="setup-section">
         <h2>Game Setup</h2>
         <div class="form-group">
-            <label for="num-players">Number of Players (N):</label>
+            <label for="num-players">Number of Players:</label>
             <input type="number" id="num-players" min="3" value="4" onchange="generatePlayerInputs()" required>
         </div>
 
-        <div id="player-inputs">
-            </div>
+        <div id="player-inputs"></div>
         
         <div class="form-group">
-            <label for="civilian-term">Civilian Term (N-1 players):</label>
+            <label for="civilian-term">Civilian Term:</label>
             <input type="text" id="civilian-term" value="Asset" required>
         </div>
         
         <div class="form-group">
-            <label for="undercover-term">Undercover Term (1 player):</label>
+            <label for="undercover-term">Undercover Term:</label>
             <input type="text" id="undercover-term" value="Liability" required>
         </div>
 
         <button onclick="startGame()">Start Assignment</button>
-        <p id="setup-error" style="color: red; margin-top: 10px;"></p>
+        <p id="setup-error" style="color: var(--danger); text-align: center; font-weight: bold;"></p>
     </div>
 
-    <div id="cards-section">
-        </div>
+    <div id="cards-section"></div>
 
     <div id="game-controls">
-        <button id="final-reveal-button" onclick="finalReveal()">🏆 End Game & Reveal All Identities</button>
-        <button id="restart-button" onclick="restartGame()">🔄 Restart Game (Change Terms/Players)</button>
+        <button id="final-reveal-button" onclick="finalReveal()">🏆 End Game & Reveal All</button>
+        <button id="restart-button" onclick="restartGame()">🔄 New Game Setup</button>
     </div>
 
     <script>
+        // ... (All your original JavaScript remains exactly the same) ...
         let players = [];
         let assignments = [];
         let currentCardIndex = 0;
 
         document.addEventListener('DOMContentLoaded', generatePlayerInputs);
 
-        // Generates the N input fields for player names
         function generatePlayerInputs() {
             const numPlayers = parseInt(document.getElementById('num-players').value);
             const container = document.getElementById('player-inputs');
@@ -235,7 +291,6 @@
             for (let i = 0; i < numPlayers; i++) {
                 const div = document.createElement('div');
                 div.className = 'form-group';
-                // Use a default name or the previously stored name if available
                 const playerName = players[i] || `Player ${i + 1}`;
                 div.innerHTML = `
                     <label for="player-${i + 1}">Player ${i + 1} Name:</label>
@@ -245,14 +300,12 @@
             }
         }
 
-        // Reads form data, assigns roles, and displays cards
         function startGame() {
             const numPlayersInput = document.getElementById('num-players');
             const numPlayers = parseInt(numPlayersInput.value);
             const civilianTerm = document.getElementById('civilian-term').value.trim();
             const undercoverTerm = document.getElementById('undercover-term').value.trim();
             
-            // 1. Gather Player Names and Validation
             const tempPlayers = [];
             for (let i = 0; i < numPlayers; i++) {
                 const nameInput = document.getElementById(`player-${i + 1}`);
@@ -263,48 +316,37 @@
                 }
                 tempPlayers.push(name);
             }
-            players = tempPlayers; // Update the global players array
+            players = tempPlayers;
 
             if (!civilianTerm || !undercoverTerm) {
-                 document.getElementById('setup-error').textContent = 'Please enter both the Civilian and Undercover terms.';
+                 document.getElementById('setup-error').textContent = 'Please enter both terms.';
                 return;
             }
 
-            // 2. Create and Assign Roles (Randomly)
-            // Create assignments: N-1 civilian, 1 undercover
             let roles = Array(numPlayers).fill(civilianTerm);
-            
-            // Randomly select one player to be the Undercover
             const undercoverIndex = Math.floor(Math.random() * numPlayers);
             roles[undercoverIndex] = undercoverTerm;
 
-            // Pair names with assignments
             const finalAssignments = players.map((name, index) => ({
                 name: name,
                 identity: roles[index],
                 isUndercover: index === undercoverIndex
             }));
 
-            // Shuffle the assignments array for the sequential reveal
             shuffleArray(finalAssignments);
-            
-            // Store the shuffled assignments globally
             assignments = finalAssignments; 
             currentCardIndex = 0;
 
-            // 3. Update UI
             document.getElementById('setup-section').style.display = 'none';
             document.getElementById('final-reveal-button').style.display = 'block';
-            document.getElementById('restart-button').style.display = 'none'; // Hide restart button
+            document.getElementById('restart-button').style.display = 'none';
             document.getElementById('setup-error').textContent = '';
-            document.getElementById('cards-section').style.pointerEvents = 'auto'; // Re-enable for card interaction
-
+            document.getElementById('cards-section').style.pointerEvents = 'auto';
 
             displayCards();
-            activateCard(0); // Start the process with the first card
+            activateCard(0);
         }
         
-        // Fisher-Yates shuffle algorithm
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -312,8 +354,6 @@
             }
         }
 
-
-        // Creates and displays the N player cards
         function displayCards() {
             const container = document.getElementById('cards-section');
             container.innerHTML = '';
@@ -327,13 +367,14 @@
                 cardContainer.innerHTML = `
                     <div class="card" id="card-${index}">
                         <div class="card-face card-front">
-                            <span class="identity-label">Player Name:</span>
+                            <span class="identity-label">Player</span>
                             <p>${player.name}</p>
-                            <small>(Click to view identity)</small>
+                            <small style="opacity:0.7">Tap to reveal</small>
                         </div>
                         <div class="card-face card-back">
-                            <span class="identity-label">Your Identity:</span>
+                            <span class="identity-label">Your Role</span>
                             <p style="color: ${player.isUndercover ? '#d9534f' : '#4CAF50'};">${player.identity}</p>
+                            <small style="opacity:0.5">Tap to hide</small>
                         </div>
                     </div>
                 `;
@@ -341,7 +382,6 @@
             });
         }
 
-        // Sets the 'active' (shining) state for a card
         function activateCard(index) {
             const containers = document.querySelectorAll('.card-container');
             containers.forEach(c => c.classList.remove('active'));
@@ -350,77 +390,52 @@
             }
         }
         
-        // Handles the card flip logic
         function flipCard(index) {
-            if (index !== currentCardIndex) {
-                // Ignore clicks on non-shining cards
-                return;
-            }
-
+            if (index !== currentCardIndex) return;
             const card = document.getElementById(`card-${index}`);
             const container = document.querySelector(`.card-container[data-index="${index}"]`);
             
             if (!card.classList.contains('is-flipped')) {
-                // Flip to reveal identity
                 card.classList.add('is-flipped');
-                container.onclick = () => flipCardBack(index); // Change handler to flip back
-                container.classList.remove('active'); // Stop shining while identity is visible
-                container.style.cursor = 'wait'; // Hint to the player they need to look
+                container.onclick = () => flipCardBack(index);
+                container.classList.remove('active');
             } 
         }
 
-        // Handles the card flip-back logic and moves to the next card
         function flipCardBack(index) {
             const card = document.getElementById(`card-${index}`);
             const container = document.querySelector(`.card-container[data-index="${index}"]`);
 
             if (card.classList.contains('is-flipped')) {
-                // Flip back to hide identity
                 card.classList.remove('is-flipped');
-                container.onclick = null; // Disable clicking this card permanently
-                container.style.cursor = 'default';
-
+                container.onclick = null;
                 currentCardIndex++;
                 if (currentCardIndex < assignments.length) {
-                    activateCard(currentCardIndex); // Shine the next card
+                    activateCard(currentCardIndex);
                 } else {
-                    // All players have checked their identities
-                    alert("All players have seen their identities. The discussion game begins!");
-                    document.getElementById('cards-section').style.pointerEvents = 'none'; // Disable card clicks
+                    alert("All players have seen their identities. Let the discussion begin!");
+                    document.getElementById('cards-section').style.pointerEvents = 'none';
                 }
             }
         }
         
-        // Reveals all identities at the end of the game
         function finalReveal() {
             const cards = document.querySelectorAll('.card');
             cards.forEach(card => card.classList.add('is-flipped'));
-            document.getElementById('cards-section').style.pointerEvents = 'auto'; // Re-enable for the final look
+            document.getElementById('cards-section').style.pointerEvents = 'auto';
             document.getElementById('final-reveal-button').style.display = 'none';
-            document.getElementById('restart-button').style.display = 'inline-block'; // SHOW THE NEW RESTART BUTTON
+            document.getElementById('restart-button').style.display = 'block';
             document.querySelectorAll('.card-container').forEach(c => c.classList.remove('active'));
-            alert("Game over! All identities are now revealed. See who won!");
         }
         
-        // The new function to restart the game
         function restartGame() {
-            // 1. Clear card area
             document.getElementById('cards-section').innerHTML = '';
-            
-            // 2. Hide control buttons
             document.getElementById('final-reveal-button').style.display = 'none';
             document.getElementById('restart-button').style.display = 'none';
-            
-            // 3. Show the setup section again
             document.getElementById('setup-section').style.display = 'block';
-            
-            // 4. Update player inputs to maintain current names
             document.getElementById('num-players').value = players.length;
             generatePlayerInputs(); 
-            
-            alert("Game setup loaded! You can now edit player names, player count, or change the accounting terms for the new round.");
         }
-
     </script>
 </body>
 </html>
