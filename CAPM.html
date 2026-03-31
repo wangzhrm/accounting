@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Multi-Handle Portfolio Lab</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* MOBILE CSS UPDATES */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #f0f2f5; 
+            padding: 15px;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin: 0;
+        }
+        .card, .chart-container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 900px; 
+            margin-bottom: 20px; 
+            box-sizing: border-box;
+        }
+        
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 41, 59, 0.95); z-index: 100; display: flex; justify-content: center; align-items: center; }
+        .login-box { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 320px; text-align: center; }
+        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        
+        /* Table Scroll for Mobile */
+        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .asset-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; min-width: 400px; }
+        .asset-table th { background: #f8fafc; padding: 10px; border-bottom: 2px solid #e2e8f0; color: #64748b; }
+        .asset-table td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
+
+        /* Custom Multi-Handle Slider */
+        .slider-container { 
+            position: relative; 
+            height: 50px; 
+            background: #e2e8f0; 
+            border-radius: 25px; 
+            margin: 30px 0; 
+            border: 1px solid #cbd5e1; 
+            touch-action: none;
+        }
+        .handle { 
+            position: absolute; 
+            width: 34px; 
+            height: 34px; 
+            background: #2563eb; 
+            border: 3px solid white; 
+            border-radius: 50%; 
+            top: 50%; 
+            transform: translate(-50%, -50%); 
+            cursor: grab; 
+            z-index: 10; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
+        }
+        .segment { position: absolute; height: 100%; top: 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold; overflow: hidden; }
+        
+        /* New Single Range Slider styled to match */
+        .rf-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to right, #10b981 50%, #3b82f6 50%);
+            border-radius: 25px;
+            outline: none;
+            border: 1px solid #cbd5e1;
+            margin: 20px 0;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .rf-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 34px;
+            height: 34px;
+            background: white;
+            border: 4px solid #0f172a;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .section-title { font-size: 14px; font-weight: bold; color: #475569; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 25px; margin-bottom: 10px; }
+        
+        .results { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .stat { padding: 15px; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0; text-align: center; }
+        .stat-val { font-size: 20px; font-weight: 800; color: #1e40af; display: block; }
+        .stat-val.overall { color: #059669; }
+        
+        .alloc-labels { display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #64748b; padding: 0 10px; }
+
+        .btn-action { width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 15px; }
+        .btn-login { background: #2563eb; color: white; }
+        .btn-submit { background: #059669; color: white; }
+        
+        canvas { max-height: 400px; }
+    </style>
+</head>
+<body>
+
+<div id="login-overlay">
+    <div class="login-box">
+        <h2 style="margin-top:0">Student Login</h2>
+        <input type="text" id="user-input" placeholder="Username">
+        <input type="password" id="pass-input" placeholder="Password">
+        <button class="btn-action btn-login" onclick="handleLogin()">Sign In</button>
+        <p id="login-error" style="color:#dc2626; font-size:13px; margin-top:12px;"></p>
+    </div>
+</div>
+
+<div class="card" id="app-content" style="display: none;">
+    <div style="display:flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
+        <h3 style="margin:0; border:none; padding:0;">Risk/Return Lab</h3>
+        <span id="user-display" style="font-size: 12px; color:#64748b;"></span>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="asset-table">
+            <thead>
+                <tr>
+                    <th>Asset</th>
+                    <th>Return</th>
+                    <th>Risk (σ)</th>
+                </tr>
+            </thead>
+            <tbody id="asset-table-body"></tbody>
+        </table>
+    </div>
+    
+    <div class="section-title">Step 1: Construct Risky Portfolio</div>
+    <div class="slider-container" id="track"></div>
+    <div class="results">
+        <div class="stat"><span class="stat-val" id="ret-out">0.00%</span>Risky Return</div>
+        <div class="stat"><span class="stat-val" id="risk-out">0.00%</span>Risky Risk (σ)</div>
+    </div>
+
+    <div class="section-title">Step 2: Capital Allocation (Risk-Free vs. Risky)</div>
+    <p style="font-size: 12px; color: #64748b; margin-top: 0;">Allocate funds between the Risk-Free Asset (4% Return) and your custom Risky Portfolio above.</p>
+    
+    <div class="alloc-labels">
+        <span id="label-rf">Risk-Free: 20%</span>
+        <span id="label-risky">Risky Port: 80%</span>
+    </div>
+    <input type="range" class="rf-slider" id="rf-slider" min="0" max="100" value="20" oninput="updateCalculations()">
+    
+    <div class="results">
+        <div class="stat"><span class="stat-val overall" id="overall-ret-out">0.00%</span>Overall Return</div>
+        <div class="stat"><span class="stat-val overall" id="overall-risk-out">0.00%</span>Overall Risk (σ)</div>
+    </div>
+
+    <button class="btn-action btn-submit" onclick="submitToDatabase()">Submit Portfolio</button>
+    <div id="submission-status" style="text-align:center; margin-top:12px; font-size:13px;"></div>
+</div>
+
+<div class="chart-container" id="chart-content" style="display: none;">
+    <h3>Efficient Frontier & CAL</h3>
+    <canvas id="portfolioChart"></canvas>
+    <button class="btn-action" style="background: #64748b; color: white;" onclick="fetchAndPlotData()">Refresh Chart</button>
+</div>
+
+<script>
+    // --- SUPABASE CONFIG ---
+    const SUPABASE_URL = "https://btwdbphheotbqrmbswgk.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_9lY3A1HrgERNIC597NEAKQ_YTCmkh2k";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const numStocks = 10;
+    const colors = ['#ef4444', '#22c55e', '#eab308', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316', '#6366f1', '#14b8a6'];
+    let handlePositions = [10, 20, 30, 40, 50, 60, 70, 80, 90]; 
+    let weights = [], scatterChart = null, activeUser = "";
+
+    const riskFreeRate = 0.04; // 4% Risk-Free Rate
+
+    const means = [0.035, 0.042, 0.051, 0.068, 0.075, 0.082, 0.095, 0.115, 0.132, 0.155];
+    const covar = [
+        [0.45, 0.05, 0.04, 0.03, 0.02, 0.01, 0.01, 0.02, 0.03, 0.04],
+        [0.05, 0.62, 0.06, 0.04, 0.03, 0.02, 0.02, 0.03, 0.04, 0.05],
+        [0.04, 0.06, 0.85, 0.08, 0.05, 0.04, 0.03, 0.04, 0.05, 0.06],
+        [0.03, 0.04, 0.08, 1.25, 0.15, 0.12, 0.08, 0.10, 0.12, 0.15],
+        [0.02, 0.03, 0.05, 0.15, 1.68, 0.22, 0.15, 0.18, 0.20, 0.25],
+        [0.01, 0.02, 0.04, 0.12, 0.22, 2.15, 0.28, 0.22, 0.25, 0.30],
+        [0.01, 0.02, 0.03, 0.08, 0.15, 0.28, 2.85, 0.35, 0.30, 0.35],
+        [0.02, 0.03, 0.04, 0.10, 0.18, 0.22, 0.35, 3.82, 0.55, 0.65],
+        [0.03, 0.04, 0.05, 0.12, 0.20, 0.25, 0.30, 0.55, 4.95, 0.85],
+        [0.04, 0.05, 0.06, 0.15, 0.25, 0.30, 0.35, 0.65, 0.85, 6.25]
+    ];
+
+    async function handleLogin() {
+        const u = document.getElementById('user-input').value;
+        const p = document.getElementById('pass-input').value;
+        const { data } = await _supabase.from('student_accounts').select('*').eq('username', u).eq('password', p).single();
+        if (data) {
+            activeUser = u;
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            document.getElementById('chart-content').style.display = 'block';
+            document.getElementById('user-display').innerText = `User: ${u}`;
+            buildAssetTable();
+            renderUI();
+            fetchAndPlotData();
+        } else {
+            document.getElementById('login-error').innerText = "Incorrect credentials.";
+        }
+    }
+
+    function buildAssetTable() {
+        const tableBody = document.getElementById('asset-table-body');
+        tableBody.innerHTML = '';
+        means.forEach((m, i) => {
+            const risk = Math.sqrt(covar[i][i]);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><span style="display:inline-block;width:10px;height:10px;background:${colors[i%colors.length]};margin-right:5px"></span>S${i+1}</td>
+                <td>${(m * 100).toFixed(2)}%</td>
+                <td>${(risk * 100).toFixed(2)}%</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function renderUI() {
+        const track = document.getElementById('track');
+        track.innerHTML = '';
+        weights = [];
+        let prev = 0;
+        [...handlePositions, 100].forEach(pos => {
+            weights.push(pos - prev);
+            prev = pos;
+        });
+
+        let currentPos = 0;
+        weights.forEach((w, i) => {
+            const seg = document.createElement('div');
+            seg.className = 'segment';
+            seg.style.left = currentPos + '%';
+            seg.style.width = w + '%';
+            seg.style.backgroundColor = colors[i % colors.length];
+            seg.innerText = w > 8 ? w.toFixed(0) + '%' : '';
+            track.appendChild(seg);
+            currentPos += w;
+        });
+
+        handlePositions.forEach((pos, i) => {
+            const h = document.createElement('div');
+            h.className = 'handle';
+            h.style.left = pos + '%';
+            
+            h.addEventListener('mousedown', (e) => startInteraction(e, i));
+            h.addEventListener('touchstart', (e) => startInteraction(e, i), {passive: false});
+            
+            track.appendChild(h);
+        });
+        updateCalculations();
+    }
+
+    function startInteraction(e, index) {
+        e.preventDefault(); 
+        const isTouch = e.type === 'touchstart';
+        const rect = document.getElementById('track').getBoundingClientRect();
+        
+        const move = (ev) => {
+            const clientX = isTouch ? ev.touches[0].clientX : ev.clientX;
+            let x = ((clientX - rect.left) / rect.width) * 100;
+            const min = index === 0 ? 1 : handlePositions[index-1] + 1;
+            const max = index === handlePositions.length - 1 ? 99 : handlePositions[index+1] - 1;
+            handlePositions[index] = Math.max(min, Math.min(max, x));
+            renderUI();
+        };
+
+        const end = () => { 
+            document.removeEventListener('mousemove', move); 
+            document.removeEventListener('mouseup', end);
+            document.removeEventListener('touchmove', move);
+            document.removeEventListener('touchend', end);
+        };
+
+        document.addEventListener(isTouch ? 'touchmove' : 'mousemove', move, {passive: false});
+        document.addEventListener(isTouch ? 'touchend' : 'mouseup', end);
+    }
+
+    // UPDATED CALCULATION LOGIC
+    function updateCalculations() {
+        // 1. Risky Portfolio Math
+        const wDecimal = weights.map(v => v / 100);
+        let pRet = 0, pVar = 0;
+        for(let i=0; i<numStocks; i++) {
+            pRet += wDecimal[i] * means[i];
+            for(let j=0; j<numStocks; j++) pVar += wDecimal[i] * wDecimal[j] * covar[i][j];
+        }
+        
+        const riskyRisk = Math.sqrt(Math.abs(pVar));
+
+        // Display Risky Portfolio Stats (*100 for percentage visual)
+        document.getElementById('ret-out').innerText = (pRet * 100).toFixed(2) + '%';
+        document.getElementById('risk-out').innerText = (riskyRisk * 100).toFixed(2) + '%';
+
+        // 2. Capital Allocation Math (Risk-Free vs Risky)
+        const rfSlider = document.getElementById('rf-slider');
+        const rfWeightDecimal = parseFloat(rfSlider.value) / 100;
+        const riskyWeightDecimal = 1 - rfWeightDecimal;
+
+        // Update Slider Background Color dynamically
+        rfSlider.style.background = `linear-gradient(to right, #10b981 ${rfSlider.value}%, #3b82f6 ${rfSlider.value}%)`;
+        document.getElementById('label-rf').innerText = `Risk-Free: ${rfSlider.value}%`;
+        document.getElementById('label-risky').innerText = `Risky Port: ${(100 - rfSlider.value)}%`;
+
+        // Overall Expected Return = (W_rf * R_rf) + (W_risky * R_risky)
+        const overallRet = (rfWeightDecimal * riskFreeRate) + (riskyWeightDecimal * pRet);
+        
+        // Overall Risk = W_risky * StandardDeviation_risky (since Risk-Free asset has 0 standard deviation)
+        const overallRisk = riskyWeightDecimal * riskyRisk;
+
+        // Display Overall Stats (*100 for percentage visual)
+        document.getElementById('overall-ret-out').innerText = (overallRet * 100).toFixed(2) + '%';
+        document.getElementById('overall-risk-out').innerText = (overallRisk * 100).toFixed(2) + '%';
+    }
+
+    async function submitToDatabase() {
+        const status = document.getElementById('submission-status');
+        status.innerText = "Processing...";
+        status.style.color = "#475569";
+        
+        const rfWeightRaw = parseFloat(document.getElementById('rf-slider').value);
+
+        const payload = {
+            username: activeUser,
+            // Original risky portfolio stats
+            expected_return: parseFloat(document.getElementById('ret-out').innerText),
+            expected_risk: parseFloat(document.getElementById('risk-out').innerText),
+            weights: weights,
+            // NEW fields
+            rf_weight: rfWeightRaw,
+            overall_return: parseFloat(document.getElementById('overall-ret-out').innerText),
+            overall_risk: parseFloat(document.getElementById('overall-risk-out').innerText)
+        };
+
+        const { error } = await _supabase.from('port_submissions').insert([payload]);
+        if (!error) {
+            status.style.color = "#059669";
+            status.innerText = "Portfolio Saved!";
+            fetchAndPlotData();
+        } else {
+            status.style.color = "#dc2626";
+            status.innerText = "Error saving data.";
+            console.error(error);
+        }
+    }
+
+    async function fetchAndPlotData() {
+        // Now fetching the new overall stats to plot on the chart
+        const { data } = await _supabase.from('port_submissions').select('username, overall_return, overall_risk');
+        if (!data) return;
+
+        const userGroups = {};
+        data.forEach(item => {
+            // Plotting the overall risk/return which includes the risk-free allocation
+            if (item.overall_return !== null && item.overall_risk !== null) {
+                if (!userGroups[item.username]) userGroups[item.username] = [];
+                userGroups[item.username].push({ x: item.overall_risk, y: item.overall_return });
+            }
+        });
+
+        const datasets = Object.keys(userGroups).map((user, idx) => ({
+            label: user + ' (Combined)',
+            data: userGroups[user],
+            backgroundColor: colors[idx % colors.length],
+            pointRadius: 6,
+            pointStyle: 'triangle' // distinguish students from raw stocks
+        }));
+
+        // Add Risk Free Rate Point
+        datasets.push({
+            label: 'Risk-Free Asset',
+            data: [{ x: 0, y: riskFreeRate * 100 }],
+            backgroundColor: '#10b981',
+            pointStyle: 'star',
+            pointRadius: 8
+        });
+
+        // Add Raw Stocks
+        datasets.push({
+            label: 'Raw Stocks',
+            data: means.map((m, i) => ({ x: Math.sqrt(covar[i][i]) * 100, y: m * 100 })),
+            backgroundColor: '#475569',
+            pointStyle: 'rectRot',
+            pointRadius: 5
+        });
+
+        const ctx = document.getElementById('portfolioChart').getContext('2d');
+        if (scatterChart) {
+            scatterChart.data.datasets = datasets;
+            scatterChart.update();
+        } else {
+            scatterChart = new Chart(ctx, {
+                type: 'scatter',
+                data: { datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        x: { title: { display: true, text: 'Risk (%)' }, min: 0 },
+                        y: { title: { display: true, text: 'Return (%)' }, min: 0 }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': (' + context.parsed.x.toFixed(2) + '%, ' + context.parsed.y.toFixed(2) + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>
