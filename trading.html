@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Classroom Trading Simulation - Final Fixed Version</title>
-  <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.13.2/dist/av-min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script> 
+  <title>Classroom Trading Simulation - Supabase Version</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
   <style>
     /* ------------------------------------------------------------------- */
     /* --- CSS Styles ---------------------------------------------------- */
@@ -152,6 +152,39 @@
       color: #999;
       font-style: italic;
     }
+    .btn-chart {
+      background: #6c757d;
+      color: white;
+      font-size: 0.7em;
+      padding: 3px 8px;
+      margin-top: 6px;
+      border-radius: 4px;
+    }
+    .btn-chart:hover {
+      background: #4a6fa5;
+    }
+
+    /* Price history chart modal */
+    #chartOverlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.45); z-index: 200;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    #chartOverlay.open { opacity: 1; pointer-events: auto; }
+    #chartModalBox {
+        background: white; border-radius: 10px; padding: 20px;
+        width: 500px; max-width: 92vw; max-height: 85vh; overflow-y: auto;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    #chartModalHeader {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 12px;
+    }
+    #chartModalHeader h3 { margin: 0; font-size: 1.1em; color: #2c3e50; }
+    #chartModalClose {
+        background: none; border: none; font-size: 1.4em; color: #888; cursor: pointer; line-height: 1; padding: 0;
+    }
 
     /* Status for price update time */
     #priceStatus {
@@ -159,7 +192,7 @@
         color: #777;
         margin-top: 5px;
         text-align: center;
-        justify-content: center; 
+        justify-content: center;
         margin-bottom: 10px;
     }
 
@@ -168,7 +201,7 @@
       margin-bottom: 15px;
       text-align: center;
       display: flex;
-      flex-direction: column; 
+      flex-direction: column;
       align-items: center;
     }
     .portfolio-value-container {
@@ -194,7 +227,7 @@
       color: #2980b9;
       margin-bottom: 20px;
     }
-    
+
     /* Chart Container */
     #chartContainer {
         width: 100%;
@@ -266,10 +299,9 @@
       color: #27ae60;
     }
 
-    /* ✅ UPDATED: Smaller and lighter source info */
     #dataSourceInfo {
-      font-size: 0.65em;       /* Smaller */
-      color: #ccc;             /* Lighter grey */
+      font-size: 0.65em;
+      color: #ccc;
       text-align: center;
       margin-top: 8px;
       padding-top: 8px;
@@ -336,24 +368,24 @@
       <div class="card">
         <h2>Market Prices (<a href="https://wangzhrm.github.io/accounting/trading-stock%20price" target="_blank">stock price charts</a>)</h2>
         <div id="priceStatus">
-            <span>Checking historical database...</span>
+            <span>Loading live prices...</span>
         </div>
         <div class="market-grid" id="marketGrid"></div>
-        <div id="dataSourceInfo"></div>
+        <div id="dataSourceInfo">Live prices from Finnhub · price history is logged only when a trade happens</div>
       </div>
 
       <div class="card">
         <div class="portfolio-header">
           <h2>Your Portfolio</h2>
-          
+
           <div class="portfolio-value-container">
             <span class="value-label">Total Portfolio Value:</span>
             <div class="total-value-display" id="totalPortfolioValue">$0.00</div>
-            
+
             <span class="value-label">Cash Position:</span>
             <div class="cash-display" id="cashBalance">Cash: $0.00</div>
           </div>
-          
+
           <div id="chartContainer">
             <canvas id="portfolioChart"></canvas>
           </div>
@@ -383,147 +415,81 @@
     </div>
   </div>
 
+  <!-- Per-stock price history chart modal -->
+  <div id="chartOverlay" onclick="if(event.target===this) closeStockChart()">
+    <div id="chartModalBox">
+      <div id="chartModalHeader">
+        <h3 id="chartModalTitle">Price History</h3>
+        <button id="chartModalClose" onclick="closeStockChart()">&times;</button>
+      </div>
+      <div id="chartModalBody"></div>
+    </div>
+  </div>
+
   <script>
     // ⚠️ REPLACE THIS WITH YOUR ACTUAL FINNHUB API KEY
-    const FINNHUB_API_KEY = "d4jsqvpr01qgcb0vc20gd4jsqvpr01qgcb0vc210"; 
+    const FINNHUB_API_KEY = "d4jsqvpr01qgcb0vc20gd4jsqvpr01qgcb0vc210";
 
     const CACHE_EXPIRATION_MINUTES = 2;
     const REFRESH_INTERVAL_MS = 120000;
 
-   
-    const COMPANIES = [
-      { name: "Apple Inc.", symbol: "AAPL" },
-      { name: "Johnson & Johnson", symbol: "JNJ" },
-      { name: "Exxon Mobil Corporation", symbol: "XOM" }, 
-      { name: "JPMorgan Chase & Co.", symbol: "JPM" },
-      { name: "Walmart Inc.", symbol: "WMT" },
-      { name: "The Boeing Company", symbol: "BA" },
-      { name: "The Walt Disney Company", symbol: "DIS" },
-      { name: "Caterpillar Inc.", symbol: "CAT" },
-      { name: "Procter & Gamble Co.", symbol: "PG" },
-      { name: "American Tower Corporation", symbol: "AMT" },
-      { name: "CSI 300 ETF (ASHR)", symbol: "ASHR" },
-      { name: "U.S. Treasury Bond ETF (GOVT)", symbol: "GOVT" },
-      { name: "SPDR Gold Shares (GLD)", symbol: "GLD" },
-      { name: "U.S. Copper Index Fund (CPER)", symbol: "CPER" }
-    ];
+    // The tradable company list now comes from the admin panel (trading_companies table),
+    // not a hardcoded array. It's loaded once at startup via loadCompanies().
+    let COMPANIES = [];
 
-    let marketPrices = {}; 
-    let currentUser = null;
+    let marketPrices = {};
+    let currentUser = null; // plain object mirroring a trading_students row
     let priceUpdateInterval;
-    let isFetching = false; 
+    let isFetching = false;
     let portfolioChart = null;
 
-    AV.init({
-      appId: "W9n8YEzowrs5Lzz3BqjttHiM-gzGzoHsz",
-      appKey: "5mrY6acHapGt8ngzVn0ZGBnw",
-      serverURL: "https://w9n8yezo.lc-cn-n1-shared.com"
-    });
+    // ---- Supabase client (replaces LeanCloud AV.init) ----
+    const _URL = "https://btwdbphheotbqrmbswgk.supabase.co";
+    const _KEY = "sb_publishable_9lY3A1HrgERNIC597NEAKQ_YTCmkh2k";
+    const supabaseClient = supabase.createClient(_URL, _KEY);
+    const STUDENT_TABLE = "trading_students";
+    const PRICE_TABLE = "trading_stock_prices";
+    const COMPANY_TABLE = "trading_companies";
 
-    // ✅ Helper: Check if price is valid (non-zero, positive number)
     function isValidPrice(price) {
       return price !== undefined && price !== null && typeof price === 'number' && price > 0;
     }
 
-    function consolidateHistoricalPrices(pricesArray) {
-        if (pricesArray.length === 0) return null;
-        
-        const consolidated = {};
-        const now = new Date().getTime();
-        const expirationTimeMs = CACHE_EXPIRATION_MINUTES * 60000;
-        let isFresh = true;
-        
-        pricesArray.forEach(record => {
-            const symbol = record.get('symbol');
-            const price = record.get('closePrice'); 
-            const recordTime = record.createdAt.getTime(); 
-            
-            if (now - recordTime > expirationTimeMs) {
-                isFresh = false; 
-            }
-            
-            if (isValidPrice(price) && symbol) {
-                 consolidated[symbol] = Number(price); 
-            }
-        });
-        
-        if (isFresh && Object.keys(consolidated).length === COMPANIES.length) {
-            return consolidated;
+    // Pulls the current tradable company list from the admin-managed table.
+    // Called at page load and again on every login, so admin changes take effect
+    // the next time a student logs in without needing a page-code change.
+    async function loadCompanies() {
+        const { data, error } = await supabaseClient
+            .from(COMPANY_TABLE)
+            .select('symbol, name')
+            .order('name', { ascending: true });
+
+        if (error) {
+            console.error("Failed to load tradable companies:", error);
+            return;
         }
-        
-        return null;
+
+        COMPANIES = (data || []).map(row => ({ name: row.name, symbol: row.symbol }));
     }
 
-    async function fetchAndCachePrices() {
-        if (isFetching) return;
+    // Live prices are fetched straight from Finnhub on every refresh —
+    // the database is never read or written just to show the current price.
+    // trading_stock_prices only gets a new row when a trade actually happens (see trade()).
+    async function fetchLivePrices() {
+        if (isFetching) return marketPrices;
         isFetching = true;
 
         const statusEl = document.getElementById('priceStatus').querySelector('span');
-        const dataSourceEl = document.getElementById('dataSourceInfo');
-        statusEl.textContent = "Checking historical database (StockPrice)...";
-        dataSourceEl.textContent = "";
-        
-        let cachedPrices = null;
+        statusEl.textContent = "Fetching live prices from Finnhub...";
 
-        try {
-            const historicalQuery = new AV.Query('StockPrice');
-            historicalQuery.descending('createdAt');
-            historicalQuery.limit(COMPANIES.length * 2); 
-            historicalQuery.select(['symbol', 'closePrice', 'createdAt']);
-            
-            const historicalRecords = await historicalQuery.find();
-            
-            const latestRecordsMap = new Map();
-            historicalRecords.forEach(record => {
-                const symbol = record.get('symbol');
-                if (!latestRecordsMap.has(symbol)) {
-                    latestRecordsMap.set(symbol, record);
-                }
-            });
-            
-            const latestRecords = Array.from(latestRecordsMap.values());
-            cachedPrices = consolidateHistoricalPrices(latestRecords);
-
-            if (cachedPrices) {
-                marketPrices = cachedPrices;
-                const lastUpdateTime = latestRecords[0] ? latestRecords[0].createdAt.toLocaleTimeString() : 'N/A';
-                statusEl.textContent = `Prices loaded from database (as of ${lastUpdateTime}).`;
-                dataSourceEl.textContent = "Stock prices obtained from database";
-            }
-
-        } catch (readError) {
-             if (readError.message.includes("404")) {
-                 console.warn("StockPrice class not found. Proceeding to Finnhub fetch.");
-             } else {
-                 console.error("Historical data read failed:", readError);
-             }
-        }
-        
-        if (!cachedPrices) {
-             statusEl.textContent = "Data stale or missing (over 2 minutes old). Fetching new data from Finnhub...";
-             try {
-                const successMessage = await fetchPricesFromFinnhub(); 
-                dataSourceEl.textContent = successMessage;
-             } catch (fetchError) {
-                statusEl.textContent = `Error fetching prices: ${fetchError.message}. Prices unavailable.`;
-                dataSourceEl.textContent = "Failed to fetch stock prices";
-             }
-        }
-        
-        isFetching = false;
-        return marketPrices;
-    }
-
-    async function fetchPricesFromFinnhub() {
         if (FINNHUB_API_KEY === "replace mannually") {
-            throw new Error("Finnhub API Key is missing. Cannot fetch live prices.");
+            statusEl.textContent = "Finnhub API Key is missing. Cannot fetch live prices.";
+            isFetching = false;
+            return marketPrices;
         }
-        
-        const StockPrice = AV.Object.extend('StockPrice');
-        const updatedPrices = {};
-        const statusEl = document.getElementById('priceStatus').querySelector('span');
 
-        // Step 1: Fetch from Finnhub
+        const updatedPrices = {};
+
         const fetchPromises = COMPANIES.map(co => {
             const url = `https://finnhub.io/api/v1/quote?symbol=${co.symbol}&token=${FINNHUB_API_KEY}`;
             return fetch(url).then(r => r.json()).catch(err => {
@@ -534,92 +500,150 @@
 
         const results = await Promise.all(fetchPromises);
         let successfulFetches = 0;
-        const objectsToSave = [];
 
         results.forEach((data, index) => {
             const symbol = COMPANIES[index].symbol;
             if (data && data.c !== undefined && isValidPrice(data.c)) {
-                const price = data.c;
-                const historicalObj = new StockPrice();
-                historicalObj.set('symbol', symbol);
-                historicalObj.set('closePrice', Number(price));
-                objectsToSave.push(historicalObj);
-                updatedPrices[symbol] = Number(price);
+                updatedPrices[symbol] = Number(data.c);
                 successfulFetches++;
             } else {
-                updatedPrices[symbol] = 0;
-                console.warn(`Could not get valid data for ${symbol}. Using 0.`);
+                updatedPrices[symbol] = marketPrices[symbol] || 0;
+                console.warn(`Could not get valid data for ${symbol}. Keeping last known price.`);
             }
         });
 
-        if (successfulFetches === 0) {
-            throw new Error("Failed to fetch price data for any stock from Finnhub.");
-        }
-
-        // Step 2: Save new records
-        await AV.Object.saveAll(objectsToSave);
         marketPrices = updatedPrices;
 
-        // Step 3: CLEANUP — Keep only latest 500 records
-        try {
-            const countQuery = new AV.Query('StockPrice');
-            const totalCount = await countQuery.count();
+        statusEl.textContent = successfulFetches > 0
+            ? `Live prices from Finnhub (${successfulFetches}/${COMPANIES.length}), updated ${new Date().toLocaleTimeString()}.`
+            : "Could not reach Finnhub. Prices unavailable.";
 
-            if (totalCount > 500) {
-                statusEl.textContent = `Cleaning up old records (${totalCount} total)...`;
-
-                const allIds = [];
-                let skip = 0;
-                const limit = 1000;
-
-                while (allIds.length < totalCount) {
-                    const idQuery = new AV.Query('StockPrice');
-                    idQuery.descending('createdAt');
-                    idQuery.limit(limit);
-                    idQuery.skip(skip);
-                    idQuery.select([]);
-                    const batch = await idQuery.find();
-                    if (batch.length === 0) break;
-                    batch.forEach(obj => allIds.push(obj.id));
-                    skip += limit;
-                }
-
-                const idsToDelete = allIds.slice(500);
-                if (idsToDelete.length > 0) {
-                    const objectsToDelete = idsToDelete.map(id => {
-                        const obj = new StockPrice();
-                        obj.id = id;
-                        return obj;
-                    });
-
-                    for (let i = 0; i < objectsToDelete.length; i += 50) {
-                        const chunk = objectsToDelete.slice(i, i + 50);
-                        await AV.Object.destroyAll(chunk);
-                    }
-                }
-            }
-        } catch (cleanupErr) {
-            console.warn("Cleanup failed (non-fatal):", cleanupErr);
-        }
-
-        const message = `Prices updated from Finnhub (${successfulFetches}/14) and saved. Old records cleaned.`;
-        statusEl.textContent = message;
-        return message;
+        isFetching = false;
+        return marketPrices;
     }
 
     function startPriceUpdates() {
         updateDashboardData();
         clearInterval(priceUpdateInterval);
-        priceUpdateInterval = setInterval(updateDashboardData, REFRESH_INTERVAL_MS); 
+        priceUpdateInterval = setInterval(updateDashboardData, REFRESH_INTERVAL_MS);
     }
 
     async function updateDashboardData() {
-        await fetchAndCachePrices();
+        await fetchLivePrices();
         if (currentUser) {
             renderMarket();
             renderPortfolio();
             fetchLeaderboard();
         }
+    }
+
+    // Logs one price point for a symbol into trading_stock_prices.
+    // This is the ONLY place the app writes to that table — only real trades create history.
+    async function logTradePrice(symbol, price) {
+        try {
+            const { error } = await supabaseClient
+                .from(PRICE_TABLE)
+                .insert({ symbol, close_price: price });
+            if (error) console.error("Failed to log trade price:", error);
+        } catch (err) {
+            console.error("Failed to log trade price:", err);
+        }
+
+        // Lightweight, occasional cleanup so the log table doesn't grow forever.
+        // Since rows are only added on trades, this rarely needs to do anything.
+        if (Math.random() < 0.05) {
+            try {
+                const { count, error: countError } = await supabaseClient
+                    .from(PRICE_TABLE)
+                    .select('id', { count: 'exact', head: true });
+
+                if (!countError && count > 2000) {
+                    const { data: allRows, error: idError } = await supabaseClient
+                        .from(PRICE_TABLE)
+                        .select('id')
+                        .order('created_at', { ascending: false })
+                        .range(2000, count - 1);
+
+                    if (!idError && allRows && allRows.length > 0) {
+                        const idsToDelete = allRows.map(r => r.id);
+                        for (let i = 0; i < idsToDelete.length; i += 50) {
+                            const chunk = idsToDelete.slice(i, i + 50);
+                            await supabaseClient.from(PRICE_TABLE).delete().in('id', chunk);
+                        }
+                    }
+                }
+            } catch (cleanupErr) {
+                console.warn("Price log cleanup failed (non-fatal):", cleanupErr);
+            }
+        }
+    }
+
+    /* ---------------- Per-stock price history chart ---------------- */
+
+    let stockHistoryChart = null;
+
+    async function openStockChart(symbol, name) {
+        document.getElementById('chartModalTitle').textContent = `${name} (${symbol}) — Trade Price History`;
+        document.getElementById('chartModalBody').innerHTML = "<p>Loading price history...</p>";
+        document.getElementById('chartOverlay').classList.add('open');
+
+        const { data, error } = await supabaseClient
+            .from(PRICE_TABLE)
+            .select('close_price, created_at')
+            .eq('symbol', symbol)
+            .order('created_at', { ascending: true })
+            .limit(500);
+
+        if (error) {
+            document.getElementById('chartModalBody').innerHTML = `<p style="color:#e74c3c;">Error loading history: ${escapeHtml(error.message)}</p>`;
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            document.getElementById('chartModalBody').innerHTML = "<p>No trades have happened for this stock yet, so there's no price history to chart. A point is added every time a student buys or sells it.</p>";
+            return;
+        }
+
+        document.getElementById('chartModalBody').innerHTML = '<canvas id="stockHistoryCanvas"></canvas>';
+
+        const labels = data.map(r => new Date(r.created_at).toLocaleString());
+        const prices = data.map(r => Number(r.close_price));
+
+        if (stockHistoryChart) {
+            stockHistoryChart.destroy();
+        }
+
+        const ctx = document.getElementById('stockHistoryCanvas').getContext('2d');
+        stockHistoryChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: `${symbol} price at each trade`,
+                    data: prices,
+                    borderColor: '#4a6fa5',
+                    backgroundColor: 'rgba(74, 111, 165, 0.15)',
+                    tension: 0.15,
+                    pointRadius: 3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { ticks: { maxRotation: 45, minRotation: 45, autoSkip: true, maxTicksLimit: 8 } },
+                    y: { title: { display: true, text: 'Price ($)' } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false }
+                }
+            }
+        });
+    }
+
+    function closeStockChart() {
+        document.getElementById('chartOverlay').classList.remove('open');
     }
 
     async function login() {
@@ -628,31 +652,25 @@
       if (!u || !p) return showError("Please enter username and password.");
 
       try {
-        const query = new AV.Query('Student');
-        query.equalTo('username', u);
-        const results = await query.find();
-        if (results.length === 0) throw new Error("User not found");
+        const { data, error } = await supabaseClient
+            .from(STUDENT_TABLE)
+            .select('*')
+            .eq('username', u)
+            .single();
 
-        const user = results[0];
-        if (user.get('password') !== p) throw new Error("Invalid password");
+        if (error || !data) throw new Error("User not found");
+        if (data.password !== p) throw new Error("Invalid password");
 
-        if (user.get('balance') === undefined) {
-          user.set('balance', 10000);
-          user.set('holdings', {});
-          user.set('transactionCount', 0);
-          user.set('totalTransactedAmount', 0);
-          user.set('earlyMorningTrades', 0);
-          user.set('lateNightTrades', 0);
-          await user.save();
-        }
+        currentUser = data; // { username, password, balance, holdings, transaction_count, ... }
 
-        currentUser = user;
+        await loadCompanies();
+
         document.getElementById('displayName').textContent = u;
         document.getElementById('userInfo').style.display = 'flex';
         document.getElementById('loginView').style.display = 'none';
         document.getElementById('dashboardView').style.display = 'block';
 
-        startPriceUpdates(); 
+        startPriceUpdates();
       } catch (err) {
         showError(err.message || "Login failed");
       }
@@ -666,6 +684,12 @@
     function renderMarket() {
       const container = document.getElementById('marketGrid');
       container.innerHTML = '';
+
+      if (COMPANIES.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1/-1; color:#999; font-style:italic;">No companies have been set up for trading yet. Ask your teacher to add some in the admin panel.</p>';
+        return;
+      }
+
       COMPANIES.forEach(co => {
         const price = marketPrices[co.symbol];
         const isValid = isValidPrice(price);
@@ -676,21 +700,22 @@
           <div class="stock-name">${co.name}</div>
           <div class="stock-ticker">${co.symbol}</div>
           <div class="stock-price ${!isValid ? 'na' : ''}">${displayPrice}</div>
+          <button class="btn-chart" onclick="openStockChart('${co.symbol}', '${co.name.replace(/'/g, "\\'")}')">Chart</button>
         `;
         container.appendChild(div);
       });
     }
 
     function renderPortfolio() {
-      const balance = currentUser.get('balance') || 10000;
-      const holdings = currentUser.get('holdings') || {};
+      const balance = Number(currentUser.balance) || 10000;
+      const holdings = currentUser.holdings || {};
       const body = document.getElementById('portfolioBody');
       let totalValue = balance;
-      
+
       const chartLabels = ["Cash"];
       const chartData = [balance];
       const chartColors = ["#2980b9"];
-      
+
       const stockPalette = [
         '#2ecc71', '#f1c40f', '#e67e22', '#3498db', '#9b59b6',
         '#1abc9c', '#e74c3c', '#c0392b', '#7f8c8d', '#2c3e50',
@@ -719,7 +744,6 @@
         const displayPrice = isValid ? `$${price.toFixed(2)}` : "N/A";
         const canTrade = isValid;
 
-        // ✅ FIXED: Removed value="1", added placeholder="Qty"
         row.innerHTML = `
           <td>${co.name}</td>
           <td>${co.symbol}</td>
@@ -738,7 +762,7 @@
       });
 
       document.getElementById('totalPortfolioValue').textContent = `$${totalValue.toFixed(2)}`;
-      
+
       if (portfolioChart) {
         portfolioChart.destroy();
       }
@@ -798,13 +822,13 @@
       }
 
       const total = price * qty;
-      let balance = currentUser.get('balance');
-      let holdings = { ...currentUser.get('holdings') };
+      let balance = Number(currentUser.balance);
+      let holdings = { ...(currentUser.holdings || {}) };
 
-      let totalTransactedAmount = currentUser.get('totalTransactedAmount') || 0;
-      let earlyMorningTrades = currentUser.get('earlyMorningTrades') || 0;
-      let lateNightTrades = currentUser.get('lateNightTrades') || 0;
-      let transactionCount = currentUser.get('transactionCount') || 0;
+      let totalTransactedAmount = Number(currentUser.total_transacted_amount) || 0;
+      let earlyMorningTrades = currentUser.early_morning_trades || 0;
+      let lateNightTrades = currentUser.late_night_trades || 0;
+      let transactionCount = currentUser.transaction_count || 0;
 
       try {
         if (action === 'buy') {
@@ -825,14 +849,26 @@
         else if (hour >= 21 || hour < 5) lateNightTrades += 1;
         transactionCount += 1;
 
-        currentUser.set('balance', balance);
-        currentUser.set('holdings', holdings);
-        currentUser.set('transactionCount', transactionCount);
-        currentUser.set('totalTransactedAmount', totalTransactedAmount);
-        currentUser.set('earlyMorningTrades', earlyMorningTrades);
-        currentUser.set('lateNightTrades', lateNightTrades);
-        
-        await currentUser.save();
+        const updatedFields = {
+          balance,
+          holdings,
+          transaction_count: transactionCount,
+          total_transacted_amount: totalTransactedAmount,
+          early_morning_trades: earlyMorningTrades,
+          late_night_trades: lateNightTrades
+        };
+
+        const { error } = await supabaseClient
+          .from(STUDENT_TABLE)
+          .update(updatedFields)
+          .eq('username', currentUser.username);
+
+        if (error) throw error;
+
+        currentUser = { ...currentUser, ...updatedFields };
+
+        // Log the price this trade happened at — this is the only source of price history.
+        logTradePrice(symbol, price);
 
         renderPortfolio();
         fetchLeaderboard();
@@ -843,14 +879,17 @@
 
     async function fetchLeaderboard() {
       try {
-        const query = new AV.Query('Student');
-        const students = await query.find();
+        const { data: students, error } = await supabaseClient
+            .from(STUDENT_TABLE)
+            .select('username, balance, holdings');
 
-        const leaderboard = students
-          .filter(student => student.get('username') !== '测试学生')
+        if (error) throw error;
+
+        const leaderboard = (students || [])
+          .filter(student => student.username !== '测试学生')
           .map(student => {
-            const bal = student.get('balance') || 10000;
-            const hold = student.get('holdings') || {};
+            const bal = Number(student.balance) || 10000;
+            const hold = student.holdings || {};
             let total = bal;
             for (const [sym, q] of Object.entries(hold)) {
               const price = marketPrices[sym];
@@ -858,7 +897,7 @@
                 total += price * q;
               }
             }
-            return { username: student.get('username'), totalValue: total };
+            return { username: student.username, totalValue: total };
           })
           .sort((a, b) => b.totalValue - a.totalValue);
 
@@ -899,8 +938,9 @@
       document.getElementById('password').value = '';
       document.getElementById('status').textContent = '';
     }
-    
-    fetchAndCachePrices(); 
+
+    // Warm up marketPrices before login so the dashboard has data as soon as someone logs in.
+    loadCompanies().then(fetchLivePrices);
   </script>
 </body>
 </html>
