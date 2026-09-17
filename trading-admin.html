@@ -1,155 +1,433 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trading Game Reset Tool</title>
-    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.13.2/dist/av-min.js"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ed 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            color: #333;
-        }
-        .reset-container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            max-width: 450px;
-            width: 90%;
-            text-align: center;
-        }
-        h1 {
-            color: #c0392b;
-            margin-top: 0;
-        }
-        p {
-            font-size: 1.1em;
-            margin-bottom: 25px;
-            color: #555;
-        }
-        #resetBtn {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            width: 100%;
-        }
-        #resetBtn:hover:not(:disabled) {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-        }
-        #resetBtn:disabled {
-            background: #95a5a6;
-            cursor: not-allowed;
-        }
-        #statusMessage {
-            margin-top: 20px;
-            font-weight: 600;
-            min-height: 20px;
-        }
-        .success { color: #27ae60; }
-        .error { color: #e74c3c; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trading Simulation - Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
+      min-height: 100vh; margin: 0; padding: 30px 15px; color: #333;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+    .card {
+      background: white; padding: 24px; border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08); margin-bottom: 30px;
+    }
+    .card h2 { margin-top: 0; color: #2c3e50; font-size: 1.3em; }
+    .card p.hint { color: #777; font-size: 0.9em; margin-top: -8px; }
+
+    label { display: block; font-weight: 600; font-size: 0.85em; color: #555; margin-bottom: 4px; }
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;
+    }
+    button {
+      background-color: #4a6fa5; color: white; border: none; padding: 8px 14px;
+      font-size: 13px; border-radius: 6px; cursor: pointer; transition: background 0.2s;
+    }
+    button:hover:not(:disabled) { background-color: #3a5a80; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-danger { background-color: #e74c3c; }
+    .btn-danger:hover { background-color: #c0392b; }
+    .btn-success { background-color: #28a745; }
+    .btn-success:hover { background-color: #218838; }
+
+    /* --- Add student form --- */
+    .add-form { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; }
+    .add-form .field { flex: 1; min-width: 160px; }
+    #addStudentMsg { font-size: 0.85em; margin-top: 8px; min-height: 1.2em; }
+
+    /* --- Student list --- */
+    .student-row {
+      display: flex; align-items: center; gap: 10px; padding: 10px;
+      border: 1px solid #eee; border-radius: 6px; margin-bottom: 8px; background: #fafafa; flex-wrap: wrap;
+    }
+    .student-row .uname { font-weight: bold; min-width: 120px; }
+    .student-row input[type="password"], .student-row input[type="text"] {
+      flex: 1; min-width: 120px; padding: 6px; font-size: 13px;
+    }
+    .row-btn { padding: 6px 10px; font-size: 0.75em; }
+
+    /* --- Company search --- */
+    .search-wrapper { position: relative; margin-bottom: 20px; }
+    #companySearchResults {
+      position: absolute; top: 100%; left: 0; right: 0; background: white;
+      border: 1px solid #ddd; border-top: none; border-radius: 0 0 6px 6px;
+      max-height: 260px; overflow-y: auto; z-index: 20; box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      display: none;
+    }
+    #companySearchResults.open { display: block; }
+    .search-result-item {
+      padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 0.9em;
+    }
+    .search-result-item:hover { background: #f0f4fa; }
+    .search-result-item .rs-symbol { font-weight: bold; color: #2c3e50; margin-right: 8px; }
+    .search-result-item .rs-desc { color: #666; }
+    .search-result-item .rs-already { color: #28a745; font-size: 0.8em; float: right; }
+    #searchStatus { font-size: 0.85em; color: #888; margin-top: 6px; min-height: 1.2em; }
+
+    .manual-add-toggle { font-size: 0.85em; color: #4a6fa5; cursor: pointer; text-decoration: underline; margin-bottom: 14px; display: inline-block; }
+    #manualAddForm { display: none; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; background: #f9fafc; padding: 12px; border-radius: 8px; }
+    #manualAddForm.open { display: flex; }
+    #manualAddForm .field { flex: 1; min-width: 140px; }
+
+    /* --- Company list --- */
+    .company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+    .company-chip {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #f1f3f5; border-radius: 6px; padding: 8px 10px; font-size: 0.9em;
+    }
+    .company-chip .cc-info { overflow: hidden; }
+    .company-chip .cc-symbol { font-weight: bold; color: #2c3e50; }
+    .company-chip .cc-name { color: #777; font-size: 0.8em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .company-chip button { padding: 3px 8px; font-size: 0.75em; }
+
+    .empty-note { color: #999; font-style: italic; font-size: 0.9em; }
+  </style>
 </head>
 <body>
-    <div class="reset-container">
-        <h1>⚠️ Trading Game Reset Tool</h1>
-        <p>This will **permanently** reset all users' portfolios to their starting positions:</p>
-        <ul>
-            <li>**Stocks Owned:** 0 (Holdings reset to {})</li>
-            <li>**Cash Balance:** $1,000,000.00</li>
-        </ul>
-        <button id="resetBtn" onclick="resetAllUsers()">
-            RESET GAME FOR ALL USERS
-        </button>
-        <div id="statusMessage"></div>
+  <div class="container">
+    <h1>Trading Simulation — Admin</h1>
+
+    <div class="card">
+      <h2>Student Accounts</h2>
+      <p class="hint">Create, change the password of, or remove student trading accounts.</p>
+
+      <div class="add-form">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" id="newUsername" placeholder="e.g. jsmith">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="text" id="newPassword" placeholder="Temporary password">
+        </div>
+        <button class="btn-success" onclick="addStudent()">Add Student</button>
+      </div>
+      <p id="addStudentMsg"></p>
+
+      <div id="studentList"><p>Loading...</p></div>
     </div>
 
-    <script>
-        // ✅ YOUR LEAN CLOUD CREDENTIALS (Must match your "trading" app)
-        const LEAN_CLOUD_APP_ID = "W9n8YEzowrs5Lzz3BqjttHiM-gzGzoHsz";
-        const LEAN_CLOUD_APP_KEY = "5mrY6acHapGt8ngzVn0ZGBnw";
-        const INITIAL_BALANCE = 1000000;
-        
-        // Initialize Lean Cloud
-        AV.init({
-            appId: LEAN_CLOUD_APP_ID,
-            appKey: LEAN_CLOUD_APP_KEY,
-            serverURL: "https://w9n8yezo.lc-cn-n1-shared.com"
+    <div class="card">
+      <h2>Tradable Companies</h2>
+      <p class="hint">Search for a company or ticker and select it to let students trade it in the simulation.</p>
+
+      <div class="search-wrapper">
+        <label>Search companies</label>
+        <input type="text" id="companySearch" placeholder="Start typing a company name or ticker, e.g. 'Tesla' or 'TSLA'" autocomplete="off">
+        <div id="companySearchResults"></div>
+      </div>
+      <p id="searchStatus"></p>
+
+      <span class="manual-add-toggle" onclick="toggleManualAdd()">Search not working? Add a company manually</span>
+      <div id="manualAddForm">
+        <div class="field">
+          <label>Ticker symbol</label>
+          <input type="text" id="manualSymbol" placeholder="e.g. TSLA">
+        </div>
+        <div class="field">
+          <label>Company name</label>
+          <input type="text" id="manualName" placeholder="e.g. Tesla, Inc.">
+        </div>
+        <button class="btn-success" onclick="addCompanyManually()">Add</button>
+      </div>
+
+      <h3 style="font-size:1em; color:#2c3e50; margin-top:20px;">Currently tradable (<span id="companyCount">0</span>)</h3>
+      <div id="companyGrid" class="company-grid"><p>Loading...</p></div>
+    </div>
+  </div>
+
+  <script>
+    const FINNHUB_API_KEY = "d4jsqvpr01qgcb0vc20gd4jsqvpr01qgcb0vc210";
+
+    const _URL = "https://btwdbphheotbqrmbswgk.supabase.co";
+    const _KEY = "sb_publishable_9lY3A1HrgERNIC597NEAKQ_YTCmkh2k";
+    const supabaseClient = supabase.createClient(_URL, _KEY);
+    const STUDENT_TABLE = "trading_students";
+    const COMPANY_TABLE = "trading_companies";
+
+    let currentCompanies = []; // cached list of {symbol, name}
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.innerText = str == null ? "" : String(str);
+      return div.innerHTML;
+    }
+
+    /* ================= Student accounts ================= */
+
+    async function loadStudents() {
+      const listEl = document.getElementById('studentList');
+      listEl.innerHTML = "<p>Loading...</p>";
+
+      const { data, error } = await supabaseClient
+        .from(STUDENT_TABLE)
+        .select('username, password')
+        .order('username', { ascending: true });
+
+      if (error) {
+        listEl.innerHTML = `<p style="color:#e74c3c;">Error: ${escapeHtml(error.message)}</p>`;
+        return;
+      }
+
+      if (!data.length) {
+        listEl.innerHTML = '<p class="empty-note">No student accounts yet. Add one above.</p>';
+        return;
+      }
+
+      listEl.innerHTML = "";
+      data.forEach((student, i) => {
+        const pwId = `pw-${i}`;
+        const row = document.createElement('div');
+        row.className = 'student-row';
+        row.innerHTML = `
+          <span class="uname">${escapeHtml(student.username)}</span>
+          <input type="password" id="${pwId}" value="${escapeHtml(student.password)}">
+          <button class="row-btn" onclick="togglePwVisibility('${pwId}', this)">Show</button>
+          <button class="row-btn" onclick="savePassword('${encodeURIComponent(student.username)}', '${pwId}')">Save</button>
+          <button class="row-btn btn-danger" onclick="deleteStudent('${encodeURIComponent(student.username)}')">Delete</button>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+
+    function togglePwVisibility(pwId, btn) {
+      const input = document.getElementById(pwId);
+      if (input.type === "password") {
+        input.type = "text";
+        btn.innerText = "Hide";
+      } else {
+        input.type = "password";
+        btn.innerText = "Show";
+      }
+    }
+
+    async function addStudent() {
+      const username = document.getElementById('newUsername').value.trim();
+      const password = document.getElementById('newPassword').value;
+      const msg = document.getElementById('addStudentMsg');
+
+      if (!username || !password) {
+        msg.style.color = "#e74c3c";
+        msg.innerText = "Username and password are both required.";
+        return;
+      }
+
+      const { error } = await supabaseClient
+        .from(STUDENT_TABLE)
+        .insert({ username, password });
+
+      if (error) {
+        msg.style.color = "#e74c3c";
+        msg.innerText = error.message.includes("duplicate") ? "That username already exists." : "Error: " + error.message;
+        return;
+      }
+
+      msg.style.color = "#28a745";
+      msg.innerText = "Student added.";
+      document.getElementById('newUsername').value = "";
+      document.getElementById('newPassword').value = "";
+      setTimeout(() => { msg.innerText = ""; }, 2500);
+      loadStudents();
+    }
+
+    async function savePassword(encodedUsername, pwId) {
+      const username = decodeURIComponent(encodedUsername);
+      const newPassword = document.getElementById(pwId).value;
+      if (!newPassword) return alert("Password can't be empty.");
+
+      const { error } = await supabaseClient
+        .from(STUDENT_TABLE)
+        .update({ password: newPassword })
+        .eq('username', username);
+
+      if (error) alert("Error updating password: " + error.message);
+      else alert(`Password updated for ${username}.`);
+    }
+
+    async function deleteStudent(encodedUsername) {
+      const username = decodeURIComponent(encodedUsername);
+      if (!confirm(`Delete account "${username}"? This cannot be undone.`)) return;
+
+      const { error } = await supabaseClient
+        .from(STUDENT_TABLE)
+        .delete()
+        .eq('username', username);
+
+      if (error) alert("Error deleting student: " + error.message);
+      else loadStudents();
+    }
+
+    /* ================= Tradable companies ================= */
+
+    async function loadCompanies() {
+      const grid = document.getElementById('companyGrid');
+      grid.innerHTML = "<p>Loading...</p>";
+
+      const { data, error } = await supabaseClient
+        .from(COMPANY_TABLE)
+        .select('symbol, name')
+        .order('name', { ascending: true });
+
+      if (error) {
+        grid.innerHTML = `<p style="color:#e74c3c;">Error: ${escapeHtml(error.message)}</p>`;
+        return;
+      }
+
+      currentCompanies = data || [];
+      document.getElementById('companyCount').textContent = currentCompanies.length;
+
+      if (!currentCompanies.length) {
+        grid.innerHTML = '<p class="empty-note">No companies selected yet — students won\'t see anything to trade until you add some.</p>';
+        return;
+      }
+
+      grid.innerHTML = "";
+      currentCompanies.forEach(co => {
+        const chip = document.createElement('div');
+        chip.className = 'company-chip';
+        chip.innerHTML = `
+          <div class="cc-info">
+            <div class="cc-symbol">${escapeHtml(co.symbol)}</div>
+            <div class="cc-name">${escapeHtml(co.name)}</div>
+          </div>
+          <button class="btn-danger" onclick="removeCompany('${encodeURIComponent(co.symbol)}')">Remove</button>
+        `;
+        grid.appendChild(chip);
+      });
+    }
+
+    async function removeCompany(encodedSymbol) {
+      const symbol = decodeURIComponent(encodedSymbol);
+      if (!confirm(`Remove ${symbol} from the tradable list? (Past price history for it is kept.)`)) return;
+
+      const { error } = await supabaseClient
+        .from(COMPANY_TABLE)
+        .delete()
+        .eq('symbol', symbol);
+
+      if (error) alert("Error removing company: " + error.message);
+      else loadCompanies();
+    }
+
+    async function addCompanyBySymbolName(symbol, name) {
+      const status = document.getElementById('searchStatus');
+      const { error } = await supabaseClient
+        .from(COMPANY_TABLE)
+        .insert({ symbol, name });
+
+      if (error) {
+        status.style.color = "#e74c3c";
+        status.textContent = error.message.includes("duplicate") ? `${symbol} is already on the list.` : "Error: " + error.message;
+        return;
+      }
+
+      status.style.color = "#28a745";
+      status.textContent = `Added ${symbol}.`;
+      setTimeout(() => { status.textContent = ""; }, 2000);
+      loadCompanies();
+    }
+
+    // ---- Search-as-you-type using Finnhub's symbol search ----
+    let searchDebounceTimer = null;
+
+    document.getElementById('companySearch').addEventListener('input', (e) => {
+      const query = e.target.value.trim();
+      clearTimeout(searchDebounceTimer);
+
+      const resultsEl = document.getElementById('companySearchResults');
+      if (!query) {
+        resultsEl.classList.remove('open');
+        resultsEl.innerHTML = "";
+        return;
+      }
+
+      searchDebounceTimer = setTimeout(() => runCompanySearch(query), 300);
+    });
+
+    document.addEventListener('click', (e) => {
+      const wrapper = document.querySelector('.search-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        document.getElementById('companySearchResults').classList.remove('open');
+      }
+    });
+
+    async function runCompanySearch(query) {
+      const resultsEl = document.getElementById('companySearchResults');
+      const status = document.getElementById('searchStatus');
+      status.style.color = "#888";
+      status.textContent = "Searching...";
+
+      try {
+        const url = `https://finnhub.io/api/v1/search?q=${encodeURIComponent(query)}&token=${FINNHUB_API_KEY}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Search request failed (status ${res.status})`);
+        const data = await res.json();
+
+        const matches = (data.result || []).slice(0, 10);
+
+        if (matches.length === 0) {
+          resultsEl.innerHTML = '<div class="search-result-item"><span class="rs-desc">No matches found.</span></div>';
+          resultsEl.classList.add('open');
+          status.textContent = "";
+          return;
+        }
+
+        resultsEl.innerHTML = "";
+        matches.forEach(m => {
+          const symbol = m.symbol;
+          const already = currentCompanies.some(c => c.symbol === symbol);
+          const item = document.createElement('div');
+          item.className = 'search-result-item';
+          item.innerHTML = `
+            <span class="rs-symbol">${escapeHtml(symbol)}</span>
+            <span class="rs-desc">${escapeHtml(m.description || '')}</span>
+            ${already ? '<span class="rs-already">Added ✓</span>' : ''}
+          `;
+          if (!already) {
+            item.addEventListener('click', () => {
+              addCompanyBySymbolName(symbol, m.description || symbol);
+              resultsEl.classList.remove('open');
+              document.getElementById('companySearch').value = "";
+            });
+          }
+          resultsEl.appendChild(item);
         });
 
-        const statusEl = document.getElementById('statusMessage');
-        const resetBtn = document.getElementById('resetBtn');
+        resultsEl.classList.add('open');
+        status.textContent = "";
+      } catch (err) {
+        console.error(err);
+        status.style.color = "#e74c3c";
+        status.textContent = "Search failed (Finnhub search may be unavailable). Try adding the company manually below.";
+        resultsEl.classList.remove('open');
+      }
+    }
 
-        /**
-         * Resets the holdings and balance for ALL users in the Student class.
-         */
-        async function resetAllUsers() {
-            if (!confirm("ABSOLUTELY SURE? This action is IRREVERSIBLE and will reset ALL user data (stocks to 0, cash to $1M).")) {
-                return;
-            }
+    function toggleManualAdd() {
+      document.getElementById('manualAddForm').classList.toggle('open');
+    }
 
-            resetBtn.disabled = true;
-            resetBtn.textContent = "Processing Reset...";
-            statusEl.className = '';
-            statusEl.textContent = 'Fetching all users...';
+    function addCompanyManually() {
+      const symbol = document.getElementById('manualSymbol').value.trim().toUpperCase();
+      const name = document.getElementById('manualName').value.trim();
+      if (!symbol || !name) {
+        alert("Please enter both a ticker symbol and a company name.");
+        return;
+      }
+      addCompanyBySymbolName(symbol, name);
+      document.getElementById('manualSymbol').value = "";
+      document.getElementById('manualName').value = "";
+    }
 
-            try {
-                // 1. Fetch all Student objects
-                const query = new AV.Query('Student');
-                query.limit(1000); // Set a high limit to ensure all users are fetched
-                const students = await query.find();
+    /* ================= Init ================= */
 
-                if (students.length === 0) {
-                    statusEl.className = 'success';
-                    statusEl.textContent = 'No users found in the database. Reset complete (0 users affected).';
-                    resetBtn.textContent = "RESET GAME FOR ALL USERS";
-                    resetBtn.disabled = false;
-                    return;
-                }
-
-                statusEl.textContent = `Found ${students.length} users. Preparing batch update...`;
-
-                // 2. Prepare updates for each student
-                const usersToSave = students.map(student => {
-                    // Reset holdings to empty object (0 stocks)
-                    student.set('holdings', {}); 
-                    // Reset balance to $1,000,000
-                    student.set('balance', INITIAL_BALANCE); 
-                    return student;
-                });
-
-                // 3. Save all updates in a single batch operation
-                await AV.Object.saveAll(usersToSave);
-
-                statusEl.className = 'success';
-                statusEl.textContent = `✅ Successfully reset ${students.length} users! Stocks set to 0, Cash set to $${INITIAL_BALANCE.toLocaleString()}.`;
-
-            } catch (err) {
-                statusEl.className = 'error';
-                statusEl.textContent = `❌ Reset Failed: ${err.message}`;
-                console.error("Game reset error:", err);
-
-            } finally {
-                // Re-enable the button after a delay, even if error occurred
-                setTimeout(() => {
-                    resetBtn.textContent = "RESET GAME FOR ALL USERS";
-                    resetBtn.disabled = false;
-                }, 3000);
-            }
-        }
-    </script>
+    loadStudents();
+    loadCompanies();
+  </script>
 </body>
 </html>
