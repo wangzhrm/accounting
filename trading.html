@@ -3,416 +3,493 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Classroom Trading Simulation - Supabase Version</title>
+  <title>Classroom Exchange — Trading Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
   <style>
     /* ------------------------------------------------------------------- */
-    /* --- CSS Styles ---------------------------------------------------- */
+    /* --- Design tokens --------------------------------------------------*/
     /* ------------------------------------------------------------------- */
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    :root {
+      --navy-950: #0b1220;
+      --navy-900: #10182b;
+      --navy-800: #1c2740;
+      --paper: #f4f5f9;
+      --card: #ffffff;
+      --border: #e3e6ee;
+      --ink: #131b2e;
+      --muted: #6b7280;
+      --muted-2: #9aa2b1;
+      --up: #0e9f6e;
+      --up-bg: #e7f8f1;
+      --down: #dc2626;
+      --down-bg: #fdecec;
+      --gold: #c9973f;
+      --gold-dark: #a97b28;
+      --focus: #2f6fed;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 7px;
     }
 
-    body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%);
-      min-height: 100vh;
-      padding: 0;
+    * { box-sizing: border-box; }
+
+    html, body {
       margin: 0;
-      color: #333;
+      padding: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Top Bar */
-    .top-bar {
+    .mono {
+      font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    button:focus-visible, input:focus-visible, a:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* --- Header + ticker tape --------------------------------------------*/
+    /* ------------------------------------------------------------------- */
+    .app-header {
+      background: var(--navy-950);
+      color: #fff;
       display: flex;
-      justify-content: flex-end;
-      padding: 12px 20px;
-      background: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 22px;
       position: sticky;
       top: 0;
       z-index: 100;
-    }
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 600;
-      color: #2c3e50;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
-    .container {
-      max-width: 1000px;
-      margin: 20px auto;
-      padding: 0 15px;
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-mark {
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(155deg, var(--gold) 0%, var(--gold-dark) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; color: var(--navy-950);
+      flex-shrink: 0;
     }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-title { font-weight: 700; font-size: 15px; letter-spacing: 0.1px; }
+    .brand-sub { font-size: 11.5px; color: #9aa7c7; }
+
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .user-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--navy-800);
+      border: 1px solid rgba(255,255,255,0.14);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12.5px; font-weight: 700; color: #dfe4f0;
+    }
+    #displayName { font-size: 13.5px; font-weight: 600; color: #eef0f6; }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #dfe3ef;
+      padding: 6px 12px;
+      font-size: 12.5px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); }
+
+    .ticker-tape {
+      background: var(--navy-900);
+      overflow: hidden;
+      white-space: nowrap;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 62px;
+      z-index: 99;
+    }
+    .ticker-track {
+      display: inline-flex;
+      align-items: center;
+      animation: ticker-scroll 38s linear infinite;
+      padding: 8px 0;
+    }
+    .ticker-tape:hover .ticker-track { animation-play-state: paused; }
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 7px;
+      padding: 0 20px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      font-size: 12.5px;
+    }
+    .ticker-item .t-sym { color: #eef0f6; font-weight: 600; }
+    .ticker-item .t-price { color: #cfd5e4; }
+    .ticker-item .t-chg { font-weight: 600; }
+    .ticker-item .t-chg.up { color: #4ade80; }
+    .ticker-item .t-chg.down { color: #f87171; }
+    .ticker-item .t-chg.flat { color: #9aa2b1; }
+    .ticker-empty { padding: 4px 20px; color: #9aa2b1; font-size: 12.5px; }
+
+    #priceStatus {
+      font-size: 11.5px;
+      color: var(--muted-2);
+      text-align: center;
+      padding: 6px 0 0;
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* --- Layout ------------------------------------------------------- */
+    /* ------------------------------------------------------------------- */
+    .container { max-width: 980px; margin: 26px auto 60px; padding: 0 16px; }
 
     .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-      margin-bottom: 25px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      margin-bottom: 22px;
     }
 
-    h1, h2 {
-      margin-top: 0;
-      color: #2c3e50;
-    }
-
-    /* Login */
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
-    }
-    input[type="text"],
-    input[type="password"],
-    input[type="number"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+    .section-title {
       font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 2px;
     }
-    button {
-      background-color: #4a6fa5;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      font-size: 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s;
+    .section-sub {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 0 0 16px;
     }
-    button:hover:not(:disabled) {
-      background-color: #3a5a80;
-    }
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-    .btn-danger {
-      background-color: #e74c3c;
-    }
-    .btn-danger:hover {
-      background-color: #c0392b;
-    }
-    .btn-warning {
-        background-color: #f39c12;
-    }
-    .btn-warning:hover {
-        background-color: #e67e22;
-    }
+    .section-sub a { color: var(--focus); text-decoration: none; }
+    .section-sub a:hover { text-decoration: underline; }
 
-    #status {
-      text-align: center;
-      margin: 12px 0;
-      min-height: 22px;
-      font-weight: bold;
-    }
-    .error {
-      color: #e74c3c;
-    }
-
-    /* Market Prices – Compact Grid */
-    .market-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
-    }
-    .stock-item {
-      background: #f9fafc;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-      border-left: 3px solid #4a6fa5;
-      font-size: 0.9em;
-    }
-    .stock-name {
-      color: #555;
-      font-size: 0.85em;
-      margin-bottom: 2px;
-    }
-    .stock-ticker {
-      font-weight: bold;
-      font-size: 0.95em;
-    }
-    .stock-price {
-      font-weight: bold;
-      color: #2c3e50;
-      margin-top: 4px;
-      font-size: 1.05em;
-    }
-    .stock-price.na {
-      color: #999;
-      font-style: italic;
-    }
-    .btn-chart {
-      background: #6c757d;
-      color: white;
-      font-size: 0.7em;
-      padding: 3px 8px;
-      margin-top: 6px;
-      border-radius: 4px;
-    }
-    .btn-chart:hover {
-      background: #4a6fa5;
-    }
-
-    /* Price history chart modal */
-    #chartOverlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.45); z-index: 200;
-        display: flex; align-items: center; justify-content: center;
-        opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
-    }
-    #chartOverlay.open { opacity: 1; pointer-events: auto; }
-    #chartModalBox {
-        background: white; border-radius: 10px; padding: 20px;
-        width: 500px; max-width: 92vw; max-height: 85vh; overflow-y: auto;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-    }
-    #chartModalHeader {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 12px;
-    }
-    #chartModalHeader h3 { margin: 0; font-size: 1.1em; color: #2c3e50; }
-    #chartModalClose {
-        background: none; border: none; font-size: 1.4em; color: #888; cursor: pointer; line-height: 1; padding: 0;
-    }
-
-    /* Status for price update time */
-    #priceStatus {
-        font-size: 0.8em;
-        color: #777;
-        margin-top: 5px;
-        text-align: center;
-        justify-content: center;
-        margin-bottom: 10px;
-    }
-
-    /* Portfolio Summary */
-    .portfolio-header {
-      margin-bottom: 15px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .portfolio-value-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .value-label {
-        font-size: 1.1em;
-        color: #555;
-        font-weight: 500;
-        margin-bottom: 5px;
-    }
-    .total-value-display {
-      font-size: 1.8em;
-      font-weight: bold;
-      color: #27ae60;
-      margin: 0 0 10px 0;
-    }
-    .cash-display {
-      font-size: 1.2em;
-      color: #2980b9;
-      margin-bottom: 20px;
-    }
-
-    /* Chart Container */
-    #chartContainer {
-        width: 100%;
-        max-width: 400px;
-        margin: 20px auto 30px auto;
-    }
-
-    /* Portfolio Table */
-    .portfolio-table-wrapper {
-      overflow-x: auto;
-      width: 100%;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 550px;
-    }
-    th,
-    td {
-      padding: 10px 8px;
-      text-align: center;
-      border-bottom: 1px solid #eee;
-      font-size: 0.95em;
-    }
-    th {
-      background-color: #f1f3f5;
-      font-weight: 600;
-      color: #2c3e50;
-    }
-    tr:hover {
-      background-color: #f9fafb;
-    }
-
-    /* Compact Trade Controls */
-    .trade-controls {
+    /* --- Login --- */
+    .login-wrap {
+      min-height: calc(100vh - 62px);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      white-space: nowrap;
+      padding: 20px;
     }
-    .qty-input {
-      width: 45px;
-      text-align: center;
-      padding: 4px;
-      font-size: 13px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
     }
+    .login-brand {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 10px; margin-bottom: 24px; text-align: center;
+    }
+    .login-brand .brand-mark { width: 44px; height: 44px; font-size: 20px; border-radius: 12px; }
+    .login-brand h1 { font-size: 18px; margin: 0; color: var(--ink); }
+    .login-brand p { font-size: 12.5px; color: var(--muted); margin: 0; }
 
-    /* Leaderboard */
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 12.5px; color: var(--ink); }
+    input[type="text"], input[type="password"], input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14.5px;
+      font-family: inherit;
+      background: var(--paper);
+      color: var(--ink);
+    }
+    input[type="text"]:focus, input[type="password"]:focus { background: #fff; border-color: var(--focus); }
+
+    button {
+      font-family: inherit;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: filter 0.15s, background 0.15s;
+    }
+    button:disabled { background: #d7dae1 !important; color: #9aa2b1; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--navy-950);
+      color: #fff;
+      width: 100%;
+      padding: 11px;
+      font-size: 14.5px;
+      font-weight: 600;
+    }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.15); }
+
+    #status { text-align: center; margin-top: 14px; min-height: 18px; font-size: 13px; font-weight: 600; }
+    .error { color: var(--down); }
+
+    /* --- Account summary --- */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+    .summary-stats { display: flex; flex-direction: column; gap: 18px; }
+    .stat-label { font-size: 12.5px; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
+    .stat-value {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.5px;
+    }
+    .stat-value.cash { font-size: 19px; color: var(--focus); font-weight: 600; }
+
+    #chartContainer { max-width: 100%; margin: 0 auto; }
+
+    /* --- Holdings table --- */
+    .table-wrap { overflow-x: auto; width: 100%; }
+    table { width: 100%; border-collapse: collapse; min-width: 620px; }
+    thead th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: none;
+      color: var(--muted);
+      font-weight: 600;
+      padding: 0 10px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    thead th.num, td.num { text-align: right; }
+    tbody td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #eef0f4;
+      font-size: 13.5px;
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #fafbfd; }
+
+    .co-cell { display: flex; align-items: center; gap: 8px; }
+    .co-name { font-weight: 600; color: var(--ink); }
+    .co-sym { color: var(--muted); font-size: 12px; }
+    .btn-icon {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    .btn-icon:hover { border-color: var(--focus); color: var(--focus); }
+
+    .price-cell { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .price-main { font-weight: 600; }
+    .price-chg { font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 5px; }
+    .price-chg.up { color: var(--up); background: var(--up-bg); }
+    .price-chg.down { color: var(--down); background: var(--down-bg); }
+    .price-na { color: var(--muted-2); font-style: italic; font-weight: 500; }
+
+    .trade-controls { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+    .qty-input {
+      width: 52px;
+      text-align: center;
+      padding: 6px 4px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .btn-buy {
+      background: var(--up);
+      color: #fff;
+      padding: 7px 11px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+    .btn-buy:hover:not(:disabled) { filter: brightness(1.08); }
+    .btn-sell {
+      background: #fff;
+      color: var(--down);
+      border: 1px solid #f3c6c6;
+      padding: 7px 11px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+    .btn-sell:hover:not(:disabled) { background: var(--down-bg); }
+
+    .empty-note { color: var(--muted); font-style: italic; font-size: 13px; padding: 10px 4px; }
+
+    /* --- Leaderboard --- */
     .leaderboard-item {
       display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 4px;
+      border-bottom: 1px solid #eef0f4;
     }
+    .leaderboard-item:last-child { border-bottom: none; }
     .rank {
-      font-weight: bold;
-      width: 30px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+      font-size: 13px;
+      width: 26px;
+      color: var(--muted);
+      text-align: center;
     }
-    .leader-name {
-      flex: 1;
-      text-align: left;
-      padding-left: 10px;
-    }
-    .leader-value {
-      font-weight: bold;
-      color: #27ae60;
-    }
+    .leaderboard-item.top1 .rank { color: var(--gold-dark); }
+    .leaderboard-item.top2 .rank { color: #8a8f98; }
+    .leaderboard-item.top3 .rank { color: #b06a3a; }
+    .leader-name { flex: 1; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+    .leader-value { font-weight: 600; font-size: 13.5px; color: var(--ink); }
 
     #dataSourceInfo {
-      font-size: 0.65em;
-      color: #ccc;
+      font-size: 11.5px;
+      color: var(--muted-2);
       text-align: center;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid #eee;
+      margin-top: 4px;
     }
 
-    /* Mobile Adjustments */
-    @media (max-width: 600px) {
-      .market-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .stock-item {
-        padding: 8px;
-      }
-      .stock-name {
-        font-size: 0.75em;
-      }
-      .stock-ticker {
-        font-size: 0.85em;
-      }
-      .stock-price {
-        font-size: 1em;
-      }
-      .total-value-display {
-        font-size: 1.4em;
-      }
-      .cash-display {
-        font-size: 1em;
-      }
-      h2 {
-        font-size: 1.3em;
-      }
-      button {
-        padding: 6px 10px;
-        font-size: 13px;
-      }
+    /* --- Stock history modal --- */
+    #chartOverlay {
+      position: fixed; inset: 0;
+      background: rgba(11,18,32,0.55);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.18s ease;
+    }
+    #chartOverlay.open { opacity: 1; pointer-events: auto; }
+    #chartModalBox {
+      background: white; border-radius: var(--radius-lg); padding: 22px;
+      width: 520px; max-width: 92vw; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 20px 50px rgba(11,18,32,0.35);
+    }
+    #chartModalHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    #chartModalHeader h3 { margin: 0; font-size: 14.5px; font-weight: 700; color: var(--ink); }
+    #chartModalClose {
+      background: none; border: none; font-size: 20px; color: var(--muted);
+      cursor: pointer; line-height: 1; padding: 0;
+    }
+    #chartModalClose:hover { color: var(--ink); }
+    #chartModalBody p { font-size: 13px; color: var(--muted); }
+
+    /* ------------------------------------------------------------------- */
+    /* --- Mobile --------------------------------------------------------*/
+    /* ------------------------------------------------------------------- */
+    @media (max-width: 700px) {
+      .summary-grid { grid-template-columns: 1fr; }
+      .stat-value { font-size: 26px; }
+      .app-header { padding: 12px 14px; }
+      .ticker-tape { top: 56px; }
+      .container { margin-top: 18px; }
+      .card { padding: 16px; }
     }
   </style>
 </head>
 <body>
-  <div class="top-bar">
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-mark">CE</div>
+      <div class="brand-text">
+        <span class="brand-title">Classroom Exchange</span>
+        <span class="brand-sub">Trading simulation</span>
+      </div>
+    </div>
     <div class="user-info" id="userInfo" style="display:none;">
+      <div class="user-avatar" id="userAvatar">·</div>
       <span id="displayName">User</span>
-      <button onclick="logout()" class="btn-danger">Logout</button>
+      <button onclick="logout()" class="btn-ghost">Log out</button>
+    </div>
+  </header>
+
+  <div class="ticker-tape" id="tickerTapeWrap" style="display:none;">
+    <div class="ticker-track" id="tickerTrack">
+      <span class="ticker-empty">Loading market data…</span>
     </div>
   </div>
 
-  <div class="container">
-    <div id="loginView" class="card">
-      <h1>Trading Simulation Login</h1>
+  <div id="loginView" class="login-wrap">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="brand-mark">CE</div>
+        <h1>Sign in to trade</h1>
+        <p>Enter the username and password your teacher gave you.</p>
+      </div>
       <div class="form-group">
         <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Enter your username" />
+        <input type="text" id="username" placeholder="e.g. student01" />
       </div>
       <div class="form-group">
         <label for="password">Password</label>
         <input type="password" id="password" placeholder="Enter your password" />
       </div>
-      <button onclick="login()">Login</button>
+      <button class="btn-primary" onclick="login()">Log in</button>
       <div id="status"></div>
     </div>
+  </div>
 
-    <div id="dashboardView" style="display: none;">
-      <div class="card">
-        <h2>Market Prices (<a href="https://wangzhrm.github.io/accounting/trading-stock%20price" target="_blank">stock price charts</a>)</h2>
-        <div id="priceStatus">
-            <span>Loading live prices...</span>
-        </div>
-        <div class="market-grid" id="marketGrid"></div>
-        <div id="dataSourceInfo">Live prices from Finnhub · price history is logged only when a trade happens</div>
-      </div>
+  <div class="container" id="dashboardView" style="display: none;">
+    <div id="priceStatus"><span>Loading live prices…</span></div>
 
-      <div class="card">
-        <div class="portfolio-header">
-          <h2>Your Portfolio</h2>
-
-          <div class="portfolio-value-container">
-            <span class="value-label">Total Portfolio Value:</span>
-            <div class="total-value-display" id="totalPortfolioValue">$0.00</div>
-
-            <span class="value-label">Cash Position:</span>
-            <div class="cash-display" id="cashBalance">Cash: $0.00</div>
+    <div class="card">
+      <div class="section-title">Account summary</div>
+      <p class="section-sub">Live prices from Finnhub · a price is only logged to history when a trade happens · <a href="https://wangzhrm.github.io/accounting/trading-stock%20price" target="_blank">full price charts ↗</a></p>
+      <div class="summary-grid">
+        <div class="summary-stats">
+          <div>
+            <div class="stat-label">Total portfolio value</div>
+            <div class="stat-value" id="totalPortfolioValue">$0.00</div>
           </div>
-
-          <div id="chartContainer">
-            <canvas id="portfolioChart"></canvas>
+          <div>
+            <div class="stat-label">Cash available</div>
+            <div class="stat-value cash" id="cashBalance">$0.00</div>
           </div>
         </div>
-
-        <div class="portfolio-table-wrapper">
-          <table id="portfolioTable">
-            <thead>
-              <tr>
-                <th>Company</th>
-                <th>Ticker</th>
-                <th>Shares Held</th>
-                <th>Current Price</th>
-                <th>Stock Value</th>
-                <th>Trade</th>
-              </tr>
-            </thead>
-            <tbody id="portfolioBody"></tbody>
-          </table>
+        <div id="chartContainer">
+          <canvas id="portfolioChart"></canvas>
         </div>
-      </div>
-
-      <div class="card">
-        <h2>Leaderboard</h2>
-        <div id="leaderboardList"></div>
       </div>
     </div>
+
+    <div class="card">
+      <div class="section-title">Your holdings</div>
+      <p class="section-sub">Buy and sell at the current live price. Tap the chart icon to see a stock's trade-price history.</p>
+      <div class="table-wrap">
+        <table id="portfolioTable">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th class="num">Shares</th>
+              <th class="num">Price</th>
+              <th class="num">Value</th>
+              <th class="num">Trade</th>
+            </tr>
+          </thead>
+          <tbody id="portfolioBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Leaderboard</div>
+      <p class="section-sub">Ranked by total portfolio value.</p>
+      <div id="leaderboardList"></div>
+    </div>
+
+    <div id="dataSourceInfo">Classroom Exchange · simulated trading for educational use only</div>
   </div>
 
   <!-- Per-stock price history chart modal -->
@@ -438,6 +515,7 @@
     let COMPANIES = [];
 
     let marketPrices = {};
+    let marketChanges = {}; // symbol -> { change, changePercent }
     let currentUser = null; // plain object mirroring a trading_students row
     let priceUpdateInterval;
     let isFetching = false;
@@ -453,6 +531,16 @@
 
     function isValidPrice(price) {
       return price !== undefined && price !== null && typeof price === 'number' && price > 0;
+    }
+
+    function formatMoney(n) {
+      const v = Number(n) || 0;
+      return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function initials(name) {
+      if (!name) return '·';
+      return name.trim().slice(0, 2).toUpperCase();
     }
 
     // Pulls the current tradable company list from the admin-managed table.
@@ -489,6 +577,7 @@
         }
 
         const updatedPrices = {};
+        const updatedChanges = {};
 
         const fetchPromises = COMPANIES.map(co => {
             const url = `https://finnhub.io/api/v1/quote?symbol=${co.symbol}&token=${FINNHUB_API_KEY}`;
@@ -505,17 +594,23 @@
             const symbol = COMPANIES[index].symbol;
             if (data && data.c !== undefined && isValidPrice(data.c)) {
                 updatedPrices[symbol] = Number(data.c);
+                updatedChanges[symbol] = {
+                    change: typeof data.d === 'number' ? data.d : null,
+                    changePercent: typeof data.dp === 'number' ? data.dp : null
+                };
                 successfulFetches++;
             } else {
                 updatedPrices[symbol] = marketPrices[symbol] || 0;
+                updatedChanges[symbol] = marketChanges[symbol] || { change: null, changePercent: null };
                 console.warn(`Could not get valid data for ${symbol}. Keeping last known price.`);
             }
         });
 
         marketPrices = updatedPrices;
+        marketChanges = updatedChanges;
 
         statusEl.textContent = successfulFetches > 0
-            ? `Live prices from Finnhub (${successfulFetches}/${COMPANIES.length}), updated ${new Date().toLocaleTimeString()}.`
+            ? `Live · ${successfulFetches}/${COMPANIES.length} tickers · updated ${new Date().toLocaleTimeString()}`
             : "Could not reach Finnhub. Prices unavailable.";
 
         isFetching = false;
@@ -531,7 +626,7 @@
     async function updateDashboardData() {
         await fetchLivePrices();
         if (currentUser) {
-            renderMarket();
+            renderTicker();
             renderPortfolio();
             fetchLeaderboard();
         }
@@ -595,7 +690,7 @@
             .limit(500);
 
         if (error) {
-            document.getElementById('chartModalBody').innerHTML = `<p style="color:#e74c3c;">Error loading history: ${escapeHtml(error.message)}</p>`;
+            document.getElementById('chartModalBody').innerHTML = `<p style="color:#dc2626;">Error loading history: ${escapeHtml(error.message)}</p>`;
             return;
         }
 
@@ -621,8 +716,8 @@
                 datasets: [{
                     label: `${symbol} price at each trade`,
                     data: prices,
-                    borderColor: '#4a6fa5',
-                    backgroundColor: 'rgba(74, 111, 165, 0.15)',
+                    borderColor: '#2f6fed',
+                    backgroundColor: 'rgba(47, 111, 237, 0.12)',
                     tension: 0.15,
                     pointRadius: 3,
                     fill: true
@@ -666,9 +761,11 @@
         await loadCompanies();
 
         document.getElementById('displayName').textContent = u;
+        document.getElementById('userAvatar').textContent = initials(u);
         document.getElementById('userInfo').style.display = 'flex';
         document.getElementById('loginView').style.display = 'none';
         document.getElementById('dashboardView').style.display = 'block';
+        document.getElementById('tickerTapeWrap').style.display = 'block';
 
         startPriceUpdates();
       } catch (err) {
@@ -681,29 +778,38 @@
       document.getElementById('status').className = 'error';
     }
 
-    function renderMarket() {
-      const container = document.getElementById('marketGrid');
-      container.innerHTML = '';
+    function changeMeta(symbol) {
+      const c = marketChanges[symbol];
+      if (!c || typeof c.changePercent !== 'number') return { cls: 'flat', text: '—' };
+      const cls = c.changePercent > 0 ? 'up' : (c.changePercent < 0 ? 'down' : 'flat');
+      const arrow = c.changePercent > 0 ? '▲' : (c.changePercent < 0 ? '▼' : '·');
+      const text = `${arrow} ${Math.abs(c.changePercent).toFixed(2)}%`;
+      return { cls, text };
+    }
+
+    function renderTicker() {
+      const track = document.getElementById('tickerTrack');
 
       if (COMPANIES.length === 0) {
-        container.innerHTML = '<p style="grid-column: 1/-1; color:#999; font-style:italic;">No companies have been set up for trading yet. Ask your teacher to add some in the admin panel.</p>';
+        track.innerHTML = '<span class="ticker-empty">No companies have been set up for trading yet.</span>';
         return;
       }
 
-      COMPANIES.forEach(co => {
+      const itemsHtml = COMPANIES.map(co => {
         const price = marketPrices[co.symbol];
         const isValid = isValidPrice(price);
-        const displayPrice = isValid ? `$${price.toFixed(2)}` : "N/A";
-        const div = document.createElement('div');
-        div.className = 'stock-item';
-        div.innerHTML = `
-          <div class="stock-name">${co.name}</div>
-          <div class="stock-ticker">${co.symbol}</div>
-          <div class="stock-price ${!isValid ? 'na' : ''}">${displayPrice}</div>
-          <button class="btn-chart" onclick="openStockChart('${co.symbol}', '${co.name.replace(/'/g, "\\'")}')">Chart</button>
-        `;
-        container.appendChild(div);
-      });
+        const priceText = isValid ? `$${price.toFixed(2)}` : 'N/A';
+        const meta = isValid ? changeMeta(co.symbol) : { cls: 'flat', text: '—' };
+        return `
+          <span class="ticker-item mono" onclick="openStockChart('${co.symbol}', '${co.name.replace(/'/g, "\\'")}')">
+            <span class="t-sym">${co.symbol}</span>
+            <span class="t-price">${priceText}</span>
+            <span class="t-chg ${meta.cls}">${meta.text}</span>
+          </span>`;
+      }).join('');
+
+      // Duplicate the sequence so the CSS marquee (translateX -50%) loops seamlessly.
+      track.innerHTML = itemsHtml + itemsHtml;
     }
 
     function renderPortfolio() {
@@ -714,17 +820,21 @@
 
       const chartLabels = ["Cash"];
       const chartData = [balance];
-      const chartColors = ["#2980b9"];
+      const chartColors = ["#2f6fed"];
 
       const stockPalette = [
-        '#2ecc71', '#f1c40f', '#e67e22', '#3498db', '#9b59b6',
-        '#1abc9c', '#e74c3c', '#c0392b', '#7f8c8d', '#2c3e50',
-        '#8e44ad', '#34495e', '#d35400', '#27ae60'
+        '#0e9f6e', '#c9973f', '#e67e22', '#3498db', '#9b59b6',
+        '#1abc9c', '#dc2626', '#7f8c8d', '#2c3e50', '#8e44ad',
+        '#34495e', '#d35400'
       ];
       let colorIndex = 0;
 
       body.innerHTML = '';
-      document.getElementById('cashBalance').textContent = `$${balance.toFixed(2)}`;
+      document.getElementById('cashBalance').textContent = formatMoney(balance);
+
+      if (COMPANIES.length === 0) {
+        body.innerHTML = '<tr><td colspan="5" class="empty-note">No companies have been set up for trading yet. Ask your teacher to add some in the admin panel.</td></tr>';
+      }
 
       COMPANIES.forEach(co => {
         const qty = holdings[co.symbol] || 0;
@@ -741,27 +851,41 @@
         }
 
         const row = document.createElement('tr');
-        const displayPrice = isValid ? `$${price.toFixed(2)}` : "N/A";
         const canTrade = isValid;
+        const meta = isValid ? changeMeta(co.symbol) : null;
+
+        const priceCellHtml = isValid
+          ? `<div class="price-cell mono">
+               <span class="price-main">$${price.toFixed(2)}</span>
+               <span class="price-chg ${meta.cls}">${meta.text}</span>
+             </div>`
+          : `<div class="price-cell"><span class="price-na">N/A</span></div>`;
 
         row.innerHTML = `
-          <td>${co.name}</td>
-          <td>${co.symbol}</td>
-          <td>${qty}</td>
-          <td>${displayPrice}</td>
-          <td class="total-value">$${stockValue.toFixed(2)}</td>
           <td>
+            <div class="co-cell">
+              <button class="btn-icon" title="Price history" onclick="openStockChart('${co.symbol}', '${co.name.replace(/'/g, "\\'")}')">↗</button>
+              <div>
+                <div class="co-name">${co.name}</div>
+                <div class="co-sym mono">${co.symbol}</div>
+              </div>
+            </div>
+          </td>
+          <td class="num mono">${qty}</td>
+          <td class="num">${priceCellHtml}</td>
+          <td class="num mono">${formatMoney(stockValue)}</td>
+          <td class="num">
             <div class="trade-controls">
               <input type="number" min="1" placeholder="Qty" class="qty-input" id="qty-${co.symbol}">
-              <button ${!canTrade ? 'disabled' : ''} onclick="trade('${co.symbol}', 'buy')">Buy</button>
-              <button class="btn-danger" ${!canTrade ? 'disabled' : ''} onclick="trade('${co.symbol}', 'sell')">Sell</button>
+              <button class="btn-buy" ${!canTrade ? 'disabled' : ''} onclick="trade('${co.symbol}', 'buy')">Buy</button>
+              <button class="btn-sell" ${!canTrade ? 'disabled' : ''} onclick="trade('${co.symbol}', 'sell')">Sell</button>
             </div>
           </td>
         `;
         body.appendChild(row);
       });
 
-      document.getElementById('totalPortfolioValue').textContent = `$${totalValue.toFixed(2)}`;
+      document.getElementById('totalPortfolioValue').textContent = formatMoney(totalValue);
 
       if (portfolioChart) {
         portfolioChart.destroy();
@@ -769,29 +893,25 @@
 
       const ctx = document.getElementById('portfolioChart').getContext('2d');
       portfolioChart = new Chart(ctx, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
           labels: chartLabels,
           datasets: [{
             data: chartData,
             backgroundColor: chartColors,
-            hoverOffset: 4
+            hoverOffset: 4,
+            borderWidth: 0
           }]
         },
         options: {
           responsive: true,
+          cutout: '62%',
           plugins: {
             legend: {
-              position: 'top',
-              labels: {
-                font: { size: 14 }
-              }
+              position: 'bottom',
+              labels: { font: { size: 12, family: "'Inter', sans-serif" }, boxWidth: 10, padding: 12 }
             },
-            title: {
-              display: true,
-              text: 'Portfolio Asset Distribution',
-              font: { size: 16 }
-            },
+            title: { display: false },
             tooltip: {
                 callbacks: {
                     label: function(context) {
@@ -800,7 +920,7 @@
                         if (context.parsed !== null) {
                             const value = context.parsed;
                             const percentage = (value / totalValue * 100).toFixed(1);
-                            label += `$${value.toFixed(2)} (${percentage}%)`;
+                            label += `${formatMoney(value)} (${percentage}%)`;
                         }
                         return label;
                     }
@@ -903,13 +1023,20 @@
 
         const list = document.getElementById('leaderboardList');
         list.innerHTML = '';
+
+        if (leaderboard.length === 0) {
+          list.innerHTML = '<p class="empty-note">No students yet.</p>';
+          return;
+        }
+
         leaderboard.forEach((item, i) => {
           const div = document.createElement('div');
-          div.className = 'leaderboard-item';
+          const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+          div.className = `leaderboard-item ${rankClass}`;
           div.innerHTML = `
-            <div class="rank">#${i + 1}</div>
+            <div class="rank">${i + 1}</div>
             <div class="leader-name">${escapeHtml(item.username)}</div>
-            <div class="leader-value">$${item.totalValue.toFixed(2)}</div>
+            <div class="leader-value mono">${formatMoney(item.totalValue)}</div>
           `;
           list.appendChild(div);
         });
@@ -933,7 +1060,8 @@
       currentUser = null;
       document.getElementById('userInfo').style.display = 'none';
       document.getElementById('dashboardView').style.display = 'none';
-      document.getElementById('loginView').style.display = 'block';
+      document.getElementById('tickerTapeWrap').style.display = 'none';
+      document.getElementById('loginView').style.display = 'flex';
       document.getElementById('username').value = '';
       document.getElementById('password').value = '';
       document.getElementById('status').textContent = '';
